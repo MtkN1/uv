@@ -1,6 +1,6 @@
 # uv
 
-An extremely fast Python package and project manager, written in Rust.
+非常に高速な Python パッケージおよびプロジェクトマネージャー、Rust で書かれています。
 
 <p align="center">
   <img alt="Shows a bar chart with benchmark results." src="https://github.com/astral-sh/uv/assets/1309177/629e59c0-9c6e-4013-9ad4-adb2bcf5080d#only-light">
@@ -11,34 +11,30 @@ An extremely fast Python package and project manager, written in Rust.
 </p>
 
 <p align="center">
-  <i>Installing <a href="https://trio.readthedocs.io/">Trio</a>'s dependencies with a warm cache.</i>
+  <i>ウォームキャッシュで<a href="https://trio.readthedocs.io/">Trio</a>の依存関係をインストールしています。</i>
 </p>
 
-## Highlights
+## ハイライト
 
-- 🚀 A single tool to replace `pip`, `pip-tools`, `pipx`, `poetry`, `pyenv`, `virtualenv`, and more.
-- ⚡️ [10-100x faster](https://github.com/astral-sh/uv/blob/main/BENCHMARKS.md) than `pip`.
-- 🐍 [Installs and manages](#python-management) Python versions.
-- 🛠️ [Runs and installs](#tool-management) Python applications.
-- ❇️ [Runs scripts](#script-support), with support for
-  [inline dependency metadata](./guides/scripts.md#declaring-script-dependencies).
-- 🗂️ Provides [comprehensive project management](#project-management), with a
-  [universal lockfile](./concepts/projects.md#project-lockfile).
-- 🔩 Includes a [pip-compatible interface](#the-pip-interface) for a performance boost with a
-  familiar CLI.
-- 🏢 Supports Cargo-style [workspaces](./concepts/workspaces.md) for scalable projects.
-- 💾 Disk-space efficient, with a [global cache](./concepts/cache.md) for dependency deduplication.
-- ⏬ Installable without Rust or Python via `curl` or `pip`.
-- 🖥️ Supports macOS, Linux, and Windows.
+- 🚀 `pip` 、 `pip-tools` 、 `pipx` 、 `poetry` 、 `pyenv` 、 `virtualenv` などを置き換える単一のツール。
+- ⚡️ `pip` よりも[10-100 倍高速](https://github.com/astral-sh/uv/blob/main/BENCHMARKS.md)。
+- 🐍 Python バージョンを[インストールおよび管理](#python-management)。
+- 🛠️ Python アプリケーションを[実行およびインストール](#tool-management)。
+- ❇️ [インライン依存関係メタデータ](./guides/scripts.md#declaring-script-dependencies)をサポートしてスクリプトを[実行](#script-support)。
+- 🗂️ [ユニバーサルロックファイル](./concepts/projects.md#project-lockfile)を使用して[包括的なプロジェクト管理](#project-management)を提供。
+- 🔩 [pip 互換インターフェース](#the-pip-interface)を含み、馴染みのある CLI でパフォーマンスを向上。
+- 🏢 スケーラブルなプロジェクトのための Cargo スタイルの[ワークスペース](./concepts/workspaces.md)をサポート。
+- 💾 依存関係の重複排除のための[グローバルキャッシュ](./concepts/cache.md)でディスクスペース効率が高い。
+- ⏬ `curl` または `pip` を介して Rust や Python なしでインストール可能。
+- 🖥️ macOS、Linux、Windows をサポート。
 
-uv is backed by [Astral](https://astral.sh), the creators of
-[Ruff](https://github.com/astral-sh/ruff).
+uv は [Ruff](https://github.com/astral-sh/ruff) の作成者である [Astral](https://astral.sh) によってサポートされています。
 
-## Getting started
+## はじめに
 
-Install uv with our official standalone installer:
+公式のスタンドアロンインストーラーを使用して uv をインストールします：
 
-=== "macOS and Linux"
+=== "macOS と Linux"
 
     ```console
     $ curl -LsSf https://astral.sh/uv/install.sh | sh
@@ -50,49 +46,47 @@ Install uv with our official standalone installer:
     $ powershell -c "irm https://astral.sh/uv/install.ps1 | iex"
     ```
 
-Then, check out the [first steps](./getting-started/first-steps.md) or read on for a brief overview.
+次に、[最初のステップ](./getting-started/first-steps.md)を確認するか、以下の概要を読み進めてください。
 
 !!! tip
 
-    uv may also be installed with pip, Homebrew, and more. See all of the methods on the
-    [installation page](./getting-started/installation.md).
+    uv は `pip` 、 Homebrew などでもインストールできます。すべての方法は[インストールページ](./getting-started/installation.md)で確認できます。
 
-## Project management
+## プロジェクト管理 {#project-management}
 
-uv manages project dependencies and environments, with support for lockfiles, workspaces, and more,
-similar to `rye` or `poetry`:
+uv は、`rye` や `poetry` のように、ロックファイル、ワークスペースなどをサポートしてプロジェクトの依存関係と環境を管理します：
 
 ```console
 $ uv init example
-Initialized project `example` at `/home/user/example`
+プロジェクト `example` を `/home/user/example` に初期化しました
 
 $ cd example
 
 $ uv add ruff
-Creating virtual environment at: .venv
-Resolved 2 packages in 170ms
-   Built example @ file:///home/user/example
-Prepared 2 packages in 627ms
-Installed 2 packages in 1ms
- + example==0.1.0 (from file:///home/user/example)
+仮想環境を作成中：.venv
+170ms で 2 つのパッケージを解決しました
+   example @ file:///home/user/example をビルドしました
+627ms で 2 つのパッケージを準備しました
+1ms で 2 つのパッケージをインストールしました
+ + example==0.1.0 (file:///home/user/example から)
  + ruff==0.5.4
 
 $ uv run ruff check
-All checks passed!
+すべてのチェックが合格しました！
 ```
 
-See the [project guide](./guides/projects.md) to get started.
+[プロジェクトガイド](./guides/projects.md)を参照して始めてください。
 
-## Tool management
+## ツール管理 {#tool-management}
 
-uv executes and installs command-line tools provided by Python packages, similar to `pipx`.
+uv は、Python パッケージによって提供されるコマンドラインツールを実行およびインストールします。これは `pipx` に似ています。
 
-Run a tool in an ephemeral environment using `uvx` (an alias for `uv tool run`):
+一時的な環境でツールを実行するには、 `uvx` （ `uv tool run` のエイリアス）を使用します：
 
 ```console
 $ uvx pycowsay 'hello world!'
-Resolved 1 package in 167ms
-Installed 1 package in 9ms
+167ms で 1 つのパッケージを解決しました
+9ms で 1 つのパッケージをインストールしました
  + pycowsay==0.0.0.2
   """
 
@@ -106,45 +100,45 @@ Installed 1 package in 9ms
            ||     ||
 ```
 
-Install a tool with `uv tool install`:
+`uv tool install` を使用してツールをインストールします：
 
 ```console
 $ uv tool install ruff
-Resolved 1 package in 6ms
-Installed 1 package in 2ms
+6ms で 1 つのパッケージを解決しました
+2ms で 1 つのパッケージをインストールしました
  + ruff==0.5.4
-Installed 1 executable: ruff
+1 つの実行可能ファイルをインストールしました：ruff
 
 $ ruff --version
 ruff 0.5.4
 ```
 
-See the [tools guide](./guides/tools.md) to get started.
+[ツールガイド](./guides/tools.md)を参照して始めてください。
 
-## Python management
+## Python 管理 {#python-management}
 
-uv installs Python and allows quickly switching between versions.
+uv は Python をインストールし、バージョン間の迅速な切り替えを可能にします。
 
-Install multiple Python versions:
+複数の Python バージョンをインストールします：
 
 ```console
 $ uv python install 3.10 3.11 3.12
-Searching for Python versions matching: Python 3.10
-Searching for Python versions matching: Python 3.11
-Searching for Python versions matching: Python 3.12
-Installed 3 versions in 3.42s
+Python バージョンに一致するものを検索中：Python 3.10
+Python バージョンに一致するものを検索中：Python 3.11
+Python バージョンに一致するものを検索中：Python 3.12
+3.42 秒で 3 つのバージョンをインストールしました
  + cpython-3.10.14-macos-aarch64-none
  + cpython-3.11.9-macos-aarch64-none
  + cpython-3.12.4-macos-aarch64-none
 ```
 
-Download Python versions as needed:
+必要に応じて Python バージョンをダウンロードします：
 
 ```console
 $ uv venv --python 3.12.0
-Using CPython 3.12.0
-Creating virtual environment at: .venv
-Activate with: source .venv/bin/activate
+CPython 3.12.0 を使用中
+仮想環境を作成中：.venv
+有効化するには：source .venv/bin/activate
 
 $ uv run --python pypy@3.8 -- python
 Python 3.8.16 (a9dbdca6fc3286b0addd2240f11d97d8e8de187a, Dec 29 2022, 11:45:30)
@@ -153,83 +147,79 @@ Type "help", "copyright", "credits" or "license" for more information.
 >>>>
 ```
 
-Use a specific Python version in the current directory:
+現在のディレクトリで特定の Python バージョンを使用します：
 
 ```console
 $ uv python pin pypy@3.11
-Pinned `.python-version` to `pypy@3.11`
+`.python-version` を `pypy@3.11` に固定しました
 ```
 
-See the [installing Python guide](./guides/install-python.md) to get started.
+[Python のインストールガイド](./guides/install-python.md)を参照して始めてください。
 
-### Script support
+### スクリプトサポート {#script-support}
 
-uv manages dependencies and environments for single-file scripts.
+uv は、単一ファイルのスクリプトの依存関係と環境を管理します。
 
-Create a new script and add inline metadata declaring its dependencies:
+新しいスクリプトを作成し、その依存関係を宣言するインラインメタデータを追加します：
 
 ```console
 $ echo 'import requests; print(requests.get("https://astral.sh"))' > example.py
 
 $ uv add --script example.py requests
-Updated `example.py`
+`example.py` を更新しました
 ```
 
-Then, run the script in an isolated virtual environment:
+次に、スクリプトを分離された仮想環境で実行します：
 
 ```console
 $ uv run example.py
-Reading inline script metadata from: example.py
-Installed 5 packages in 12ms
+インラインスクリプトメタデータを読み取り中：example.py
+12ms で 5 つのパッケージをインストールしました
 <Response [200]>
 ```
 
-See the [scripts guide](./guides/scripts.md) to get started.
+[スクリプトガイド](./guides/scripts.md)を参照して始めてください。
 
-## The pip interface
+## pip インターフェース {#the-pip-interface}
 
-uv provides a drop-in replacement for common `pip`, `pip-tools`, and `virtualenv` commands.
+uv は、一般的な `pip` 、 `pip-tools` および `virtualenv` コマンドのドロップイン置き換えを提供します。
 
-uv extends their interfaces with advanced features, such as dependency version overrides,
-platform-independent resolutions, reproducible resolutions, alternative resolution strategies, and
-more.
+uv は、依存関係のバージョンオーバーライド、プラットフォーム非依存の解決、再現可能な解決、代替解決戦略などの高度な機能を備えたインターフェースを拡張します。
 
-Migrate to uv without changing your existing workflows — and experience a 10-100x speedup — with the
-`uv pip` interface.
+既存のワークフローを変更せずに uv に移行し、 `uv pip` インターフェースで 10-100 倍の速度向上を体験してください。
 
-Compile requirements into a platform-independent requirements file:
+プラットフォーム非依存の要件ファイルに要件をコンパイルします：
 
 ```console
 $ uv pip compile docs/requirements.in \
    --universal \
    --output-file docs/requirements.txt
-Resolved 43 packages in 12ms
+12ms で 43 のパッケージを解決しました
 ```
 
-Create a virtual environment:
+仮想環境を作成します：
 
 ```console
 $ uv venv
-Using CPython 3.12.3
-Creating virtual environment at: .venv
-Activate with: source .venv/bin/activate
+CPython 3.12.3 を使用中
+仮想環境を作成中：.venv
+有効化するには：source .venv/bin/activate
 ```
 
-Install the locked requirements:
+ロックされた要件をインストールします：
 
 ```console
 $ uv pip sync docs/requirements.txt
-Resolved 43 packages in 11ms
-Installed 43 packages in 208ms
+11ms で 43 のパッケージを解決しました
+208ms で 43 のパッケージをインストールしました
  + babel==2.15.0
  + black==24.4.2
  + certifi==2024.7.4
  ...
 ```
 
-See the [pip interface documentation](./pip/index.md) to get started.
+[pip インターフェースのドキュメント](./pip/index.md)を参照して始めてください。
 
-## Learn more
+## 詳細を学ぶ
 
-See the [first steps](./getting-started/first-steps.md) or jump straight to the
-[guides](./guides/index.md) to start using uv.
+[最初のステップ](./getting-started/first-steps.md)を確認するか、[ガイド](./guides/index.md)に直接ジャンプして uv の使用を開始してください。
