@@ -1,73 +1,59 @@
 # Publishing a package
 
-uv supports building Python packages into source and binary distributions via `uv build` and
-uploading them to a registry with `uv publish`.
+uvは、`uv build`を介してソースおよびバイナリディストリビューションにPythonパッケージをビルドし、`uv publish`を使用してレジストリにアップロードすることをサポートしています。
 
 ## Preparing your project for packaging
 
-Before attempting to publish your project, you'll want to make sure it's ready to be packaged for
-distribution.
+プロジェクトを公開する前に、配布用にパッケージ化する準備ができていることを確認する必要があります。
 
-If your project does not include a `[build-system]` definition in the `pyproject.toml`, uv will not
-build it by default. This means that your project may not be ready for distribution. Read more about
-the effect of declaring a build system in the
-[project concept](../concepts/projects.md#build-systems) documentation.
+プロジェクトが`pyproject.toml`に`[build-system]`定義を含まない場合、uvはデフォルトでビルドしません。これは、プロジェクトが配布の準備ができていない可能性があることを意味します。ビルドシステムを宣言する効果については、[プロジェクトの概念](../concepts/projects.md#build-systems)のドキュメントを参照してください。
 
 ## Building your package
 
-Build your package with `uv build`:
+`uv build`を使用してパッケージをビルドします：
 
 ```console
 $ uv build
 ```
 
-By default, `uv build` will build the project in the current directory, and place the built
-artifacts in a `dist/` subdirectory.
+デフォルトでは、`uv build`は現在のディレクトリでプロジェクトをビルドし、ビルドされたアーティファクトを`dist/`サブディレクトリに配置します。
 
-Alternatively, `uv build <SRC>` will build the package in the specified directory, while
-`uv build --package <PACKAGE>` will build the specified package within the current workspace.
+また、`uv build <SRC>`を使用して指定されたディレクトリ内のパッケージをビルドすることもできますし、`uv build --package <PACKAGE>`を使用して現在のワークスペース内の指定されたパッケージをビルドすることもできます。
 
 ## Publishing your package
 
-Publish your package with `uv publish`:
+`uv publish`を使用してパッケージを公開します：
 
 ```console
 $ uv publish
 ```
 
-Set a PyPI token with `--token` or `UV_PUBLISH_TOKEN`, or set a username with `--username` or
-`UV_PUBLISH_USERNAME` and password with `--password` or `UV_PUBLISH_PASSWORD`.
+PyPIトークンを`--token`または`UV_PUBLISH_TOKEN`で設定するか、ユーザー名を`--username`または`UV_PUBLISH_USERNAME`で設定し、パスワードを`--password`または`UV_PUBLISH_PASSWORD`で設定します。
 
 !!! info
 
-    For publishing to PyPI from GitHub Actions, you don't need to set any credentials. Instead,
-    [add a trusted publisher to the PyPI project](https://docs.pypi.org/trusted-publishers/adding-a-publisher/).
+    GitHub ActionsからPyPIに公開する場合、資格情報を設定する必要はありません。代わりに、[PyPIプロジェクトに信頼できるパブリッシャーを追加](https://docs.pypi.org/trusted-publishers/adding-a-publisher/)してください。
 
 !!! note
 
-    PyPI does not support publishing with username and password anymore, instead you need to
-    generate a token. Using a token is equivalent to setting `--username __token__` and using the
-    token as password.
+    PyPIは、ユーザー名とパスワードでの公開をサポートしていません。代わりにトークンを生成する必要があります。トークンを使用することは、`--username __token__`を設定し、パスワードとしてトークンを使用することと同等です。
 
 ## Installing your package
 
-Test that the package can be installed and imported with `uv run`:
+`uv run`を使用してパッケージがインストールおよびインポートできることをテストします：
 
 ```console
 $ uv run --with <PACKAGE> --no-project -- python -c "import <PACKAGE>"
 ```
 
-The `--no-project` flag is used to avoid installing the package from your local project directory.
+`--no-project`フラグは、ローカルプロジェクトディレクトリからパッケージをインストールしないようにするために使用されます。
 
 !!! tip
 
-    If you have recently installed the package, you may need to include the
-    `--refresh-package <PACKAGE>` option to avoid using a cached version of the package.
+    最近パッケージをインストールした場合、キャッシュされたバージョンのパッケージを使用しないようにするために、`--refresh-package <PACKAGE>`オプションを含める必要があるかもしれません。
 
 ## Next steps
 
-To learn more about publishing packages, check out the
-[PyPA guides](https://packaging.python.org/en/latest/guides/section-build-and-publish/) on building
-and publishing.
+パッケージの公開について詳しく知るには、[PyPAガイド](https://packaging.python.org/en/latest/guides/section-build-and-publish/)のビルドおよび公開に関するセクションを参照してください。
 
-Or, read on for more details about the concepts in uv.
+または、uvの概念についての詳細を読むために進んでください。
