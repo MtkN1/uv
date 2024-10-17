@@ -1,6 +1,6 @@
 # Concepts overview
 
-Read the concept documents to learn more about uv's features:
+uv の機能について詳しく知りたい場合は、コンセプトドキュメントをお読みください:
 
 - [Projects](./projects.md)
 - [Dependencies](./dependencies.md)
@@ -10,4 +10,4 @@ Read the concept documents to learn more about uv's features:
 - [Resolution](./resolution.md)
 - [Caching](./cache.md)
 
-Looking for a quick introduction to features? See the [guides](../guides/index.md) instead.
+機能の簡単な紹介をお探しですか？ 代わりに[ガイド](../guides/index.md)をご覧ください。

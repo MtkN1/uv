@@ -12,7 +12,7 @@ standard `pyproject.toml` to define dependencies, but other dependency formats a
 well. See the documentation on [declaring dependencies](dependencies.md) for more details on how to
 define dependencies.
 
-To lock dependencies declared in a `pyproject.toml`:
+依存関係を `pyproject.toml` に宣言するには、次のようにします:
 
 ```console
 $ uv pip compile pyproject.toml -o requirements.txt
@@ -21,38 +21,37 @@ $ uv pip compile pyproject.toml -o requirements.txt
 Note by default the `uv pip compile` output is just displayed and `--output-file` / `-o` argument is
 needed to write to a file.
 
-To lock dependencies declared in a `requirements.in`:
+`requirements.in` に宣言された依存関係をロックするには、次のようにします:
 
 ```console
 $ uv pip compile requirements.in -o requirements.txt
 ```
 
-To lock dependencies declared in multiple files:
+複数のファイルに宣言された依存関係をロックするには、次のようにします:
 
 ```console
 $ uv pip compile pyproject.toml requirements-dev.in -o requirements-dev.txt
 ```
 
-uv also supports legacy `setup.py` and `setup.cfg` formats. To lock dependencies declared in a
-`setup.py`:
+uv は、従来の `setup.py` および `setup.cfg` フォーマットもサポートしています。 `setup.py` に宣言された依存関係をロックするには、次のようにします:
 
 ```console
 $ uv pip compile setup.py -o requirements.txt
 ```
 
-To lock dependencies from stdin, use `-`:
+標準入力から依存関係をロックするには、`-` を使用します:
 
 ```console
 $ echo "ruff" | uv pip compile -
 ```
 
-To lock with optional dependencies enabled, e.g., the "foo" extra:
+オプションの依存関係を有効にしてロックするには、例えば "foo" エクストラを使用します:
 
 ```console
 $ uv pip compile pyproject.toml --extra foo
 ```
 
-To lock with all optional dependencies enabled:
+すべてのオプションの依存関係を有効にしてロックするには、次のようにします:
 
 ```console
 $ uv pip compile pyproject.toml --all-extras
@@ -73,13 +72,13 @@ $ echo "ruff" | uv pip compile - -o requirements.txt
 ruff==0.3.0
 ```
 
-To upgrade a dependency, use the `--upgrade-package` flag:
+依存関係をアップグレードするには、`--upgrade-package` フラグを使用します:
 
 ```console
 $ uv pip compile - -o requirements.txt --upgrade-package ruff
 ```
 
-To upgrade all dependencies, there is an `--upgrade` flag.
+すべての依存関係をアップグレードするには、`--upgrade` フラグがあります。
 
 ## Syncing an environment
 
@@ -87,18 +86,15 @@ Dependencies can be installed directly from their definition files or from compi
 `requirements.txt` files with `uv pip install`. See the documentation on
 [installing packages from files](packages.md#installing-packages-from-files) for more details.
 
-When installing with `uv pip install`, packages that are already installed will not be removed
-unless they conflict with the lockfile. This means that the environment can have dependencies that
-aren't declared in the lockfile, which isn't great for reproducibility. To ensure the environment
-exactly matches the lockfile, use `uv pip sync` instead.
+`uv pip install` を使用してインストールする場合、既にインストールされているパッケージはロックファイルと競合しない限り削除されません。 これは、ロックファイルに宣言されていない依存関係が環境に存在する可能性があることを意味し、再現性には適していません。 環境がロックファイルと完全に一致することを確認するには、代わりに `uv pip sync` を使用します。
 
-To sync an environment with a `requirements.txt` file:
+`requirements.txt` ファイルを使用して環境を同期するには、次のようにします:
 
 ```console
 $ uv pip sync requirements.txt
 ```
 
-To sync an environment with a `pyproject.toml` file:
+`pyproject.toml` ファイルを使用して環境を同期するには、次のようにします:
 
 ```console
 $ uv pip sync pyproject.toml
@@ -111,13 +107,13 @@ that's installed. However, including a package in a constraints file will _not_ 
 installation of that package. Constraints can be used to add bounds to dependencies that are not
 dependencies of the current project.
 
-To define a constraint, define a bound for a package:
+制約を定義するには、パッケージの境界を定義します:
 
 ```python title="constraints.txt"
 pydantic<2.0
 ```
 
-To use a constraints file:
+制約ファイルを使用するには、次のようにします:
 
 ```console
 $ uv pip compile requirements.in --constraint constraints.txt
@@ -139,13 +135,13 @@ Overrides are most often used to remove upper bounds from a transitive dependenc
 `a` requires `c>=1.0,<2.0` and `b` requires `c>=2.0` and the current project requires `a` and `b`
 then the dependencies cannot be resolved.
 
-To define an override, define the new requirement for the problematic package:
+オーバーライドを定義するには、問題のあるパッケージの新しい要件を定義します:
 
 ```python title="overrides.txt"
 c>=2.0
 ```
 
-To use an overrides file:
+オーバーライドファイルを使用するには、次のようにします:
 
 ```console
 $ uv pip compile requirements.in --override overrides.txt

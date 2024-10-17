@@ -2,19 +2,19 @@
 
 ## Listing installed packages
 
-To list all of the packages in the environment:
+環境内のすべてのパッケージをリストするには：
 
 ```console
 $ uv pip list
 ```
 
-To list the packages in a JSON format:
+パッケージを JSON 形式でリストするには：
 
 ```console
 $ uv pip list --format json
 ```
 
-To list all of the packages in the environment in a `requirements.txt` format:
+環境内のすべてのパッケージを `requirements.txt` 形式でリストするには：
 
 ```console
 $ uv pip freeze
@@ -22,20 +22,19 @@ $ uv pip freeze
 
 ## Inspecting a package
 
-To show information about an installed package, e.g., `numpy`:
+インストールされているパッケージに関する情報を表示するには、例：`numpy`：
 
 ```console
 $ uv pip show numpy
 ```
 
-Multiple packages can be inspected at once.
+複数のパッケージを一度に検査できます。
 
 ## Verifying an environment
 
-It is possible to install packages with conflicting requirements into an environment if installed in
-multiple steps.
+複数のステップでインストールされた場合、環境に競合する要件を持つパッケージをインストールすることができます。
 
-To check for conflicts or missing dependencies in the environment:
+環境内の競合や欠落している依存関係を確認するには：
 
 ```console
 $ uv pip check

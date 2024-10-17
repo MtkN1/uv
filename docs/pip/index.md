@@ -1,25 +1,17 @@
 # The pip interface
 
-uv provides a drop-in replacement for common `pip`, `pip-tools`, and `virtualenv` commands. These
-commands work directly with the virtual environment, in contrast to uv's primary interfaces where
-the virtual environment is managed automatically. The `uv pip` interface exposes the speed and
-functionality of uv to power users and projects that are not ready to transition away from `pip` and
-`pip-tools`.
+uv は、一般的な `pip`、`pip-tools`、および `virtualenv` コマンドのドロップイン置換を提供します。これらのコマンドは、uv の主要なインターフェースとは対照的に、仮想環境を直接操作します。uv の主要なインターフェースでは、仮想環境が自動的に管理されます。`uv pip` インターフェースは、uv の速度と機能をパワーユーザーや `pip` および `pip-tools` から移行する準備ができていないプロジェクトに提供します。
 
-The following sections discuss the basics of using `uv pip`:
+次のセクションでは、`uv pip` の使用の基本について説明します：
 
-- [Creating and using environments](./environments.md)
-- [Installing and managing packages](./packages.md)
-- [Inspecting environments and packages](./inspection.md)
-- [Declaring package dependencies](./dependencies.md)
-- [Locking and syncing environments](./compile.md)
+- [環境の作成と使用](./environments.md)
+- [パッケージのインストールと管理](./packages.md)
+- [環境とパッケージの検査](./inspection.md)
+- [パッケージ依存関係の宣言](./dependencies.md)
+- [環境のロックと同期](./compile.md)
 
-Please note these commands do not _exactly_ implement the interfaces and behavior of the tools they
-are based on. The further you stray from common workflows, the more likely you are to encounter
-differences. Consult the [pip-compatibility guide](./compatibility.md) for details.
+これらのコマンドは、基になっているツールのインターフェースと動作を _完全に_ 実装しているわけではないことに注意してください。一般的なワークフローから外れるほど、違いに遭遇する可能性が高くなります。詳細については、[pip 互換性ガイド](./compatibility.md)を参照してください。
 
 !!! important
 
-    uv does not rely on or invoke pip. The pip interface is named as such to highlight its dedicated
-    purpose of providing low-level commands that match pip's interface and to separate it from the
-    rest of uv's commands which operate at a higher level of abstraction.
+    uv は `pip` に依存せず、`pip` を呼び出しません。pip インターフェースは、その専用の目的が `pip` のインターフェースに一致する低レベルのコマンドを提供することであり、uv の他の高レベルの抽象化で動作するコマンドとは区別するためにそのように名付けられています。

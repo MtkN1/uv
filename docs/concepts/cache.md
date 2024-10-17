@@ -1,61 +1,43 @@
 # Caching
 
-## Dependency caching
+## 依存関係のキャッシュ
 
-uv uses aggressive caching to avoid re-downloading (and re-building dependencies) that have already
-been accessed in prior runs.
+uv は、以前の実行で既にアクセスされた依存関係を再ダウンロード（および再ビルド）しないように、積極的なキャッシュを使用します。
 
-The specifics of uv's caching semantics vary based on the nature of the dependency:
+uv のキャッシュのセマンティクスの詳細は、依存関係の性質に基づいて異なります。
 
-- **For registry dependencies** (like those downloaded from PyPI), uv respects HTTP caching headers.
-- **For direct URL dependencies**, uv respects HTTP caching headers, and also caches based on the
-  URL itself.
-- **For Git dependencies**, uv caches based on the fully-resolved Git commit hash. As such,
-  `uv pip compile` will pin Git dependencies to a specific commit hash when writing the resolved
-  dependency set.
-- **For local dependencies**, uv caches based on the last-modified time of the source archive (i.e.,
-  the local `.whl` or `.tar.gz` file). For directories, uv caches based on the last-modified time of
-  the `pyproject.toml`, `setup.py`, or `setup.cfg` file.
+- **レジストリ依存関係**（PyPI からダウンロードされたものなど）については、uv は HTTP キャッシュヘッダーを尊重します。
+- **直接 URL 依存関係**については、uv は HTTP キャッシュヘッダーを尊重し、URL 自体に基づいてキャッシュします。
+- **Git 依存関係**については、uv は完全に解決された Git コミットハッシュに基づいてキャッシュします。そのため、`uv pip compile` は、解決された依存関係セットを書き込む際に Git 依存関係を特定のコミットハッシュに固定します。
+- **ローカル依存関係**については、uv はソースアーカイブ（つまり、ローカルの `.whl` または `.tar.gz` ファイル）の最終変更日時に基づいてキャッシュします。ディレクトリの場合、uv は `pyproject.toml`、`setup.py`、または `setup.cfg` ファイルの最終変更日時に基づいてキャッシュします。
 
-If you're running into caching issues, uv includes a few escape hatches:
+キャッシュの問題に直面している場合、uv にはいくつかのエスケープハッチが含まれています。
 
-- To force uv to revalidate cached data for all dependencies, pass `--refresh` to any command (e.g.,
-  `uv sync --refresh` or `uv pip install --refresh ...`).
-- To force uv to revalidate cached data for a specific dependency pass `--refresh-dependency` to any
-  command (e.g., `uv sync --refresh-package flask` or `uv pip install --refresh-package flask ...`).
-- To force uv to ignore existing installed versions, pass `--reinstall` to any installation command
-  (e.g., `uv sync --reinstall` or `uv pip install --reinstall ...`).
+- すべての依存関係のキャッシュされたデータを再検証するには、任意のコマンドに `--refresh` を渡します（例：`uv sync --refresh` または `uv pip install --refresh ...`）。
+- 特定の依存関係のキャッシュされたデータを再検証するには、任意のコマンドに `--refresh-dependency` を渡します（例：`uv sync --refresh-package flask` または `uv pip install --refresh-package flask ...`）。
+- 既存のインストール済みバージョンを無視するには、任意のインストールコマンドに `--reinstall` を渡します（例：`uv sync --reinstall` または `uv pip install --reinstall ...`）。
 
-## Dynamic metadata
+## 動的メタデータ
 
-By default, uv will _only_ rebuild and reinstall local directory dependencies (e.g., editables) if
-the `pyproject.toml`, `setup.py`, or `setup.cfg` file in the directory root has changed. This is a
-heuristic and, in some cases, may lead to fewer re-installs than desired.
+デフォルトでは、uv はローカルディレクトリ依存関係（例：編集可能なもの）を再ビルドおよび再インストールするのは、ディレクトリルートの `pyproject.toml`、`setup.py`、または `setup.cfg` ファイルが変更された場合のみです。これはヒューリスティックであり、場合によっては、望まれるよりも少ない再インストールを引き起こすことがあります。
 
-To incorporate other information into the cache key for a given package, you can add cache key
-entries under `tool.uv.cache-keys`, which can include both file paths and Git commit hashes.
+特定のパッケージのキャッシュキーに他の情報を組み込むには、`tool.uv.cache-keys` の下にキャッシュキーエントリを追加できます。これには、ファイルパスや Git コミットハッシュが含まれます。
 
-For example, if a project uses [`setuptools-scm`](https://pypi.org/project/setuptools-scm/), and
-should be rebuilt whenever the commit hash changes, you can add the following to the project's
-`pyproject.toml`:
+例えば、プロジェクトが [`setuptools-scm`](https://pypi.org/project/setuptools-scm/) を使用しており、コミットハッシュが変更されるたびに再ビルドする必要がある場合、プロジェクトの `pyproject.toml` に次のように追加できます。
 
 ```toml title="pyproject.toml"
 [tool.uv]
 cache-keys = [{ git = true }]
 ```
 
-Similarly, if a project reads from a `requirements.txt` to populate its dependencies, you can add
-the following to the project's `pyproject.toml`:
+同様に、プロジェクトが依存関係をポピュレートするために `requirements.txt` を読み取る場合、プロジェクトの `pyproject.toml` に次のように追加できます。
 
 ```toml title="pyproject.toml"
 [tool.uv]
 cache-keys = [{ file = "requirements.txt" }]
 ```
 
-Globs are supported, following the syntax of the
-[`glob`](https://docs.rs/glob/0.3.1/glob/struct.Pattern.html) crate. For example, to invalidate the
-cache whenever a `.toml` file in the project directory or any of its subdirectories is modified, use
-the following:
+グロブは、[`glob`](https://docs.rs/glob/0.3.1/glob/struct.Pattern.html) クレートの構文に従ってサポートされています。例えば、プロジェクトディレクトリまたはそのサブディレクトリ内の `.toml` ファイルが変更されるたびにキャッシュを無効にするには、次のように使用します。
 
 ```toml title="pyproject.toml"
 [tool.uv]
@@ -64,102 +46,66 @@ cache-keys = [{ file = "**/*.toml" }]
 
 !!! note
 
-    The use of globs can be expensive, as uv may need to walk the filesystem to determine whether any files have changed.
-    This may, in turn, requiring traversal of large or deeply nested directories.
+    グロブの使用は高価になる可能性があります。uv はファイルが変更されたかどうかを判断するためにファイルシステムをウォークする必要があるかもしれません。
+    これにより、大きなディレクトリや深くネストされたディレクトリのトラバーサルが必要になる場合があります。
 
-As an escape hatch, if a project uses `dynamic` metadata that isn't covered by `tool.uv.cache-keys`,
-you can instruct uv to _always_ rebuild and reinstall it by adding the project to the
-`tool.uv.reinstall-package` list:
+エスケープハッチとして、プロジェクトが `tool.uv.cache-keys` でカバーされていない `dynamic` メタデータを使用している場合、プロジェクトを `tool.uv.reinstall-package` リストに追加することで、uv に常に再ビルドおよび再インストールするよう指示できます。
 
 ```toml title="pyproject.toml"
 [tool.uv]
 reinstall-package = ["my-package"]
 ```
 
-This will force uv to rebuild and reinstall `my-package` on every run, regardless of whether the
-package's `pyproject.toml`, `setup.py`, or `setup.cfg` file has changed.
+これにより、`my-package` の `pyproject.toml`、`setup.py`、または `setup.cfg` ファイルが変更されたかどうかに関係なく、uv は毎回 `my-package` を再ビルドおよび再インストールします。
 
-## Cache safety
+## キャッシュの安全性
 
-It's safe to run multiple uv commands concurrently, even against the same virtual environment. uv's
-cache is designed to be thread-safe and append-only, and thus robust to multiple concurrent readers
-and writers. uv applies a file-based lock to the target virtual environment when installing, to
-avoid concurrent modifications across processes.
+同じ仮想環境に対して複数の uv コマンドを同時に実行しても安全です。uv のキャッシュはスレッドセーフであり、追加専用に設計されているため、複数の同時リーダーおよびライターに対して堅牢です。uv はインストール時にターゲット仮想環境にファイルベースのロックを適用し、プロセス間の同時変更を回避します。
 
-Note that it's _not_ safe to modify the uv cache (e.g., `uv cache clean`) while other uv commands
-are running, and _never_ safe to modify the cache directly (e.g., by removing a file or directory).
+ただし、他の uv コマンドが実行されている間に uv キャッシュを変更すること（例：`uv cache clean`）や、キャッシュを直接変更すること（例：ファイルやディレクトリを削除すること）は安全ではありません。
 
-## Clearing the cache
+## キャッシュのクリア
 
-uv provides a few different mechanisms for removing entries from the cache:
+uv にはキャッシュエントリを削除するためのいくつかのメカニズムが用意されています。
 
-- `uv cache clean` removes _all_ cache entries from the cache directory, clearing it out entirely.
-- `uv cache clean ruff` removes all cache entries for the `ruff` package, useful for invalidating
-  the cache for a single or finite set of packages.
-- `uv cache prune` removes all _unused_ cache entries. For example, the cache directory may contain
-  entries created in previous uv versions that are no longer necessary and can be safely removed.
-  `uv cache prune` is safe to run periodically, to keep the cache directory clean.
+- `uv cache clean` は、キャッシュディレクトリからすべてのキャッシュエントリを削除し、完全にクリアします。
+- `uv cache clean ruff` は、`ruff` パッケージのすべてのキャッシュエントリを削除し、特定のパッケージまたは有限のセットのパッケージのキャッシュを無効にするのに役立ちます。
+- `uv cache prune` は、すべての未使用のキャッシュエントリを削除します。例えば、キャッシュディレクトリには、以前の uv バージョンで作成されたエントリが含まれている場合があり、それらはもはや必要なく、安全に削除できます。`uv cache prune` は、キャッシュディレクトリをクリーンに保つために定期的に実行するのが安全です。
 
-## Caching in continuous integration
+## 継続的インテグレーションでのキャッシュ
 
-It's common to cache package installation artifacts in continuous integration environments (like
-GitHub Actions or GitLab CI) to speed up subsequent runs.
+継続的インテグレーション環境（GitHub Actions や GitLab CI など）では、後続の実行を高速化するためにパッケージインストールアーティファクトをキャッシュすることが一般的です。
 
-By default, uv caches both the wheels that it builds from source and the pre-built wheels that it
-downloads directly, to enable high-performance package installation.
+デフォルトでは、uv はソースからビルドされたホイールと、直接ダウンロードされた事前ビルドホイールの両方をキャッシュし、高性能なパッケージインストールを可能にします。
 
-However, in continuous integration environments, persisting pre-built wheels may be undesirable.
-With uv, it turns out that it's often faster to _omit_ pre-built wheels from the cache (and instead
-re-download them from the registry on each run). On the other hand, caching wheels that are built
-from source tends to be worthwhile, since the wheel building process can be expensive, especially
-for extension modules.
+ただし、継続的インテグレーション環境では、事前ビルドホイールをキャッシュに保持することは望ましくない場合があります。uv では、事前ビルドホイールをキャッシュから省略し（代わりに各実行時にレジストリから再ダウンロードする）、ソースからビルドされたホイールをキャッシュする方が高速であることが多いです。特に拡張モジュールの場合、ホイールビルドプロセスが高価であるため、ソースからビルドされたホイールをキャッシュすることは価値があります。
 
-To support this caching strategy, uv provides a `uv cache prune --ci` command, which removes all
-pre-built wheels and unzipped source distributions from the cache, but retains any wheels that were
-built from source. We recommend running `uv cache prune --ci` at the end of your continuous
-integration job to ensure maximum cache efficiency. For an example, see the
-[GitHub integration guide](../guides/integration/github.md#caching).
+このキャッシュ戦略をサポートするために、uv は `uv cache prune --ci` コマンドを提供しており、これにより、事前ビルドホイールと解凍されたソースディストリビューションをすべて削除し、ソースからビルドされたホイールを保持します。継続的インテグレーションジョブの最後に `uv cache prune --ci` を実行して、最大のキャッシュ効率を確保することをお勧めします。例については、[GitHub インテグレーションガイド](../guides/integration/github.md#caching)を参照してください。
 
-## Cache directory
+## キャッシュディレクトリ
 
-uv determines the cache directory according to, in order:
+uv は、次の順序でキャッシュディレクトリを決定します。
 
-1. A temporary cache directory, if `--no-cache` was requested.
-2. The specific cache directory specified via `--cache-dir`, `UV_CACHE_DIR`, or
-   [`tool.uv.cache-dir`](../reference/settings.md#cache-dir).
-3. A system-appropriate cache directory, e.g., `$XDG_CACHE_HOME/uv` or `$HOME/.cache/uv` on Unix and
-   `%LOCALAPPDATA%\uv\cache` on Windows
+1. `--no-cache` が要求された場合、一時的なキャッシュディレクトリ。
+2. `--cache-dir`、`UV_CACHE_DIR`、または [`tool.uv.cache-dir`](../reference/settings.md#cache-dir) で指定された特定のキャッシュディレクトリ。
+3. システムに適したキャッシュディレクトリ、例：Unix では `$XDG_CACHE_HOME/uv` または `$HOME/.cache/uv`、Windows では `%LOCALAPPDATA%\uv\cache`
 
 !!! note
 
-    uv _always_ requires a cache directory. When `--no-cache` is requested, uv will still use
-    a temporary cache for sharing data within that single invocation.
+    uv は常にキャッシュディレクトリを必要とします。`--no-cache` が要求された場合でも、uv はその単一の呼び出し内でデータを共有するために一時的なキャッシュを使用します。
 
-    In most cases, `--refresh` should be used instead of `--no-cache` — as it will update the cache
-    for subsequent operations but not read from the cache.
+    ほとんどの場合、`--no-cache` の代わりに `--refresh` を使用するべきです。これにより、後続の操作のためにキャッシュが更新されますが、キャッシュから読み取ることはありません。
 
-It is important for performance for the cache directory to be located on the same file system as the
-Python environment uv is operating on. Otherwise, uv will not be able to link files from the cache
-into the environment and will instead need to fallback to slow copy operations.
+キャッシュディレクトリが uv が操作している Python 環境と同じファイルシステム上にあることがパフォーマンスにとって重要です。そうでない場合、uv はキャッシュから環境にファイルをリンクすることができず、代わりに遅いコピー操作にフォールバックする必要があります。
 
-## Cache versioning
+## キャッシュのバージョン管理
 
-The uv cache is composed of a number of buckets (e.g., a bucket for wheels, a bucket for source
-distributions, a bucket for Git repositories, and so on). Each bucket is versioned, such that if a
-release contains a breaking change to the cache format, uv will not attempt to read from or write to
-an incompatible cache bucket.
+uv のキャッシュは、いくつかのバケット（例：ホイール用のバケット、ソースディストリビューション用のバケット、Git リポジトリ用のバケットなど）で構成されています。各バケットはバージョン管理されており、リリースにキャッシュフォーマットへの破壊的変更が含まれている場合、uv は互換性のないキャッシュバケットを読み書きしようとしません。
 
-For example, uv 0.4.13 included a breaking change to the core metadata bucket. As such, the bucket
-version was increased from v12 to v13.
+例えば、uv 0.4.13 にはコアメタデータバケットへの破壊的変更が含まれていました。そのため、バケットバージョンは v12 から v13 に増加しました。
 
-Within a cache version, changes are guaranteed to be forwards-compatible, but _not_
-backwards-compatible.
+キャッシュバージョン内では、変更は前方互換性が保証されていますが、後方互換性は保証されていません。
 
-For example, uv 0.4.8 can read cache entries written by uv 0.4.7, but uv 0.4.7 cannot read cache
-entries written by uv 0.4.8. As a result, it's safe to share a cache directory across multiple uv
-versions, as long as those versions are strictly increasing over time, as is common in production
-and development environments.
+例えば、uv 0.4.8 は uv 0.4.7 によって書き込まれたキャッシュエントリを読み取ることができますが、uv 0.4.7 は uv 0.4.8 によって書き込まれたキャッシュエントリを読み取ることはできません。そのため、リリースが時間とともに厳密に増加する限り、複数の uv バージョン間でキャッシュディレクトリを共有することは安全です。これは、プロダクションおよび開発環境で一般的です。
 
-If you intend to use multiple uv versions on an ongoing basis, we recommend using separate caches
-for each version, as (e.g.) a cache populated by uv 0.4.8 may not be usable by uv 0.4.7, despite the
-cache _versions_ remaining unchanged between the releases.
+複数の uv バージョンを継続的に使用する場合、各バージョンに対して個別のキャッシュを使用することをお勧めします。例えば、uv 0.4.8 によってポピュレートされたキャッシュは、キャッシュバージョンがリリース間で変更されていないにもかかわらず、uv 0.4.7 では使用できない場合があります。

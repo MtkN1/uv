@@ -4,13 +4,11 @@
 
 !!! tip
 
-    Check out the [`uv-docker-example`](https://github.com/astral-sh/uv-docker-example) project for
-    an example of best practices when using uv to build an application in Docker.
+    [`uv-docker-example`](https://github.com/astral-sh/uv-docker-example) プロジェクトをチェックして、Docker でアプリケーションを構築する際の uv のベストプラクティスの例を確認してください。
 
 ### Running uv in a container
 
-A Docker image is published with a built version of uv available. To run a uv command in a
-container:
+uv のビルド済みバージョンが利用可能な Docker イメージが公開されています。コンテナ内で uv コマンドを実行するには:
 
 ```console
 $ docker run ghcr.io/astral-sh/uv --help
@@ -18,40 +16,39 @@ $ docker run ghcr.io/astral-sh/uv --help
 
 ### Available images
 
-uv provides a distroless Docker image including the `uv` binary. The following tags are published:
+uv は `uv` バイナリを含む distroless Docker イメージを提供しています。以下のタグが公開されています:
 
 - `ghcr.io/astral-sh/uv:latest`
-- `ghcr.io/astral-sh/uv:{major}.{minor}.{patch}`, e.g., `ghcr.io/astral-sh/uv:0.4.21`
-- `ghcr.io/astral-sh/uv:{major}.{minor}`, e.g., `ghcr.io/astral-sh/uv:0.4` (the latest patch
-  version)
+- `ghcr.io/astral-sh/uv:{major}.{minor}.{patch}`, 例: `ghcr.io/astral-sh/uv:0.4.21`
+- `ghcr.io/astral-sh/uv:{major}.{minor}`, 例: `ghcr.io/astral-sh/uv:0.4` (最新のパッチバージョン)
 
-In addition, uv publishes the following images:
+さらに、uv は以下のイメージも公開しています:
 
 <!-- prettier-ignore -->
-- Based on `alpine:3.20`:
+- `alpine:3.20` ベース:
     - `ghcr.io/astral-sh/uv:alpine`
     - `ghcr.io/astral-sh/uv:alpine3.20`
-- Based on `debian:bookworm-slim`:
+- `debian:bookworm-slim` ベース:
     - `ghcr.io/astral-sh/uv:debian-slim`
     - `ghcr.io/astral-sh/uv:bookworm-slim`
-- Based on `buildpack-deps:bookworm`:
+- `buildpack-deps:bookworm` ベース:
     - `ghcr.io/astral-sh/uv:debian`
     - `ghcr.io/astral-sh/uv:bookworm`
-- Based on `python3.x-alpine`:
+- `python3.x-alpine` ベース:
     - `ghcr.io/astral-sh/uv:python3.13-alpine`
     - `ghcr.io/astral-sh/uv:python3.12-alpine`
     - `ghcr.io/astral-sh/uv:python3.11-alpine`
     - `ghcr.io/astral-sh/uv:python3.10-alpine`
     - `ghcr.io/astral-sh/uv:python3.9-alpine`
     - `ghcr.io/astral-sh/uv:python3.8-alpine`
-- Based on `python3.x-bookworm`:
+- `python3.x-bookworm` ベース:
     - `ghcr.io/astral-sh/uv:python3.13-bookworm`
     - `ghcr.io/astral-sh/uv:python3.12-bookworm`
     - `ghcr.io/astral-sh/uv:python3.11-bookworm`
     - `ghcr.io/astral-sh/uv:python3.10-bookworm`
     - `ghcr.io/astral-sh/uv:python3.9-bookworm`
     - `ghcr.io/astral-sh/uv:python3.8-bookworm`
-- Based on `python3.x-slim-bookworm`:
+- `python3.x-slim-bookworm` ベース:
     - `ghcr.io/astral-sh/uv:python3.13-bookworm-slim`
     - `ghcr.io/astral-sh/uv:python3.12-bookworm-slim`
     - `ghcr.io/astral-sh/uv:python3.11-bookworm-slim`
@@ -60,50 +57,48 @@ In addition, uv publishes the following images:
     - `ghcr.io/astral-sh/uv:python3.8-bookworm-slim`
 <!-- prettier-ignore-end -->
 
-As with the distroless image, each image is published with uv version tags as
-`ghcr.io/astral-sh/uv:{major}.{minor}.{patch}-{base}` and
-`ghcr.io/astral-sh/uv:{major}.{minor}-{base}`, e.g., `ghcr.io/astral-sh/uv:0.4.21-alpine`.
+distroless イメージと同様に、各イメージは uv バージョンタグ付きで公開されます:
+`ghcr.io/astral-sh/uv:{major}.{minor}.{patch}-{base}` および
+`ghcr.io/astral-sh/uv:{major}.{minor}-{base}`, 例: `ghcr.io/astral-sh/uv:0.4.21-alpine`.
 
-For more details, see the [GitHub Container](https://github.com/astral-sh/uv/pkgs/container/uv)
-page.
+詳細については、[GitHub Container](https://github.com/astral-sh/uv/pkgs/container/uv) ページを参照してください。
 
 ### Installing uv
 
-Use one of the above images with uv pre-installed or install uv by copying the binary from the
-official distroless Docker image:
+上記の uv がプリインストールされたイメージのいずれかを使用するか、公式の distroless Docker イメージからバイナリをコピーして uv をインストールします:
 
 ```dockerfile title="Dockerfile"
 FROM python:3.12-slim-bookworm
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
 ```
 
-Or, with the installer:
+または、インストーラーを使用して:
 
 ```dockerfile title="Dockerfile"
 FROM python:3.12-slim-bookworm
 
-# The installer requires curl (and certificates) to download the release archive
+# インストーラーはリリースアーカイブをダウンロードするために curl (および証明書) を必要とします
 RUN apt-get update && apt-get install -y --no-install-recommends curl ca-certificates
 
-# Download the latest installer
+# 最新のインストーラーをダウンロード
 ADD https://astral.sh/uv/install.sh /uv-installer.sh
 
-# Run the installer then remove it
+# インストーラーを実行してから削除
 RUN sh /uv-installer.sh && rm /uv-installer.sh
 
-# Ensure the installed binary is on the `PATH`
+# インストールされたバイナリが `PATH` にあることを確認
 ENV PATH="/root/.cargo/bin/:$PATH"
 ```
 
-Note this requires `curl` to be available.
+これには `curl` が必要です。
 
-In either case, it is best practice to pin to a specific uv version, e.g., with:
+いずれの場合も、特定の uv バージョンに固定することがベストプラクティスです。例:
 
 ```dockerfile
 COPY --from=ghcr.io/astral-sh/uv:0.4.21 /uv /uvx /bin/
 ```
 
-Or, with the installer:
+または、インストーラーを使用して:
 
 ```dockerfile
 ADD https://astral.sh/uv/0.4.21/install.sh /uv-installer.sh
@@ -111,48 +106,43 @@ ADD https://astral.sh/uv/0.4.21/install.sh /uv-installer.sh
 
 ### Installing a project
 
-If you're using uv to manage your project, you can copy it into the image and install it:
+uv を使用してプロジェクトを管理している場合、イメージにコピーしてインストールできます:
 
 ```dockerfile title="Dockerfile"
-# Copy the project into the image
+# プロジェクトをイメージにコピー
 ADD . /app
 
-# Sync the project into a new environment, using the frozen lockfile
+# フローズンロックファイルを使用して新しい環境にプロジェクトを同期
 WORKDIR /app
 RUN uv sync --frozen
 ```
 
 !!! important
 
-    It is best practice to add `.venv` to a [`.dockerignore` file](https://docs.docker.com/build/concepts/context/#dockerignore-files)
-    in your repository to prevent it from being included in image builds. The project virtual
-    environment is dependent on your local platform and should be created from scratch in the image.
+    リポジトリ内の [`.dockerignore` ファイル](https://docs.docker.com/build/concepts/context/#dockerignore-files) に `.venv` を追加して、イメージビルドに含まれないようにすることがベストプラクティスです。プロジェクトの仮想環境はローカルプラットフォームに依存しており、イメージ内でゼロから作成する必要があります。
 
-Then, to start your application by default:
+次に、デフォルトでアプリケーションを起動するには:
 
 ```dockerfile title="Dockerfile"
-# Presuming there is a `my_app` command provided by the project
+# プロジェクトが提供する `my_app` コマンドを前提としています
 CMD ["uv", "run", "my_app"]
 ```
 
 !!! tip
 
-    It is best practice to use [intermediate layers](#intermediate-layers) separating installation
-    of dependencies and the project itself to improve Docker image build times.
+    依存関係のインストールとプロジェクト自体のインストールを分離する [中間レイヤー](#intermediate-layers) を使用して、Docker イメージのビルド時間を改善することがベストプラクティスです。
 
-See a complete example in the
-[`uv-docker-example` project](https://github.com/astral-sh/uv-docker-example/blob/main/Dockerfile).
+完全な例は [`uv-docker-example` プロジェクト](https://github.com/astral-sh/uv-docker-example/blob/main/Dockerfile) を参照してください。
 
 ### Using the environment
 
-Once the project is installed, you can either _activate_ the project virtual environment by placing
-its binary directory at the front of the path:
+プロジェクトがインストールされたら、バイナリディレクトリをパスの先頭に配置してプロジェクトの仮想環境を _アクティブ化_ することができます:
 
 ```dockerfile title="Dockerfile"
 ENV PATH="/app/.venv/bin:$PATH"
 ```
 
-Or, you can use `uv run` for any commands that require the environment:
+または、環境を必要とするコマンドに対して `uv run` を使用することができます:
 
 ```dockerfile title="Dockerfile"
 RUN uv run some_script.py
@@ -160,15 +150,11 @@ RUN uv run some_script.py
 
 !!! tip
 
-    Alternatively, the
-    [`UV_PROJECT_ENVIRONMENT` setting](../../concepts/projects.md#configuring-the-project-environment-path) can
-    be set before syncing to install to the system Python environment and skip environment activation
-    entirely.
+    代わりに、[`UV_PROJECT_ENVIRONMENT` 設定](../../concepts/projects.md#configuring-the-project-environment-path) を同期前に設定して、システム Python 環境にインストールし、環境のアクティベーションを完全にスキップすることができます。
 
 ### Using installed tools
 
-To use installed tools, ensure the [tool bin directory](../../concepts/tools.md#the-bin-directory)
-is on the path:
+インストールされたツールを使用するには、[ツールのバインディレクトリ](../../concepts/tools.md#the-bin-directory) をパスに追加します:
 
 ```dockerfile title="Dockerfile"
 ENV PATH=/root/.local/bin:$PATH
@@ -191,10 +177,9 @@ $ docker run -it $(docker build -q .) /bin/bash -c "cowsay -t hello"
 
 !!! note
 
-    The tool bin directory's location can be determined by running the `uv tool dir --bin` command
-    in the container.
+    ツールのバインディレクトリの場所は、コンテナ内で `uv tool dir --bin` コマンドを実行して確認できます。
 
-    Alternatively, it can be set to a constant location:
+    代わりに、一定の場所に設定することもできます:
 
     ```dockerfile title="Dockerfile"
     ENV UV_TOOL_BIN_DIR=/opt/uv-bin/
@@ -202,10 +187,7 @@ $ docker run -it $(docker build -q .) /bin/bash -c "cowsay -t hello"
 
 ### Installing Python in musl-based images
 
-While uv [installs a compatible Python version](../install-python.md) if there isn't one available
-in the image, uv does not yet support installing Python for musl-based distributions. For example,
-if you are using an Alpine Linux base image that doesn't have Python installed, you need to add it
-with the system package manager:
+uv はイメージに利用可能な Python バージョンがない場合に[互換性のある Python バージョンをインストール](../install-python.md)しますが、uv はまだ musl ベースのディストリビューション用の Python インストールをサポートしていません。例えば、Python がインストールされていない Alpine Linux ベースのイメージを使用している場合、システムパッケージマネージャーで追加する必要があります:
 
 ```shell
 apk add --no-cache python3~=3.12
@@ -213,16 +195,11 @@ apk add --no-cache python3~=3.12
 
 ## Developing in a container
 
-When developing, it's useful to mount the project directory into a container. With this setup,
-changes to the project can be immediately reflected in a containerized service without rebuilding
-the image. However, it is important _not_ to include the project virtual environment (`.venv`) in
-the mount, because the virtual environment is platform specific and the one built for the image
-should be kept.
+開発時には、プロジェクトディレクトリをコンテナにマウントすることが有用です。このセットアップでは、プロジェクトの変更がイメージを再ビルドすることなくコンテナ化されたサービスに即座に反映されます。ただし、プロジェクトの仮想環境 (`.venv`) をマウントに含めないことが重要です。仮想環境はプラットフォーム固有であり、イメージ用にビルドされたものを保持する必要があります。
 
 ### Mounting the project with `docker run`
 
-Bind mount the project (in the working directory) to `/app` while retaining the `.venv` directory
-with an [anonymous volume](https://docs.docker.com/engine/storage/#volumes):
+作業ディレクトリ内のプロジェクトを `/app` にバインドマウントし、[匿名ボリューム](https://docs.docker.com/engine/storage/#volumes) で `.venv` ディレクトリを保持します:
 
 ```console
 $ docker run --rm --volume .:/app --volume /app/.venv [...]
@@ -230,27 +207,19 @@ $ docker run --rm --volume .:/app --volume /app/.venv [...]
 
 !!! tip
 
-    The `--rm` flag is included to ensure the container and anonymous volume are cleaned up when the
-    container exits.
+    コンテナが終了したときにコンテナと匿名ボリュームがクリーンアップされるように、`--rm` フラグを含めます。
 
-See a complete example in the
-[`uv-docker-example` project](https://github.com/astral-sh/uv-docker-example/blob/main/run.sh).
+完全な例は [`uv-docker-example` プロジェクト](https://github.com/astral-sh/uv-docker-example/blob/main/run.sh) を参照してください。
 
 ### Configuring `watch` with `docker compose`
 
-When using Docker compose, more sophisticated tooling is available for container development. The
-[`watch`](https://docs.docker.com/compose/file-watch/#compose-watch-versus-bind-mounts) option
-allows for greater granularity than is practical with a bind mount and supports triggering updates
-to the containerized service when files change.
+Docker compose を使用する場合、コンテナ開発のためのより高度なツールが利用可能です。[`watch`](https://docs.docker.com/compose/file-watch/#compose-watch-versus-bind-mounts) オプションは、バインドマウントよりも実用的な粒度でファイルの変更時にコンテナ化されたサービスの更新をトリガーすることができます。
 
 !!! note
 
-    This feature requires Compose 2.22.0 which is bundled with Docker Desktop 4.24.
+    この機能は Docker Desktop 4.24 にバンドルされている Compose 2.22.0 が必要です。
 
-Configure `watch` in your
-[Docker compose file](https://docs.docker.com/compose/compose-application-model/#the-compose-file)
-to mount the project directory without syncing the project virtual environment and to rebuild the
-image when the configuration changes:
+プロジェクトディレクトリを同期せずにマウントし、構成が変更されたときにイメージを再ビルドするために、[Docker compose ファイル](https://docs.docker.com/compose/compose-application-model/#the-compose-file) で `watch` を設定します:
 
 ```yaml title="compose.yaml"
 services:
@@ -260,42 +229,39 @@ services:
     # ...
 
     develop:
-      # Create a `watch` configuration to update the app
+      # アプリを更新するための `watch` 設定を作成
       #
       watch:
-        # Sync the working directory with the `/app` directory in the container
+        # 作業ディレクトリをコンテナ内の `/app` ディレクトリと同期
         - action: sync
           path: .
           target: /app
-          # Exclude the project virtual environment
+          # プロジェクトの仮想環境を除外
           ignore:
             - .venv/
 
-        # Rebuild the image on changes to the `pyproject.toml`
+        # `pyproject.toml` の変更時にイメージを再ビルド
         - action: rebuild
           path: ./pyproject.toml
 ```
 
-Then, run `docker compose watch` to run the container with the development setup.
+次に、`docker compose watch` を実行して開発セットアップでコンテナを実行します。
 
-See a complete example in the
-[`uv-docker-example` project](https://github.com/astral-sh/uv-docker-example/blob/main/compose.yml).
+完全な例は [`uv-docker-example` プロジェクト](https://github.com/astral-sh/uv-docker-example/blob/main/compose.yml) を参照してください。
 
 ## Optimizations
 
 ### Compiling bytecode
 
-Compiling Python source files to bytecode is typically desirable for production images as it tends
-to improve startup time (at the cost of increased installation time).
+Python ソースファイルをバイトコードにコンパイルすることは、通常、インストール時間の増加を犠牲にして起動時間を改善するため、プロダクションイメージにとって望ましいです。
 
-To enable bytecode compilation, use the `--compile-bytecode` flag:
+バイトコードのコンパイルを有効にするには、`--compile-bytecode` フラグを使用します:
 
 ```dockerfile title="Dockerfile"
 RUN uv sync --compile-bytecode
 ```
 
-Alternatively, you can set the `UV_COMPILE_BYTECODE` environment variable to ensure that all
-commands within the Dockerfile compile bytecode:
+または、`UV_COMPILE_BYTECODE` 環境変数を設定して、Dockerfile 内のすべてのコマンドがバイトコードをコンパイルするようにします:
 
 ```dockerfile title="Dockerfile"
 ENV UV_COMPILE_BYTECODE=1
@@ -303,8 +269,7 @@ ENV UV_COMPILE_BYTECODE=1
 
 ### Caching
 
-A [cache mount](https://docs.docker.com/build/guide/mounts/#add-a-cache-mount) can be used to
-improve performance across builds:
+[キャッシュマウント](https://docs.docker.com/build/guide/mounts/#add-a-cache-mount) を使用して、ビルド間のパフォーマンスを向上させることができます:
 
 ```dockerfile title="Dockerfile"
 ENV UV_LINK_MODE=copy
@@ -313,18 +278,15 @@ RUN --mount=type=cache,target=/root/.cache/uv \
     uv sync
 ```
 
-Changing the default [`UV_LINK_MODE`](../../reference/settings.md#link-mode) silences warnings about
-not being able to use hard links since the cache and sync target are on separate file systems.
+デフォルトの [`UV_LINK_MODE`](../../reference/settings.md#link-mode) を変更すると、キャッシュと同期ターゲットが別のファイルシステム上にあるため、ハードリンクを使用できないことに関する警告が抑制されます。
 
-If you're not mounting the cache, image size can be reduced by using the `--no-cache` flag or
-setting `UV_NO_CACHE`.
+キャッシュをマウントしていない場合、`--no-cache` フラグを使用するか `UV_NO_CACHE` を設定して、イメージサイズを削減できます。
 
 !!! note
 
-    The cache directory's location can be determined by running the `uv cache dir` command in the
-    container.
+    キャッシュディレクトリの場所は、コンテナ内で `uv cache dir` コマンドを実行して確認できます。
 
-    Alternatively, the cache can be set to a constant location:
+    代わりに、一定の場所に設定することもできます:
 
     ```dockerfile title="Dockerfile"
     ENV UV_CACHE_DIR=/opt/uv-cache/
@@ -332,92 +294,83 @@ setting `UV_NO_CACHE`.
 
 ### Intermediate layers
 
-If you're using uv to manage your project, you can improve build times by moving your transitive
-dependency installation into its own layer via the `--no-install` options.
+uv を使用してプロジェクトを管理している場合、依存関係のインストールを独自のレイヤーに移動することでビルド時間を改善できます。`--no-install` オプションを使用します。
 
-`uv sync --no-install-project` will install the dependencies of the project but not the project
-itself. Since the project changes frequently, but its dependencies are generally static, this can be
-a big time saver.
+`uv sync --no-install-project` はプロジェクトの依存関係をインストールしますが、プロジェクト自体はインストールしません。プロジェクトは頻繁に変更されますが、依存関係は一般的に静的であるため、これにより大幅な時間節約が可能です。
 
 ```dockerfile title="Dockerfile"
-# Install uv
+# uv をインストール
 FROM python:3.12-slim
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
 
-# Change the working directory to the `app` directory
+# 作業ディレクトリを `app` ディレクトリに変更
 WORKDIR /app
 
-# Install dependencies
+# 依存関係をインストール
 RUN --mount=type=cache,target=/root/.cache/uv \
     --mount=type=bind,source=uv.lock,target=uv.lock \
     --mount=type=bind,source=pyproject.toml,target=pyproject.toml \
     uv sync --frozen --no-install-project
 
-# Copy the project into the image
+# プロジェクトをイメージにコピー
 ADD . /app
 
-# Sync the project
+# プロジェクトを同期
 RUN --mount=type=cache,target=/root/.cache/uv \
     uv sync --frozen
 ```
 
-Note that the `pyproject.toml` is required to identify the project root and name, but the project
-_contents_ are not copied into the image until the final `uv sync` command.
+`pyproject.toml` はプロジェクトのルートと名前を識別するために必要ですが、プロジェクトの _内容_ は最終的な `uv sync` コマンドまでイメージにコピーされません。
 
 !!! tip
 
-    If you're using a [workspace](../../concepts/workspaces.md), then use the
-    `--no-install-workspace` flag which excludes the project _and_ any workspace members.
+    [ワークスペース](../../concepts/workspaces.md) を使用している場合は、`--no-install-workspace` フラグを使用して、プロジェクトおよびワークスペースメンバーを除外します。
 
-    If you want to remove specific packages from the sync, use `--no-install-package <name>`.
+    同期から特定のパッケージを除外する場合は、`--no-install-package <name>` を使用します。
 
 ### Non-editable installs
 
-By default, uv installs projects and workspace members in editable mode, such that changes to the
-source code are immediately reflected in the environment.
+デフォルトでは、uv はプロジェクトおよびワークスペースメンバーを編集可能モードでインストールし、ソースコードの変更が環境に即座に反映されるようにします。
 
-`uv sync` and `uv run` both accept a `--no-editable` flag, which instructs uv to install the project
-in non-editable mode, removing any dependency on the source code.
+`uv sync` および `uv run` はどちらも `--no-editable` フラグを受け入れ、uv にプロジェクトを非編集可能モードでインストールするよう指示し、ソースコードへの依存を削除します。
 
-In the context of a multi-stage Docker image, `--no-editable` can be used to include the project in
-the synced virtual environment from one stage, then copy the virtual environment alone (and not the
-source code) into the final image.
+マルチステージ Docker イメージのコンテキストでは、`--no-editable` を使用して、あるステージから同期された仮想環境にプロジェクトを含め、最終イメージには仮想環境のみ (ソースコードは含まない) をコピーすることができます。
 
-For example:
+例:
 
 ```dockerfile title="Dockerfile"
-# Install uv
+# uv をインストール
 FROM python:3.12-slim AS builder
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
 
-# Change the working directory to the `app` directory
+# 作業ディレクトリを `app` ディレクトリに変更
 WORKDIR /app
 
-# Install dependencies
+# 依存関係をインストール
 RUN --mount=type=cache,target=/root/.cache/uv \
     --mount=type=bind,source=uv.lock,target=uv.lock \
     --mount=type=bind,source=pyproject.toml,target=pyproject.toml \
     uv sync --frozen --no-install-project --no-editable
 
-# Copy the project into the intermediate image
+# プロジェクトを中間イメージにコピー
 ADD . /app
 
-# Sync the project
+# プロジェクトを同期
 RUN --mount=type=cache,target=/root/.cache/uv \
     uv sync --frozen --no-editable
 
 FROM python:3.12-slim
 
-# Copy the environment, but not the source code
+# 環境をコピー (ソースコードは含まない)
 COPY --from=builder --chown=app:app /app/.venv /app/.venv
 
-# Run the application
+# アプリケーションを実行
 CMD ["/app/.venv/bin/hello"]
 ```
 
 ### Using uv temporarily
 
-If uv isn't needed in the final image, the binary can be mounted in each invocation:
+最終イメージで uv が不要な場合、各呼び出しでバイナリをマウントできます:
 
 ```dockerfile title="Dockerfile"
 RUN --mount=from=ghcr.io/astral-sh/uv,source=/uv,target=/bin/uv \
@@ -428,30 +381,29 @@ RUN --mount=from=ghcr.io/astral-sh/uv,source=/uv,target=/bin/uv \
 
 ### Installing a package
 
-The system Python environment is safe to use this context, since a container is already isolated.
-The `--system` flag can be used to install in the system environment:
+コンテナはすでに隔離されているため、このコンテキストではシステム Python 環境を安全に使用できます。`--system` フラグを使用してシステム環境にインストールします:
 
 ```dockerfile title="Dockerfile"
 RUN uv pip install --system ruff
 ```
 
-To use the system Python environment by default, set the `UV_SYSTEM_PYTHON` variable:
+システム Python 環境をデフォルトで使用するには、`UV_SYSTEM_PYTHON` 変数を設定します:
 
 ```dockerfile title="Dockerfile"
 ENV UV_SYSTEM_PYTHON=1
 ```
 
-Alternatively, a virtual environment can be created and activated:
+代わりに、仮想環境を作成してアクティブ化することもできます:
 
 ```dockerfile title="Dockerfile"
 RUN uv venv /opt/venv
-# Use the virtual environment automatically
+# 仮想環境を自動的に使用
 ENV VIRTUAL_ENV=/opt/venv
-# Place entry points in the environment at the front of the path
+# 環境内のエントリポイントをパスの先頭に配置
 ENV PATH="/opt/venv/bin:$PATH"
 ```
 
-When using a virtual environment, the `--system` flag should be omitted from uv invocations:
+仮想環境を使用する場合、uv 呼び出しから `--system` フラグを省略する必要があります:
 
 ```dockerfile title="Dockerfile"
 RUN uv pip install ruff
@@ -459,7 +411,7 @@ RUN uv pip install ruff
 
 ### Installing requirements
 
-To install requirements files, copy them into the container:
+要件ファイルをインストールするには、コンテナにコピーします:
 
 ```dockerfile title="Dockerfile"
 COPY requirements.txt .
@@ -468,9 +420,7 @@ RUN uv pip install -r requirements.txt
 
 ### Installing a project
 
-When installing a project alongside requirements, it is best practice to separate copying the
-requirements from the rest of the source code. This allows the dependencies of the project (which do
-not change often) to be cached separately from the project itself (which changes very frequently).
+要件と一緒にプロジェクトをインストールする場合、要件のコピーをソースコードの残りの部分から分離することがベストプラクティスです。これにより、プロジェクトの依存関係 (頻繁に変更されない) をプロジェクト自体 (非常に頻繁に変更される) とは別にキャッシュすることができます。
 
 ```dockerfile title="Dockerfile"
 COPY pyproject.toml .
