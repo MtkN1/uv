@@ -20,6 +20,10 @@ $ uv build
 
 また、`uv build <SRC>`を使用して指定されたディレクトリ内のパッケージをビルドすることもできますし、`uv build --package <PACKAGE>`を使用して現在のワークスペース内の指定されたパッケージをビルドすることもできます。
 
+!!! info
+
+    デフォルトでは、`uv build` は `pyproject.toml` の `build-system.requires` セクションからビルド依存関係を解決する際に `tool.uv.sources` を尊重します。パッケージを公開する際には、`uv build --no-sources` を実行して、他のビルドツール（例えば[`pypa/build`](https://github.com/pypa/build)）を使用する場合と同様に `tool.uv.sources` が無効になっているときにパッケージが正しくビルドされることを確認することをお勧めします。
+
 ## Publishing your package
 
 `uv publish`を使用してパッケージを公開します：

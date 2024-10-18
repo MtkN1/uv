@@ -173,9 +173,39 @@ def hello() -> str:
 そして `uv run` を使用してインポートおよび実行できます:
 
 ```console
-$ uv run python -c "import example_lib; print(example_lib.hello())"
+$ uv run --directory example-lib python -c "import example_lib; print(example_lib.hello())"
 Hello from example-lib!
 ```
+
+`--build-backend` を使用して、`hatchling`、`flit-core`、`pdm-backend`、`setuptools`、`maturin`、または `scikit-build-core` などの異なるビルドバックエンドテンプレートを選択できます。
+
+```console
+$ uv init --lib --build-backend maturin example-lib
+$ tree example-lib
+example-lib
+├── .python-version
+├── Cargo.toml
+├── README.md
+├── pyproject.toml
+└── src
+    ├── lib.rs
+    └── example_lib
+        ├── py.typed
+        ├── __init__.py
+        └── _core.pyi
+```
+
+And you can import and execute it using `uv run`:
+
+```console
+$ uv run --directory example-lib python -c "import example_lib; print(example_lib.hello())"
+Hello from example-lib!
+```
+
+!!! tip
+
+Changes to `lib.rs` or `main.cpp` will require running `--reinstall` when using binary build
+backends such as `maturin` and `scikit-build-core`.
 
 ### Packaged applications
 
@@ -224,13 +254,38 @@ build-backend = "hatchling.build"
 そして `uv run` で実行できます:
 
 ```console
-$ uv run example-packaged-app
+$ uv run --directory example-packaged-app example-packaged-app
 Hello from example-packaged-app!
 ```
 
 !!! tip
 
     既存のアプリケーションを配布可能なパッケージとして再定義することができます。 ただし、ビルドバックエンドによってはプロジェクトディレクトリ構造の変更が必要になる場合があります。
+
+In addition, you can further customize the build backend of a packaged application by specifying
+`--build-backend` including binary build backends such as `maturin`.
+
+```console
+$ uv init --app --package --build-backend maturin example-packaged-app
+$ tree example-packaged-app
+example-packaged-app
+├── .python-version
+├── Cargo.toml
+├── README.md
+├── pyproject.toml
+└── src
+    ├── lib.rs
+    └── example_packaged_app
+        ├── __init__.py
+        └── _core.pyi
+```
+
+Which can also be executed with `uv run`:
+
+```console
+$ uv run --directory example-packaged-app example-packaged-app
+Hello from example-packaged-app!
+```
 
 ## Project environments
 

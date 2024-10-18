@@ -81,6 +81,14 @@ $ curl -LsSf https://astral.sh/uv/install.sh | env INSTALLER_NO_MODIFY_PATH=1 sh
 $ curl -LsSf https://astral.sh/uv/install.sh | sh -s -- --help
 ```
 
+CI などの一時的な環境では、`UV_UNMANAGED_INSTALL` を使用して特定のパスに uv をインストールし、インストーラーがシェルプロファイルや環境変数を変更するのを防ぎます:
+
+```console
+$ curl -LsSf https://astral.sh/uv/install.sh | env UV_UNMANAGED_INSTALL="/custom/path" sh
+```
+
+`UV_UNMANAGED_INSTALL` を使用すると、自己更新（`uv self update` 経由）も無効になります。
+
 ### PyPI
 
 便宜上、uv は [PyPI](https://pypi.org/project/uv/) に公開されています。

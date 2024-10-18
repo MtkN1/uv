@@ -5263,7 +5263,8 @@ fn emit_index_urls() -> Result<()> {
             .arg("--index-url")
             .arg("https://test.pypi.org/simple/")
             .arg("--extra-index-url")
-            .arg("https://pypi.org/simple"), @r###"
+            .arg("https://pypi.org/simple")
+            .env("UV_EXTRA_INDEX_URL", "https://pypi.org/simple"), @r###"
     success: true
     exit_code: 0
     ----- stdout -----
@@ -6090,6 +6091,8 @@ fn index_url_in_requirements() -> Result<()> {
     ----- stderr -----
       × No solution found when resolving dependencies:
       ╰─▶ Because anyio was not found in the package registry and you require anyio<4, we can conclude that your requirements are unsatisfiable.
+
+          hint: An index URL (https://download.pytorch.org/whl) could not be queried due to a lack of valid authentication credentials (403 Forbidden).
     "###
     );
 
@@ -11397,6 +11400,9 @@ fn git_source_refs() -> Result<()> {
 fn git_source_missing_tag() -> Result<()> {
     let context = TestContext::new("3.12");
 
+    let mut filters = context.filters();
+    filters.push(("`.*/git fetch (.*)`", "`git fetch $1`"));
+
     let pyproject_toml = context.temp_dir.child("pyproject.toml");
     pyproject_toml.write_str(indoc! {r#"
         [project]
@@ -11410,7 +11416,7 @@ fn git_source_missing_tag() -> Result<()> {
         uv-public-pypackage = { git = "https://github.com/astral-test/uv-public-pypackage", tag = "missing" }
     "#})?;
 
-    uv_snapshot!(context.filters(), context.pip_compile()
+    uv_snapshot!(filters, context.pip_compile()
         .arg("pyproject.toml"), @r###"
     success: false
     exit_code: 2

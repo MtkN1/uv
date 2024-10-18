@@ -54,6 +54,7 @@ dependencies = [
 
 開発中、プロジェクトは PyPI で利用できないパッケージに依存することがあります。uv でサポートされている追加のソースは次のとおりです：
 
+- インデックス: 特定のパッケージインデックスから解決されたパッケージ。
 - Git: Git リポジトリ。
 - URL: リモートホイールまたはソースディストリビューション。
 - パス: ローカルホイール、ソースディストリビューション、またはプロジェクトディレクトリ。
@@ -70,6 +71,26 @@ $ uv lock --no-sources
 ```
 
 `--no-sources` の使用は、uv が特定の依存関係を満たすために発見できる [ワークスペースメンバー](#workspace-member) を防ぐこともあります。
+
+### Index
+特定のインデックスに Python パッケージを固定するには、`pyproject.toml` に名前付きインデックスを追加します：
+
+```toml title="pyproject.toml"
+[project]
+dependencies = [
+  "torch",
+]
+
+[tool.uv.sources]
+torch = { index = "pytorch" }
+
+[[tool.uv.index]]
+name = "pytorch"
+url = "https://download.pytorch.org/whl/cpu"
+explicit = true
+```
+
+`explicit` フラグはオプションであり、インデックスが `tool.uv.sources` で明示的に指定されたパッケージのみに使用されるべきことを示します。`explicit` が設定されていない場合、他のパッケージが他の場所で見つからない場合にインデックスから解決されることがあります。
 
 ### Git
 
@@ -210,7 +231,9 @@ httpx = { git = "https://github.com/encode/httpx", tag = "0.27.2", marker = "sys
 
 ### 複数のソース
 
-単一の依存関係に対して複数のソースを指定するには、[PEP 508](https://peps.python.org/pep-0508/#environment-markers) 互換の環境マーカーで区別されたソースのリストを提供します。例えば、macOS と Linux で異なる `httpx` コミットを取得するには：
+単一の依存関係に対して複数のソースを指定するには、[PEP 508](https://peps.python.org/pep-0508/#environment-markers) 互換の環境マーカーで区別されたソースのリストを提供します。
+
+例えば、macOS と Linux で異なる `httpx` コミットを取得するには：
 
 ```toml title="pyproject.toml"
 [project]
@@ -223,6 +246,27 @@ httpx = [
   { git = "https://github.com/encode/httpx", tag = "0.27.2", marker = "sys_platform == 'darwin'" },
   { git = "https://github.com/encode/httpx", tag = "0.24.1", marker = "sys_platform == 'linux'" },
 ]
+```
+この戦略は、環境マーカーに基づいて異なるインデックスからパッケージを取得することにも及びます。例えば、プラットフォームに基づいて異なる PyTorch インデックスから `torch` を取得するには、次のようにします：
+
+```toml title="pyproject.toml"
+[project]
+dependencies = ["torch"]
+
+[tool.uv.sources]
+torch = [
+  { index = "torch-cu118", marker = "sys_platform == 'darwin'"},
+  { index = "torch-cu124", marker = "sys_platform != 'darwin'"},
+]
+
+[[tool.uv.index]]
+name = "torch-cu118"
+url = "https://download.pytorch.org/whl/cu118"
+
+[[tool.uv.index]]
+name = "torch-cu124"
+url = "https://download.pytorch.org/whl/cu124"
+
 ```
 
 ## オプションの依存関係
@@ -277,6 +321,73 @@ dev-dependencies = [
 $ uv add ruff --dev
 ```
 
+## Build dependencies
+
+If a project is structured as [Python package](./projects.md#build-systems), it may declare
+dependencies that are required to build the project, but not required to run it. These dependencies
+are specified in the `[build-system]` table under `build-system.requires`, following
+[PEP 518](https://peps.python.org/pep-0518/).
+
+For example, if a project uses `setuptools` as its build backend, it should declare `setuptools` as
+a build dependency:
+
+```toml title="pyproject.toml"
+[project]
+name = "pandas"
+version = "0.1.0"
+
+[build-system]
+requires = ["setuptools>=42"]
+build-backend = "setuptools.build_meta"
+```
+
+By default, uv will respect `tool.uv.sources` when resolving build dependencies. For example, to use
+a local version of `setuptools` for building, add the source to `tool.uv.sources`:
+
+```toml title="pyproject.toml"
+[project]
+name = "pandas"
+version = "0.1.0"
+
+[build-system]
+requires = ["setuptools>=42"]
+build-backend = "setuptools.build_meta"
+
+[tool.uv.sources]
+setuptools = { path = "./packages/setuptools" }
+```
+
+When publishing a package, we recommend running `uv build --no-sources` to ensure that the package
+builds correctly when `tool.uv.sources` is disabled, as is the case when using other build tools,
+like [`pypa/build`](https://github.com/pypa/build).
+
+## Editable dependencies
+
+A regular installation of a directory with a Python package first builds a wheel and then installs
+that wheel into your virtual environment, copying all source files. When the package source files
+are edited, the virtual environment will contain outdated versions.
+
+Editable installations solve this problem by adding a link to the project within the virtual
+environment (a `.pth` file), which instructs the interpreter to include the source files directly.
+
+There are some limitations to editables (mainly: the build backend needs to support them, and native
+modules aren't recompiled before import), but they are useful for development, as the virtual
+environment will always use the latest changes to the package.
+
+uv uses editable installation for workspace packages by default.
+
+To add an editable dependency, use the `--editable` flag:
+
+```console
+$ uv add --editable ./path/foo
+```
+
+Or, to opt-out of using an editable dependency in a workspace:
+
+```console
+$ uv add --no-editable ./path/foo
+```
+
 ## PEP 508
 
 [PEP 508](https://peps.python.org/pep-0508/) は依存関係の指定のための構文を定義しています。これは順に：
@@ -295,8 +406,6 @@ $ uv add ruff --dev
 エクストラは名前とバージョンの間に角括弧で囲まれたカンマ区切りで指定されます。例えば、`pandas[excel,plot] ==2.2`。エクストラ名の間の空白は無視されます。
 
 一部の依存関係は特定の環境でのみ必要です。例えば、特定の Python バージョンやオペレーティングシステム。例えば、`importlib.metadata` モジュールのバックポートである `importlib-metadata` をインストールするには、`importlib-metadata >=7.1.0,<8; python_version < '3.10'` を使用します。Windows で `colorama` をインストールするには（他のプラットフォームでは省略）、`colorama >=0.4.6,<5; platform_system == "Windows"` を使用します。
-
-マーカーは `and`、`or`、および括弧で組み合わされます。例えば、`aiohttp >=3.7.4,<4; (sys_platform != 'win32' or implementation_name != 'pypy') and python_version >= '3.10'`。マーカー内のバージョンは引用符で囲む必要がありますが、マーカー外のバージョンは引用符で囲んではいけません。
 
 ## 編集可能な依存関係
 
@@ -319,3 +428,5 @@ $ uv add --editable ./path/foo
 ```console
 $ uv add --no-editable ./path/foo
 ```
+
+マーカーは `and`、`or`、および括弧で組み合わされます。例えば、`aiohttp >=3.7.4,<4; (sys_platform != 'win32' or implementation_name != 'pypy') and python_version >= '3.10'`。マーカー内のバージョンは引用符で囲む必要がありますが、マーカー外のバージョンは引用符で囲んではいけません。

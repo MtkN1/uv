@@ -21,7 +21,7 @@ Authenticate to a feed using a
 ### Using a PAT
 
 If there is a PAT available (eg
-[ `$(System.AccessToken)` in an Azure pipeline](https://learn.microsoft.com/en-us/azure/devops/pipelines/build/variables?view=azure-devops&tabs=yaml#systemaccesstoken)),
+[`$(System.AccessToken)` in an Azure pipeline](https://learn.microsoft.com/en-us/azure/devops/pipelines/build/variables?view=azure-devops&tabs=yaml#systemaccesstoken)),
 credentials can be provided via the "Basic" HTTP authentication scheme. Include the PAT in the
 password field of the URL. A username must be included as well, but can be any string.
 
@@ -105,8 +105,8 @@ export UV_EXTRA_INDEX_URL="https://aws:${AWS_CODEARTIFACT_TOKEN}@${AWS_DOMAIN}-$
 資格情報とは別に `UV_PUBLISH_URL` を設定する必要があります:
 
 ```bash
-# uv を AWS CodeArtifact に設定します
-export UV_PUBLISH_URL="https://${AWS_CODEARTIFACT_TOKEN}@${AWS_DOMAIN}-${AWS_ACCOUNT_ID}.d.codeartifact.${AWS_REGION}.amazonaws.com/pypi/${AWS_CODEARTIFACT_REPOSITORY}/"
+# Configure uv to use AWS CodeArtifact
+export UV_PUBLISH_URL="https://${AWS_DOMAIN}-${AWS_ACCOUNT_ID}.d.codeartifact.${AWS_REGION}.amazonaws.com/pypi/${AWS_CODEARTIFACT_REPOSITORY}/"
 export UV_PUBLISH_USERNAME=aws
 export UV_PUBLISH_PASSWORD="$AWS_CODEARTIFACT_TOKEN"
 
