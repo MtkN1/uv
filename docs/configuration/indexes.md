@@ -14,6 +14,8 @@ name = "pytorch"
 url = "https://download.pytorch.org/whl/cpu"
 ```
 
+インデックス名は、英数字、ダッシュ、またはアンダースコアのみを含む必要があります。
+
 インデックスは定義された順序で優先され、構成ファイルに最初にリストされたインデックスが依存関係を解決する際に最初に参照され、コマンドラインで提供されたインデックスは構成ファイル内のインデックスよりも優先されます。
 
 デフォルトでは、uvはPython Package Index (PyPI)を「デフォルト」インデックスとして含めます。これは、他のインデックスにパッケージが見つからない場合に使用されるインデックスです。PyPIをインデックスのリストから除外するには、別のインデックスエントリに`default = true`を設定します（またはコマンドラインオプションの`--default-index`を使用します）：
@@ -117,7 +119,7 @@ export UV_INDEX_INTERNAL_PASSWORD=koala
 ```toml
 [[tool.uv.index]]
 name = "internal"
-url = "https://public:koala@https://pypi-proxy.corp.dev/simple"
+url = "https://public:koala@pypi-proxy.corp.dev/simple"
 ```
 
 セキュリティ上の理由から、資格情報は`uv.lock`ファイルに保存されることはなく、インストール時に認証されたURLにアクセスできる必要があります。
