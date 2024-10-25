@@ -1,14 +1,14 @@
-# Installing uv
+# uvのインストール
 
-## Installation methods
+## インストール方法
 
-Install uv with our standalone installers or your package manager of choice.
+uvをスタンドアロンインストーラーまたはお好みのパッケージマネージャーでインストールします。
 
-### Standalone installer
+### スタンドアロンインストーラー
 
-uv provides a standalone installer to download and install uv:
+uvはuvをダウンロードしてインストールするためのスタンドアロンインストーラーを提供しています：
 
-=== "macOS and Linux"
+=== "macOSとLinux"
 
     ```console
     $ curl -LsSf https://astral.sh/uv/install.sh | sh
@@ -20,9 +20,9 @@ uv provides a standalone installer to download and install uv:
     $ powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
     ```
 
-Request a specific version by including it in the URL:
+特定のバージョンをリクエストするには、URLに含めます：
 
-=== "macOS and Linux"
+=== "macOSとLinux"
 
     ```console
     $ curl -LsSf https://astral.sh/uv/0.4.6/install.sh | sh
@@ -36,9 +36,9 @@ Request a specific version by including it in the URL:
 
 !!! tip
 
-    The installation script may be inspected before use:
+    インストールスクリプトは使用前に確認できます：
 
-    === "macOS and Linux"
+    === "macOSとLinux"
 
         ```console
         $ curl -LsSf https://astral.sh/uv/install.sh | less
@@ -50,22 +50,22 @@ Request a specific version by including it in the URL:
         $ powershell -c "irm https://astral.sh/uv/install.ps1 | more"
         ```
 
-    Alternatively, the installer or binaries can be downloaded directly from [GitHub](#github-releases).
+    また、インストーラーやバイナリは[GitHub](#github-releases)から直接ダウンロードできます。
 
 See the documentation on [installer configuration](../configuration/installer.md) for details on
 customizing your uv installation.
 
 ### PyPI
 
-For convenience, uv is published to [PyPI](https://pypi.org/project/uv/).
+便宜上、uvは[PyPI](https://pypi.org/project/uv/)に公開されています。
 
-If installing from PyPI, we recommend installing uv into an isolated environment, e.g., with `pipx`:
+PyPIからインストールする場合、uvを隔離された環境にインストールすることをお勧めします。例えば、`pipx`を使用します：
 
 ```console
 $ pipx install uv
 ```
 
-However, `pip` can also be used:
+ただし、`pip`も使用できます：
 
 ```console
 $ pip install uv
@@ -73,15 +73,12 @@ $ pip install uv
 
 !!! note
 
-    uv ships with prebuilt distributions (wheels) for many platforms; if a wheel is not available for a given
-    platform, uv will be built from source, which requires a Rust toolchain. See the
-    [contributing setup guide](https://github.com/astral-sh/uv/blob/main/CONTRIBUTING.md#setup)
-    for details on building uv from source.
+    uvは多くのプラットフォーム向けに事前構築されたディストリビューション（ホイール）を提供しています。特定のプラットフォーム向けのホイールが利用できない場合、uvはソースからビルドされます。これにはRustツールチェーンが必要です。ソースからuvをビルドする詳細については、
+    [貢献者のセットアップガイド](https://github.com/astral-sh/uv/blob/main/CONTRIBUTING.md#setup)を参照してください。
 
 ### Cargo
 
-uv is available via Cargo, but must be built from Git rather than [crates.io](https://crates.io) due
-to its dependency on unpublished crates.
+uvはCargo経由で利用可能ですが、未公開のクレートに依存しているため、[crates.io](https://crates.io)ではなくGitからビルドする必要があります。
 
 ```console
 $ cargo install --git https://github.com/astral-sh/uv uv
@@ -89,7 +86,7 @@ $ cargo install --git https://github.com/astral-sh/uv uv
 
 ### Homebrew
 
-uv is available in the core Homebrew packages.
+uvはcore Homebrewパッケージで利用可能です。
 
 ```console
 $ brew install uv
@@ -97,7 +94,7 @@ $ brew install uv
 
 ### Winget
 
-uv is available via [winget](https://winstall.app/apps/astral-sh.uv).
+uvは[winget](https://winstall.app/apps/astral-sh.uv)経由で利用可能です。
 
 ```console
 $ winget install --id=astral-sh.uv  -e
@@ -105,22 +102,19 @@ $ winget install --id=astral-sh.uv  -e
 
 ### Docker
 
-uv provides a Docker image at
-[`ghcr.io/astral-sh/uv`](https://github.com/astral-sh/uv/pkgs/container/uv).
+uvは[`ghcr.io/astral-sh/uv`](https://github.com/astral-sh/uv/pkgs/container/uv)でDockerイメージを提供しています。
 
-See our guide on [using uv in Docker](../guides/integration/docker.md) for more details.
+詳細については、[Dockerでuvを使用するガイド](../guides/integration/docker.md)を参照してください。
 
-### GitHub Releases
+### GitHubリリース
 
-uv release artifacts can be downloaded directly from
-[GitHub Releases](https://github.com/astral-sh/uv/releases).
+uvのリリースアーティファクトは[GitHubリリース](https://github.com/astral-sh/uv/releases)から直接ダウンロードできます。
 
-Each release page includes binaries for all supported platforms as well as instructions for using
-the standalone installer via `github.com` instead of `astral.sh`.
+各リリースページには、すべてのサポートされているプラットフォーム向けのバイナリと、`github.com`経由でスタンドアロンインストーラーを使用するための手順が含まれています。
 
-## Upgrading uv
+## uvのアップグレード
 
-When uv is installed via the standalone installer, it can update itself on-demand:
+uvがスタンドアロンインストーラーを介してインストールされている場合、オンデマンドで自己更新できます：
 
 ```console
 $ uv self update
@@ -128,24 +122,22 @@ $ uv self update
 
 !!! tip
 
-    Updating uv will re-run the installer and can modify your shell profiles. To disable this
-    behavior, set `INSTALLER_NO_MODIFY_PATH=1`.
+    uvの更新はインストーラーを再実行し、シェルプロファイルを変更する可能性があります。この動作を無効にするには、`INSTALLER_NO_MODIFY_PATH=1`を設定します。
 
-When another installation method is used, self-updates are disabled. Use the package manager's
-upgrade method instead. For example, with `pip`:
+他のインストール方法が使用されている場合、自己更新は無効になります。代わりにパッケージマネージャーのアップグレード方法を使用します。例えば、`pip`を使用する場合：
 
 ```console
 $ pip install --upgrade uv
 ```
 
-## Shell autocompletion
+## シェルの自動補完
 
-To enable shell autocompletion for uv commands, run one of the following:
+uvコマンドのシェル自動補完を有効にするには、次のいずれかを実行します：
 
-=== "Linux and macOS"
+=== "LinuxとmacOS"
 
     ```bash
-    # Determine your shell (e.g., with `echo $SHELL`), then run one of:
+    # シェルを確認し（例：`echo $SHELL`）、次のいずれかを実行します：
     echo 'eval "$(uv generate-shell-completion bash)"' >> ~/.bashrc
     echo 'eval "$(uv generate-shell-completion zsh)"' >> ~/.zshrc
     echo 'uv generate-shell-completion fish | source' >> ~/.config/fish/config.fish
@@ -158,16 +150,16 @@ To enable shell autocompletion for uv commands, run one of the following:
     Add-Content -Path $PROFILE -Value '(& uv generate-shell-completion powershell) | Out-String | Invoke-Expression'
     ```
 
-To enable shell autocompletion for uvx, run one of the following:
+uvxのシェル自動補完を有効にするには、次のいずれかを実行します：
 
-=== "Linux and macOS"
+=== "LinuxとmacOS"
 
     ```bash
-    # Determine your shell (e.g., with `echo $SHELL`), then run one of:
+    # シェルを確認し（例：`echo $SHELL`）、次のいずれかを実行します：
     echo 'eval "$(uvx --generate-shell-completion bash)"' >> ~/.bashrc
     echo 'eval "$(uvx --generate-shell-completion zsh)"' >> ~/.zshrc
     echo 'uvx --generate-shell-completion fish | source' >> ~/.config/fish/config.fish
-    echo 'eval (uvx --generate-shell-completion elvish | slurp)' >> ~/.elvish/rc.elv
+    echo 'eval (uvx --generate-shell-completion elvish | slurp)'' >> ~/.elvish/rc.elv
     ```
 
 === "Windows"
@@ -176,13 +168,13 @@ To enable shell autocompletion for uvx, run one of the following:
     Add-Content -Path $PROFILE -Value '(& uvx --generate-shell-completion powershell) | Out-String | Invoke-Expression'
     ```
 
-Then restart the shell or source the shell config file.
+その後、シェルを再起動するか、シェルの設定ファイルをソースにします。
 
-## Uninstallation
+## アンインストール
 
-If you need to remove uv from your system, just remove the `uv` and `uvx` binaries:
+システムからuvを削除する必要がある場合は、`uv`および`uvx`バイナリを削除します：
 
-=== "macOS and Linux"
+=== "macOSとLinux"
 
     ```console
     $ rm ~/.cargo/bin/uv ~/.cargo/bin/uvx
@@ -197,7 +189,7 @@ If you need to remove uv from your system, just remove the `uv` and `uvx` binari
 
 !!! tip
 
-    You may want to remove data that uv has stored before removing the binaries:
+    バイナリを削除する前に、uvが保存したデータを削除することをお勧めします：
 
     ```console
     $ uv cache clean
@@ -205,7 +197,6 @@ If you need to remove uv from your system, just remove the `uv` and `uvx` binari
     $ rm -r "$(uv tool dir)"
     ```
 
-## Next steps
+## 次のステップ
 
-See the [first steps](./first-steps.md) or jump straight to the [guides](../guides/index.md) to
-start using uv.
+[最初のステップ](./first-steps.md)を確認するか、[ガイド](../guides/index.md)に直接ジャンプしてuvの使用を開始してください。
