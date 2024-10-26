@@ -8,7 +8,8 @@ use tracing::debug;
 use uv_cache::Cache;
 use uv_client::{BaseClientBuilder, Connectivity, FlatIndexClient, RegistryClientBuilder};
 use uv_configuration::{
-    Concurrency, Constraints, ExtrasSpecification, LowerBound, Reinstall, Upgrade,
+    Concurrency, Constraints, DevGroupsSpecification, ExtrasSpecification, GroupsSpecification,
+    LowerBound, Reinstall, Upgrade,
 };
 use uv_dispatch::BuildDispatch;
 use uv_distribution::DistributionDatabase;
@@ -18,7 +19,7 @@ use uv_distribution_types::{
 use uv_fs::Simplified;
 use uv_git::ResolvedRepositoryReference;
 use uv_installer::{SatisfiesResult, SitePackages};
-use uv_normalize::PackageName;
+use uv_normalize::{GroupName, PackageName, DEV_DEPENDENCIES};
 use uv_pep440::{Version, VersionSpecifiers};
 use uv_pep508::MarkerTreeContents;
 use uv_pypi_types::Requirement;
@@ -35,6 +36,8 @@ use uv_resolver::{
 };
 use uv_types::{BuildIsolation, EmptyInstalledPackages, HashStrategy};
 use uv_warnings::{warn_user, warn_user_once};
+use uv_workspace::dependency_groups::DependencyGroupError;
+use uv_workspace::pyproject::PyProjectToml;
 use uv_workspace::Workspace;
 
 use crate::commands::pip::loggers::{InstallLogger, ResolveLogger};
@@ -63,6 +66,12 @@ pub(crate) enum ProjectError {
         "Unable to find lockfile at `uv.lock`. To create a lockfile, run `uv lock` or `uv sync`."
     )]
     MissingLockfile,
+
+    #[error("The lockfile at `uv.lock` uses an unsupported schema version (v{1}, but only v{0} is supported). Downgrade to a compatible uv version, or remove the `uv.lock` prior to running `uv lock` or `uv sync`.")]
+    UnsupportedLockVersion(u32, u32),
+
+    #[error("Failed to parse `uv.lock`, which uses an unsupported schema version (v{1}, but only v{0} is supported). Downgrade to a compatible uv version, or remove the `uv.lock` prior to running `uv lock` or `uv sync`.")]
+    UnparsableLockVersion(u32, u32, #[source] toml::de::Error),
 
     #[error("The current Python version ({0}) is not compatible with the locked Python requirement: `{1}`")]
     LockedPythonIncompatibility(Version, RequiresPython),
@@ -116,6 +125,12 @@ pub(crate) enum ProjectError {
         PathBuf,
     ),
 
+    #[error("Group `{0}` is not defined in the project's `dependency-group` table")]
+    MissingGroup(GroupName),
+
+    #[error("Default group `{0}` (from `tool.uv.default-groups`) is not defined in the project's `dependency-group` table")]
+    MissingDefaultGroup(GroupName),
+
     #[error("Supported environments must be disjoint, but the following markers overlap: `{0}` and `{1}`.\n\n{hint}{colon} replace `{1}` with `{2}`.", hint = "hint".bold().cyan(), colon = ":".bold())]
     OverlappingMarkers(String, String, String),
 
@@ -128,11 +143,17 @@ pub(crate) enum ProjectError {
     #[error("Project virtual environment directory `{0}` cannot be used because {1}")]
     InvalidProjectEnvironmentDir(PathBuf, String),
 
+    #[error("Failed to parse `uv.lock`")]
+    UvLockParse(#[source] toml::de::Error),
+
     #[error("Failed to parse `pyproject.toml`")]
-    TomlParse(#[source] toml::de::Error),
+    PyprojectTomlParse(#[source] toml::de::Error),
 
     #[error("Failed to update `pyproject.toml`")]
-    TomlUpdate,
+    PyprojectTomlUpdate,
+
+    #[error(transparent)]
+    DependencyGroup(#[from] DependencyGroupError),
 
     #[error(transparent)]
     Python(#[from] uv_python::Error),
@@ -1345,6 +1366,53 @@ pub(crate) async fn script_python_requirement(
     Ok(RequiresPython::greater_than_equal_version(
         &interpreter.python_minor_version(),
     ))
+}
+
+/// Validate the dependency groups requested by the [`DevGroupsSpecification`].
+#[allow(clippy::result_large_err)]
+pub(crate) fn validate_dependency_groups(
+    pyproject_toml: &PyProjectToml,
+    dev: &DevGroupsSpecification,
+) -> Result<(), ProjectError> {
+    for group in dev
+        .groups()
+        .into_iter()
+        .flat_map(GroupsSpecification::names)
+    {
+        if !pyproject_toml
+            .dependency_groups
+            .as_ref()
+            .is_some_and(|groups| groups.contains_key(group))
+        {
+            return Err(ProjectError::MissingGroup(group.clone()));
+        }
+    }
+    Ok(())
+}
+
+/// Returns the default dependency groups from the [`PyProjectToml`].
+#[allow(clippy::result_large_err)]
+pub(crate) fn default_dependency_groups(
+    pyproject_toml: &PyProjectToml,
+) -> Result<Vec<GroupName>, ProjectError> {
+    if let Some(defaults) = pyproject_toml
+        .tool
+        .as_ref()
+        .and_then(|tool| tool.uv.as_ref().and_then(|uv| uv.default_groups.as_ref()))
+    {
+        for group in defaults {
+            if !pyproject_toml
+                .dependency_groups
+                .as_ref()
+                .is_some_and(|groups| groups.contains_key(group))
+            {
+                return Err(ProjectError::MissingDefaultGroup(group.clone()));
+            }
+        }
+        Ok(defaults.clone())
+    } else {
+        Ok(vec![DEV_DEPENDENCIES.clone()])
+    }
 }
 
 /// Warn if the user provides (e.g.) an `--index-url` in a requirements file.

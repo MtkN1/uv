@@ -4,7 +4,6 @@ use std::collections::BTreeSet;
 use std::fmt::Write;
 use std::path::Path;
 
-use anstream::eprint;
 use owo_colors::OwoColorize;
 use rustc_hash::{FxBuildHasher, FxHashMap};
 use tracing::debug;
@@ -28,8 +27,8 @@ use uv_python::{Interpreter, PythonDownloads, PythonEnvironment, PythonPreferenc
 use uv_requirements::upgrade::{read_lock_requirements, LockedRequirements};
 use uv_requirements::ExtrasResolver;
 use uv_resolver::{
-    FlatIndex, InMemoryIndex, Lock, Options, OptionsBuilder, PythonRequirement, RequiresPython,
-    ResolverManifest, ResolverMarkers, SatisfiesResult,
+    FlatIndex, InMemoryIndex, Lock, LockVersion, Options, OptionsBuilder, PythonRequirement,
+    RequiresPython, ResolverManifest, ResolverMarkers, SatisfiesResult, VERSION,
 };
 use uv_types::{BuildContext, BuildIsolation, EmptyInstalledPackages, HashStrategy};
 use uv_warnings::{warn_user, warn_user_once};
@@ -70,10 +69,12 @@ impl LockResult {
 }
 
 /// Resolve the project requirements into a lockfile.
+#[allow(clippy::fn_params_excessive_bools)]
 pub(crate) async fn lock(
     project_dir: &Path,
     locked: bool,
     frozen: bool,
+    dry_run: bool,
     python: Option<String>,
     settings: ResolverSettings,
     python_preference: PythonPreference,
@@ -108,6 +109,7 @@ pub(crate) async fn lock(
     match do_safe_lock(
         locked,
         frozen,
+        dry_run,
         &workspace,
         &interpreter,
         settings.as_ref(),
@@ -123,9 +125,25 @@ pub(crate) async fn lock(
     .await
     {
         Ok(lock) => {
-            if let LockResult::Changed(Some(previous), lock) = &lock {
-                report_upgrades(previous, lock, printer)?;
+            if dry_run {
+                let changed = if let LockResult::Changed(previous, lock) = &lock {
+                    report_upgrades(previous.as_ref(), lock, printer, dry_run)?
+                } else {
+                    false
+                };
+                if !changed {
+                    writeln!(
+                        printer.stderr(),
+                        "{}",
+                        "No lockfile changes detected".bold()
+                    )?;
+                }
+            } else {
+                if let LockResult::Changed(Some(previous), lock) = &lock {
+                    report_upgrades(Some(previous), lock, printer, dry_run)?;
+                }
             }
+
             Ok(ExitStatus::Success)
         }
         Err(ProjectError::Operation(pip::operations::Error::Resolve(
@@ -152,9 +170,11 @@ pub(crate) async fn lock(
 }
 
 /// Perform a lock operation, respecting the `--locked` and `--frozen` parameters.
+#[allow(clippy::fn_params_excessive_bools)]
 pub(super) async fn do_safe_lock(
     locked: bool,
     frozen: bool,
+    dry_run: bool,
     workspace: &Workspace,
     interpreter: &Interpreter,
     settings: ResolverSettingsRef<'_>,
@@ -204,7 +224,15 @@ pub(super) async fn do_safe_lock(
         Ok(result)
     } else {
         // Read the existing lockfile.
-        let existing = read(workspace).await?;
+        let existing = match read(workspace).await {
+            Ok(Some(existing)) => Some(existing),
+            Ok(None) => None,
+            Err(ProjectError::Lock(err)) => {
+                warn_user!("Failed to read existing lockfile; ignoring locked requirements: {err}");
+                None
+            }
+            Err(err) => return Err(err),
+        };
 
         // Perform the lock operation.
         let result = do_lock(
@@ -224,8 +252,10 @@ pub(super) async fn do_safe_lock(
         .await?;
 
         // If the lockfile changed, write it to disk.
-        if let LockResult::Changed(_, lock) = &result {
-            commit(lock, workspace).await?;
+        if !dry_run {
+            if let LockResult::Changed(_, lock) = &result {
+                commit(lock, workspace).await?;
+            }
         }
 
         Ok(result)
@@ -269,10 +299,16 @@ async fn do_lock(
     } = settings;
 
     // Collect the requirements, etc.
-    let requirements = workspace.non_project_requirements().collect::<Vec<_>>();
+    let requirements = workspace.non_project_requirements()?;
     let overrides = workspace.overrides().into_iter().collect::<Vec<_>>();
     let constraints = workspace.constraints();
-    let dev = vec![DEV_DEPENDENCIES.clone()];
+    let dev: Vec<_> = workspace
+        .pyproject_toml()
+        .dependency_groups
+        .iter()
+        .flat_map(|groups| groups.keys().cloned())
+        .chain(std::iter::once(DEV_DEPENDENCIES.clone()))
+        .collect();
     let source_trees = vec![];
 
     // Collect the list of members.
@@ -869,7 +905,7 @@ impl ValidatedLock {
                 );
                 Ok(Self::Preferable(lock))
             }
-            SatisfiesResult::MismatchedDevDependencies(name, version, expected, actual) => {
+            SatisfiesResult::MismatchedDependencyGroups(name, version, expected, actual) => {
                 debug!(
                     "Ignoring existing lockfile due to mismatched dev dependencies for: `{name}=={version}`\n  Expected: {:?}\n  Actual: {:?}",
                     expected, actual
@@ -903,30 +939,62 @@ async fn commit(lock: &Lock, workspace: &Workspace) -> Result<(), ProjectError> 
 /// Returns `Ok(None)` if the lockfile does not exist.
 pub(crate) async fn read(workspace: &Workspace) -> Result<Option<Lock>, ProjectError> {
     match fs_err::tokio::read_to_string(&workspace.install_path().join("uv.lock")).await {
-        Ok(encoded) => match toml::from_str(&encoded) {
-            Ok(lock) => Ok(Some(lock)),
-            Err(err) => {
-                eprint!("Failed to parse lockfile; ignoring locked requirements: {err}");
-                Ok(None)
+        Ok(encoded) => {
+            match toml::from_str::<Lock>(&encoded) {
+                Ok(lock) => {
+                    // If the lockfile uses an unsupported version, raise an error.
+                    if lock.version() != VERSION {
+                        return Err(ProjectError::UnsupportedLockVersion(
+                            VERSION,
+                            lock.version(),
+                        ));
+                    }
+                    Ok(Some(lock))
+                }
+                Err(err) => {
+                    // If we failed to parse the lockfile, determine whether it's a supported
+                    // version.
+                    if let Ok(lock) = toml::from_str::<LockVersion>(&encoded) {
+                        if lock.version() != VERSION {
+                            return Err(ProjectError::UnparsableLockVersion(
+                                VERSION,
+                                lock.version(),
+                                err,
+                            ));
+                        }
+                    }
+                    Err(ProjectError::UvLockParse(err))
+                }
             }
-        },
+        }
         Err(err) if err.kind() == std::io::ErrorKind::NotFound => Ok(None),
         Err(err) => Err(err.into()),
     }
 }
 
 /// Reports on the versions that were upgraded in the new lockfile.
-fn report_upgrades(existing_lock: &Lock, new_lock: &Lock, printer: Printer) -> anyhow::Result<()> {
+///
+/// Returns `true` if any upgrades were reported.
+fn report_upgrades(
+    existing_lock: Option<&Lock>,
+    new_lock: &Lock,
+    printer: Printer,
+    dry_run: bool,
+) -> anyhow::Result<bool> {
     let existing_packages: FxHashMap<&PackageName, BTreeSet<&Version>> =
-        existing_lock.packages().iter().fold(
-            FxHashMap::with_capacity_and_hasher(existing_lock.packages().len(), FxBuildHasher),
-            |mut acc, package| {
-                acc.entry(package.name())
-                    .or_default()
-                    .insert(package.version());
-                acc
-            },
-        );
+        if let Some(existing_lock) = existing_lock {
+            existing_lock.packages().iter().fold(
+                FxHashMap::with_capacity_and_hasher(existing_lock.packages().len(), FxBuildHasher),
+                |mut acc, package| {
+                    acc.entry(package.name())
+                        .or_default()
+                        .insert(package.version());
+                    acc
+                },
+            )
+        } else {
+            FxHashMap::default()
+        };
 
     let new_distributions: FxHashMap<&PackageName, BTreeSet<&Version>> =
         new_lock.packages().iter().fold(
@@ -939,11 +1007,13 @@ fn report_upgrades(existing_lock: &Lock, new_lock: &Lock, printer: Printer) -> a
             },
         );
 
+    let mut updated = false;
     for name in existing_packages
         .keys()
         .chain(new_distributions.keys())
         .collect::<BTreeSet<_>>()
     {
+        updated = true;
         match (existing_packages.get(name), new_distributions.get(name)) {
             (Some(existing_versions), Some(new_versions)) => {
                 if existing_versions != new_versions {
@@ -960,7 +1030,7 @@ fn report_upgrades(existing_lock: &Lock, new_lock: &Lock, printer: Printer) -> a
                     writeln!(
                         printer.stderr(),
                         "{} {name} {existing_versions} -> {new_versions}",
-                        "Updated".green().bold()
+                        if dry_run { "Update" } else { "Updated" }.green().bold()
                     )?;
                 }
             }
@@ -973,7 +1043,7 @@ fn report_upgrades(existing_lock: &Lock, new_lock: &Lock, printer: Printer) -> a
                 writeln!(
                     printer.stderr(),
                     "{} {name} {existing_versions}",
-                    "Removed".red().bold()
+                    if dry_run { "Remove" } else { "Removed" }.red().bold()
                 )?;
             }
             (None, Some(new_versions)) => {
@@ -985,7 +1055,7 @@ fn report_upgrades(existing_lock: &Lock, new_lock: &Lock, printer: Printer) -> a
                 writeln!(
                     printer.stderr(),
                     "{} {name} {new_versions}",
-                    "Added".green().bold()
+                    if dry_run { "Add" } else { "Added" }.green().bold()
                 )?;
             }
             (None, None) => {
@@ -994,5 +1064,5 @@ fn report_upgrades(existing_lock: &Lock, new_lock: &Lock, printer: Printer) -> a
         }
     }
 
-    Ok(())
+    Ok(updated)
 }

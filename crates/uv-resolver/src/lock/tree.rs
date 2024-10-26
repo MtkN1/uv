@@ -7,7 +7,7 @@ use petgraph::visit::Dfs;
 use petgraph::Direction;
 use rustc_hash::{FxHashMap, FxHashSet};
 
-use uv_configuration::DevMode;
+use uv_configuration::DevGroupsManifest;
 use uv_normalize::{ExtraName, GroupName, PackageName};
 use uv_pypi_types::ResolverMarkerEnvironment;
 
@@ -34,7 +34,7 @@ impl<'env> TreeDisplay<'env> {
         depth: usize,
         prune: &[PackageName],
         packages: &[PackageName],
-        dev: DevMode,
+        dev: &DevGroupsManifest,
         no_dedupe: bool,
         invert: bool,
     ) -> Self {
@@ -49,16 +49,6 @@ impl<'env> TreeDisplay<'env> {
             }
 
             for dependency in &package.dependencies {
-                // Skip dependencies that don't apply to the current environment.
-                if let Some(environment_markers) = markers {
-                    if !dependency
-                        .complexified_marker
-                        .evaluate(environment_markers, &[])
-                    {
-                        continue;
-                    }
-                }
-
                 // Insert the package into the graph.
                 let package_node = if let Some(index) = inverse.get(&package.id) {
                     *index
@@ -78,38 +68,15 @@ impl<'env> TreeDisplay<'env> {
                 };
 
                 // Add an edge between the package and the dependency.
-                if invert {
-                    graph.add_edge(
-                        dependency_node,
-                        package_node,
-                        Edge::Prod(Cow::Owned(Dependency {
-                            package_id: package.id.clone(),
-                            extra: dependency.extra.clone(),
-                            simplified_marker: dependency.simplified_marker.clone(),
-                            complexified_marker: dependency.complexified_marker.clone(),
-                        })),
-                    );
-                } else {
-                    graph.add_edge(
-                        package_node,
-                        dependency_node,
-                        Edge::Prod(Cow::Borrowed(dependency)),
-                    );
-                }
+                graph.add_edge(
+                    package_node,
+                    dependency_node,
+                    Edge::Prod(Cow::Borrowed(dependency)),
+                );
             }
 
             for (extra, dependencies) in &package.optional_dependencies {
                 for dependency in dependencies {
-                    // Skip dependencies that don't apply to the current environment.
-                    if let Some(environment_markers) = markers {
-                        if !dependency
-                            .complexified_marker
-                            .evaluate(environment_markers, &[])
-                        {
-                            continue;
-                        }
-                    }
-
                     // Insert the package into the graph.
                     let package_node = if let Some(index) = inverse.get(&package.id) {
                         *index
@@ -129,42 +96,16 @@ impl<'env> TreeDisplay<'env> {
                     };
 
                     // Add an edge between the package and the dependency.
-                    if invert {
-                        graph.add_edge(
-                            dependency_node,
-                            package_node,
-                            Edge::Optional(
-                                extra,
-                                Cow::Owned(Dependency {
-                                    package_id: package.id.clone(),
-                                    extra: dependency.extra.clone(),
-                                    simplified_marker: dependency.simplified_marker.clone(),
-                                    complexified_marker: dependency.complexified_marker.clone(),
-                                }),
-                            ),
-                        );
-                    } else {
-                        graph.add_edge(
-                            package_node,
-                            dependency_node,
-                            Edge::Optional(extra, Cow::Borrowed(dependency)),
-                        );
-                    }
+                    graph.add_edge(
+                        package_node,
+                        dependency_node,
+                        Edge::Optional(extra, Cow::Borrowed(dependency)),
+                    );
                 }
             }
 
-            for (group, dependencies) in &package.dev_dependencies {
+            for (group, dependencies) in &package.dependency_groups {
                 for dependency in dependencies {
-                    // Skip dependencies that don't apply to the current environment.
-                    if let Some(environment_markers) = markers {
-                        if !dependency
-                            .complexified_marker
-                            .evaluate(environment_markers, &[])
-                        {
-                            continue;
-                        }
-                    }
-
                     // Insert the package into the graph.
                     let package_node = if let Some(index) = inverse.get(&package.id) {
                         *index
@@ -184,34 +125,88 @@ impl<'env> TreeDisplay<'env> {
                     };
 
                     // Add an edge between the package and the dependency.
-                    if invert {
-                        graph.add_edge(
-                            dependency_node,
-                            package_node,
-                            Edge::Dev(
-                                group,
-                                Cow::Owned(Dependency {
-                                    package_id: package.id.clone(),
-                                    extra: dependency.extra.clone(),
-                                    simplified_marker: dependency.simplified_marker.clone(),
-                                    complexified_marker: dependency.complexified_marker.clone(),
-                                }),
-                            ),
-                        );
-                    } else {
-                        graph.add_edge(
-                            package_node,
-                            dependency_node,
-                            Edge::Dev(group, Cow::Borrowed(dependency)),
-                        );
-                    }
+                    graph.add_edge(
+                        package_node,
+                        dependency_node,
+                        Edge::Dev(group, Cow::Borrowed(dependency)),
+                    );
                 }
             }
         }
 
-        let mut modified = false;
+        // Step 1: Filter out packages that aren't reachable on this platform.
+        if let Some(environment_markers) = markers {
+            let mut reachable = FxHashSet::default();
 
-        // Filter the graph to those nodes reachable from the root nodes.
+            // Perform a DFS from the root nodes to find the reachable nodes, following only the
+            // production edges.
+            let mut stack = graph
+                .node_indices()
+                .filter(|index| {
+                    graph
+                        .edges_directed(*index, Direction::Incoming)
+                        .next()
+                        .is_none()
+                })
+                .collect::<VecDeque<_>>();
+            while let Some(node) = stack.pop_front() {
+                reachable.insert(node);
+                for edge in graph.edges_directed(node, Direction::Outgoing) {
+                    if edge
+                        .weight()
+                        .dependency()
+                        .complexified_marker
+                        .evaluate(environment_markers, &[])
+                    {
+                        stack.push_back(edge.target());
+                    }
+                }
+            }
+
+            // Remove the unreachable nodes from the graph.
+            graph.retain_nodes(|_, index| reachable.contains(&index));
+        }
+
+        // Step 2: Filter the graph to those that are reachable in production or development, if
+        // `--no-dev` or `--only-dev` were specified, respectively.
+        {
+            let mut reachable = FxHashSet::default();
+
+            // Perform a DFS from the root nodes to find the reachable nodes, following only the
+            // production edges.
+            let mut stack = graph
+                .node_indices()
+                .filter(|index| {
+                    graph
+                        .edges_directed(*index, Direction::Incoming)
+                        .next()
+                        .is_none()
+                })
+                .collect::<VecDeque<_>>();
+            while let Some(node) = stack.pop_front() {
+                reachable.insert(node);
+                for edge in graph.edges_directed(node, Direction::Outgoing) {
+                    let include = match edge.weight() {
+                        Edge::Prod(_) => dev.prod(),
+                        Edge::Optional(_, _) => dev.prod(),
+                        Edge::Dev(group, _) => dev.iter().contains(*group),
+                    };
+                    if include {
+                        stack.push_back(edge.target());
+                    }
+                }
+            }
+
+            // Remove the unreachable nodes from the graph.
+            graph.retain_nodes(|_, index| reachable.contains(&index));
+        }
+
+        // Step 3: Reverse the graph.
+        if invert {
+            graph.reverse();
+        }
+
+        // Step 4: Filter the graph to those nodes reachable from the target packages.
         if !packages.is_empty() {
             let mut reachable = FxHashSet::default();
 
@@ -229,47 +224,10 @@ impl<'env> TreeDisplay<'env> {
 
             // Remove the unreachable nodes from the graph.
             graph.retain_nodes(|_, index| reachable.contains(&index));
-            modified = true;
         }
 
-        // Filter the graph to those that are reachable from production nodes, if `--no-dev` or
-        // `--only-dev` was specified.
-        if dev != DevMode::Include {
-            let mut reachable = FxHashSet::default();
-
-            // Perform a DFS from the root nodes to find the reachable nodes, following only the
-            // production edges.
-            let mut stack = graph
-                .node_indices()
-                .filter(|index| {
-                    graph
-                        .edges_directed(*index, Direction::Incoming)
-                        .next()
-                        .is_none()
-                })
-                .collect::<VecDeque<_>>();
-            while let Some(node) = stack.pop_front() {
-                reachable.insert(node);
-                for edge in graph.edges_directed(node, Direction::Outgoing) {
-                    if matches!(edge.weight(), Edge::Prod(_) | Edge::Optional(_, _)) {
-                        stack.push_back(edge.target());
-                    }
-                }
-            }
-
-            // Remove the unreachable nodes from the graph.
-            graph.retain_nodes(|_, index| {
-                if reachable.contains(&index) {
-                    dev != DevMode::Only
-                } else {
-                    dev != DevMode::Exclude
-                }
-            });
-            modified = true;
-        }
-
-        // If the graph was modified, re-create the inverse map.
-        if modified {
+        // Re-create the inverse map.
+        {
             inverse.clear();
             for node in graph.node_indices() {
                 inverse.insert(graph[node], node);
@@ -307,9 +265,9 @@ impl<'env> TreeDisplay<'env> {
 
             match node {
                 Node::Root(_) => line,
-                Node::Dependency(_) => line,
-                Node::OptionalDependency(extra, _) => format!("{line} (extra: {extra})"),
-                Node::DevDependency(group, _) => format!("{line} (group: {group})"),
+                Node::Dependency(_, _) => line,
+                Node::OptionalDependency(extra, _, _) => format!("{line} (extra: {extra})"),
+                Node::DevDependency(group, _, _) => format!("{line} (group: {group})"),
             }
         };
 
@@ -330,9 +288,13 @@ impl<'env> TreeDisplay<'env> {
             .graph
             .edges_directed(self.inverse[node.package_id()], Direction::Outgoing)
             .map(|edge| match edge.weight() {
-                Edge::Prod(dependency) => Node::Dependency(dependency),
-                Edge::Optional(extra, dependency) => Node::OptionalDependency(extra, dependency),
-                Edge::Dev(group, dependency) => Node::DevDependency(group, dependency),
+                Edge::Prod(dependency) => Node::Dependency(self.graph[edge.target()], dependency),
+                Edge::Optional(extra, dependency) => {
+                    Node::OptionalDependency(extra, self.graph[edge.target()], dependency)
+                }
+                Edge::Dev(group, dependency) => {
+                    Node::DevDependency(group, self.graph[edge.target()], dependency)
+                }
             })
             .collect::<Vec<_>>();
         dependencies.sort_unstable();
@@ -424,30 +386,40 @@ enum Edge<'env> {
     Dev(&'env GroupName, Cow<'env, Dependency>),
 }
 
+impl<'env> Edge<'env> {
+    fn dependency(&self) -> &Dependency {
+        match self {
+            Self::Prod(dependency) => dependency,
+            Self::Optional(_, dependency) => dependency,
+            Self::Dev(_, dependency) => dependency,
+        }
+    }
+}
+
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Ord, PartialOrd)]
 enum Node<'env> {
     Root(&'env PackageId),
-    Dependency(&'env Dependency),
-    OptionalDependency(&'env ExtraName, &'env Dependency),
-    DevDependency(&'env GroupName, &'env Dependency),
+    Dependency(&'env PackageId, &'env Dependency),
+    OptionalDependency(&'env ExtraName, &'env PackageId, &'env Dependency),
+    DevDependency(&'env GroupName, &'env PackageId, &'env Dependency),
 }
 
 impl<'env> Node<'env> {
     fn package_id(&self) -> &'env PackageId {
         match self {
             Self::Root(id) => id,
-            Self::Dependency(dep) => &dep.package_id,
-            Self::OptionalDependency(_, dep) => &dep.package_id,
-            Self::DevDependency(_, dep) => &dep.package_id,
+            Self::Dependency(id, _) => id,
+            Self::OptionalDependency(_, id, _) => id,
+            Self::DevDependency(_, id, _) => id,
         }
     }
 
     fn extras(&self) -> Option<&BTreeSet<ExtraName>> {
         match self {
             Self::Root(_) => None,
-            Self::Dependency(dep) => Some(&dep.extra),
-            Self::OptionalDependency(_, dep) => Some(&dep.extra),
-            Self::DevDependency(_, dep) => Some(&dep.extra),
+            Self::Dependency(_, dep) => Some(&dep.extra),
+            Self::OptionalDependency(_, _, dep) => Some(&dep.extra),
+            Self::DevDependency(_, _, dep) => Some(&dep.extra),
         }
     }
 }

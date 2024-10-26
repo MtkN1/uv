@@ -9365,6 +9365,7 @@ fn not_found_direct_url() -> Result<()> {
 
     ----- stderr -----
     error: Failed to download: `iniconfig @ https://files.pythonhosted.org/packages/ef/a6/fake/iniconfig-2.0.0-py3-none-any.whl`
+      Caused by: Failed to fetch: `https://files.pythonhosted.org/packages/ef/a6/fake/iniconfig-2.0.0-py3-none-any.whl`
       Caused by: HTTP status client error (404 Not Found) for url (https://files.pythonhosted.org/packages/ef/a6/fake/iniconfig-2.0.0-py3-none-any.whl)
     "###
     );
@@ -11647,7 +11648,7 @@ fn invalid_tool_uv_sources() -> Result<()> {
     ----- stdout -----
 
     ----- stderr -----
-    error: Failed to parse entry for: `urllib3`
+    error: Failed to parse entry: `urllib3`
       Caused by: Expected direct URL (`https://files.pythonhosted.org/packages/a2/73/a68704750a7679d0b6d3ad7aa8d4da8e14e151ae82e6fee774e6e0d05ec8/urllib3-2.2.1-py3-none-any.tar.baz`) to end in a supported file extension: `.whl`, `.tar.gz`, `.zip`, `.tar.bz2`, `.tar.lz`, `.tar.lzma`, `.tar.xz`, `.tar.zst`, `.tar`, `.tbz`, `.tgz`, `.tlz`, or `.txz`
     "###
     );
