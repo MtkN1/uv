@@ -1,11 +1,10 @@
-# Configuring the uv installer
+# uv インストーラーの構成
 
-## Changing the install path
+## インストールパスの変更
 
-By default, uv is installed to `~/.cargo/bin`. To change the installation path, use
-`UV_INSTALL_DIR`:
+デフォルトでは、uvは`~/.cargo/bin`にインストールされます。インストールパスを変更するには、`UV_INSTALL_DIR`を使用します:
 
-=== "macOS and Linux"
+=== "macOSおよびLinux"
 
     ```console
     $ curl -LsSf https://astral.sh/uv/install.sh | env UV_INSTALL_DIR="/custom/path" sh
@@ -17,34 +16,31 @@ By default, uv is installed to `~/.cargo/bin`. To change the installation path, 
     $env:UV_INSTALL_DIR = "C:\Custom\Path" powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
     ```
 
-## Disabling shell modifications
+## シェルの変更を無効にする
 
-The installer may also update your shell profiles to ensure the uv binary is on your `PATH`. To
-disable this behavior, use `INSTALLER_NO_MODIFY_PATH`. For example:
+インストーラーは、uvバイナリが`PATH`に含まれるようにシェルプロファイルを更新することがあります。この動作を無効にするには、`INSTALLER_NO_MODIFY_PATH`を使用します。例えば:
 
 ```console
 $ curl -LsSf https://astral.sh/uv/install.sh | env INSTALLER_NO_MODIFY_PATH=1 sh
 ```
 
-If installed with `INSTALLER_NO_MODIFY_PATH`, subsequent operations, like `uv self update`, will not
-modify your shell profiles.
+`INSTALLER_NO_MODIFY_PATH`を使用してインストールした場合、`uv self update`のような後続の操作はシェルプロファイルを変更しません。
 
-## Unmanaged installations
+## 管理されていないインストール
 
-In ephemeral environments like CI, use `UV_UNMANAGED_INSTALL` to install uv to a specific path while
-preventing the installer from modifying shell profiles or environment variables:
+CIのようなエフェメラル環境では、`UV_UNMANAGED_INSTALL`を使用して特定のパスにuvをインストールし、インストーラーがシェルプロファイルや環境変数を変更しないようにします:
 
 ```console
 $ curl -LsSf https://astral.sh/uv/install.sh | env UV_UNMANAGED_INSTALL="/custom/path" sh
 ```
 
-The use of `UV_UNMANAGED_INSTALL` will also disable self-updates (via `uv self update`).
+`UV_UNMANAGED_INSTALL`を使用すると、`uv self update`による自己更新も無効になります。
 
-## Passing options to the install script
+## インストールスクリプトにオプションを渡す
 
-Using environment variables is recommended because they are consistent across platforms. However,
-options can be passed directly to the install script. For example, to see the available options:
+環境変数を使用することをお勧めします。これはプラットフォーム間で一貫しているためです。ただし、オプションを直接インストールスクリプトに渡すこともできます。例えば、利用可能なオプションを確認するには:
 
 ```console
 $ curl -LsSf https://astral.sh/uv/install.sh | sh -s -- --help
 ```
+

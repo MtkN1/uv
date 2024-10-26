@@ -342,20 +342,17 @@ $ uv add httpx --optional network
 
 ## 開発依存関係
 
-Unlike optional dependencies, development dependencies are local-only and will _not_ be included in
-the project requirements when published to PyPI or other indexes. As such, development dependencies
-are not included in the `[project]` table.
+オプションの依存関係とは異なり、開発依存関係はローカル専用であり、プロジェクトが PyPI や他のインデックスに公開される際には含まれません。そのため、開発依存関係は `[project]` テーブルには含まれません。
 
-Development dependencies can have entries in `tool.uv.sources` the same as normal dependencies.
+開発依存関係は、通常の依存関係と同様に `tool.uv.sources` にエントリを持つことができます。
 
-To add a development dependency, use the `--dev` flag:
+開発依存関係を追加するには、`--dev` フラグを使用します：
 
 ```console
 $ uv add --dev pytest
 ```
 
-uv uses the `[dependency-groups]` table (as defined in [PEP 735](https://peps.python.org/pep-0735/))
-for declaration of development dependencies. The above command will create a `dev` group:
+uv は、開発依存関係の宣言に [PEP 735](https://peps.python.org/pep-0735/) で定義された `[dependency-groups]` テーブルを使用します。上記のコマンドは `dev` グループを作成します：
 
 ```toml title="pyproject.toml"
 [dependency-groups]
@@ -364,21 +361,19 @@ dev = [
 ]
 ```
 
-The `dev` group is special-cased; there are `--dev`, `--only-dev`, and `--no-dev` flags to toggle
-inclusion or exclusion of its dependencies. Additionally, the `dev` group is
-[synced by default](#default-groups).
+`dev` グループは特別扱いされており、その依存関係の含有または除外を切り替えるための `--dev`、`--only-dev`、および `--no-dev` フラグがあります。さらに、`dev` グループは[デフォルトで同期](#default-groups)されます。
 
-### Dependency groups
+### 依存関係グループ
 
-Development dependencies can be divided into multiple groups, using the `--group` flag.
+開発依存関係は、`--group` フラグを使用して複数のグループに分けることができます。
 
-For example, to add a development dependency in the `lint` group:
+例えば、`lint` グループに開発依存関係を追加するには：
 
 ```console
 $ uv add --group lint ruff
 ```
 
-Which results in the following `[dependency-groups]` definition:
+次のような `[dependency-groups]` 定義が生成されます：
 
 ```toml title="pyproject.toml"
 [dependency-groups]
@@ -390,29 +385,23 @@ lint = [
 ]
 ```
 
-Once groups are defined, the `--group`, `--only-group`, and `--no-group` options can be used to
-include or exclude their dependencies.
+グループが定義されると、`--group`、`--only-group`、および `--no-group` オプションを使用して、それらの依存関係を含めたり除外したりすることができます。
 
 !!! tip
 
-    The `--dev`, `--only-dev`, and `--no-dev` flags are equivalent to `--group dev`,
-    `--only-group dev`, and `--no-group dev` respectively.
+  `--dev`、`--only-dev`、および `--no-dev` フラグは、それぞれ `--group dev`、`--only-group dev`、および `--no-group dev` と同等です。
 
-uv requires that all dependency groups are compatible with each other and resolves all groups
-together when creating the lockfile.
+uv はすべての依存関係グループが互換性があることを要求し、ロックファイルを作成する際にすべてのグループを一緒に解決します。
 
-If dependencies declared in one group are not compatible with those in another group, uv will fail
-to resolve the requirements of the project with an error.
+あるグループで宣言された依存関係が他のグループの依存関係と互換性がない場合、uv はプロジェクトの要件を解決できずにエラーを返します。
 
 !!! note
 
-    There is currently no way to declare conflicting dependency groups. See
-    [astral.sh/uv#6981](https://github.com/astral-sh/uv/issues/6981) to track support.
+  現在、競合する依存関係グループを宣言する方法はありません。サポートの進捗状況については、[astral.sh/uv#6981](https://github.com/astral-sh/uv/issues/6981) を参照してください。
 
-### Default groups
+### デフォルトグループ
 
-By default, uv includes the `dev` dependency group in the environment (e.g., during `uv run` or
-`uv sync`). The default groups to include can be changed using the `tool.uv.default-groups` setting.
+デフォルトでは、uv は環境に `dev` 依存関係グループを含めます（例：`uv run` や `uv sync` の際）。デフォルトで含めるグループは、`tool.uv.default-groups` 設定を使用して変更できます。
 
 ```toml title="pyproject.toml"
 [tool.uv]
@@ -421,12 +410,11 @@ default-groups = ["dev", "foo"]
 
 !!! tip
 
-    To exclude a default group during `uv run` or `uv sync`, use `--no-group <name>`.
+  `uv run` や `uv sync` の際にデフォルトグループを除外するには、`--no-group <name>` を使用します。
 
-### Legacy `dev-dependencies`
+### レガシー `dev-dependencies`
 
-Before `[dependency-groups]` was standardized, uv used the `tool.uv.dev-dependencies` field to
-specify development dependencies, e.g.:
+`[dependency-groups]` が標準化される前は、uv は `tool.uv.dev-dependencies` フィールドを使用して開発依存関係を指定していました。例えば：
 
 ```toml title="pyproject.toml"
 [tool.uv]
@@ -435,13 +423,11 @@ dev-dependencies = [
 ]
 ```
 
-Dependencies declared in this section will be combined with the contents in the
-`dependency-groups.dev`. Eventually, the `dev-dependencies` field will be deprecated and removed.
+このセクションで宣言された依存関係は、`dependency-groups.dev` の内容と組み合わされます。最終的に、`dev-dependencies` フィールドは廃止され、削除される予定です。
 
 !!! note
 
-    If a `tool.uv.dev-dependencies` field exists, `uv add --dev` will use the existing section
-    instead of adding a new `dependency-groups.dev` section.
+    `tool.uv.dev-dependencies` フィールドが存在する場合、`uv add --dev` は新しい `dependency-groups.dev` セクションを追加する代わりに既存のセクションを使用します。
 
 ## ビルド依存関係
 

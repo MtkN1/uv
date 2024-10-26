@@ -6,13 +6,10 @@ uvはまだ安定したAPIを持っていません。uvのAPIが安定したら�
 
 uv's changelog can be [viewed on GitHub](https://github.com/astral-sh/uv/blob/main/CHANGELOG.md).
 
-## Cache versioning
+## キャッシュバージョニング
 
-Cache versions are considered internal to uv, and so may be changed in a minor or patch release. See
-[Cache versioning](../concepts/cache.md#cache-versioning) for more.
+キャッシュバージョンは uv の内部と見なされるため、マイナーリリースまたはパッチリリースで変更されることがあります。詳細は [キャッシュバージョニング](../concepts/cache.md#cache-versioning) を参照してください。
 
-## Lockfile versioning
+## ロックファイルバージョニング
 
-The `uv.lock` schema version is considered part of the public API, and so will only be incremented
-in a minor release as a breaking change. See
-[Lockfile versioning](../concepts/resolution.md#lockfile-versioning) for more.
+`uv.lock` スキーマバージョンはパブリック API の一部と見なされるため、破壊的変更としてマイナーリリースでのみインクリメントされます。詳細は [ロックファイルバージョニング](../concepts/resolution.md#lockfile-versioning) を参照してください。

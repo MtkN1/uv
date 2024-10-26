@@ -248,20 +248,12 @@ uvは、特定の日付前に公開されたディストリビューションに
 For more details about the internals of the resolver, see the
 [resolver reference](../reference/resolver-internals.md) documentation.
 
-## Lockfile versioning
+## ロックファイルのバージョニング
 
-The `uv.lock` file uses a versioned schema. The schema version is included in the `version` field of
-the lockfile.
+`uv.lock` ファイルはバージョン管理されたスキーマを使用します。スキーマバージョンはロックファイルの `version` フィールドに含まれています。
 
-Any given version of uv can read and write lockfiles with the same schema version, but will reject
-lockfiles with a greater schema version. For example, if your uv version supports schema v1,
-`uv lock` will error if it encounters an existing lockfile with schema v2.
+任意のバージョンのuvは、同じスキーマバージョンのロックファイルを読み書きできますが、より高いスキーマバージョンのロックファイルは拒否されます。たとえば、uvのバージョンがスキーマv1をサポートしている場合、既存のスキーマv2のロックファイルに遭遇すると `uv lock` はエラーを返します。
 
-uv versions that support schema v2 _may_ be able to read lockfiles with schema v1 if the schema
-update was backwards-compatible. However, this is not guaranteed, and uv may exit with an error if
-it encounters a lockfile with an outdated schema version.
+スキーマv2をサポートするuvバージョンは、スキーマ更新が後方互換性を持つ場合に限り、スキーマv1のロックファイルを読み取ることができるかもしれません。しかし、これは保証されておらず、uvは古いスキーマバージョンのロックファイルに遭遇するとエラーで終了する可能性があります。
 
-The schema version is considered part of the public API, and so is only bumped in minor releases, as
-a breaking change (see [Versioning](../reference/versioning.md)). As such, all uv patch versions
-within a given minor uv release are guaranteed to have full lockfile compatibility. In other words,
-lockfiles may only be rejected across minor releases.
+スキーマバージョンは公開APIの一部と見なされるため、マイナーリリースでのみ破壊的変更としてバージョンが上がります（[バージョニング](../reference/versioning.md) を参照）。したがって、特定のマイナー uv リリース内のすべての uv パッチバージョンは完全なロックファイル互換性を保証します。言い換えれば、ロックファイルはマイナーリリース間でのみ拒否される可能性があります。

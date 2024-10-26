@@ -27,17 +27,15 @@ uvはパッケージレジストリのクエリ時にHTTP経由での資格情�
 
 認証は以下のソースから取得され、優先順位は次の通りです：
 
-- The URL, e.g., `https://<user>:<password>@<hostname>/...`
-- A [`.netrc`](https://everything.curl.dev/usingcurl/netrc) configuration file
-- A [keyring](https://github.com/jaraco/keyring) provider (requires opt-in)
+- URL（例：`https://<user>:<password>@<hostname>/...`）
+- [`.netrc`](https://everything.curl.dev/usingcurl/netrc)設定ファイル
+- [keyring](https://github.com/jaraco/keyring)プロバイダー（オプトインが必要）
 
 単一のネットロケーション（スキーム、ホスト、およびポート）に対して認証が見つかった場合、それはコマンドの実行中にキャッシュされ、そのネットロケーションへの他のクエリにも使用されます。認証はuvの呼び出し間でキャッシュされません。
 
-`.netrc` authentication is enabled by default, and will respect the `NETRC` environment variable if
-defined, falling back to `~/.netrc` if not.
+`.netrc` 認証はデフォルトで有効になっており、`NETRC` 環境変数が定義されている場合はそれを尊重し、定義されていない場合は`~/.netrc`にフォールバックします。
 
-To enable keyring-based authentication, pass the `--keyring-provider subprocess` command-line
-argument to uv, or set `UV_KEYRING_PROVIDER=subprocess`.
+keyringベースの認証を有効にするには、`--keyring-provider subprocess` sコマンドライン引数をuvに渡すか、`UV_KEYRING_PROVIDER=subprocess` を設定します。
 
 認証は次のコンテキストで指定されたホストに対して使用される場合があります：
 

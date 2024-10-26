@@ -42,66 +42,34 @@ uvは次のコマンドライン引数を環境変数として受け入れます
 
 さらに、uvは次の環境変数を尊重します：
 
-- `UV_CONCURRENT_DOWNLOADS`: Sets the maximum number of in-flight concurrent downloads that uv will
-  perform at any given time.
-- `UV_CONCURRENT_BUILDS`: Sets the maximum number of source distributions that uv will build
-  concurrently at any given time.
-- `UV_CONCURRENT_INSTALLS`: Used to control the number of threads used when installing and unzipping
-  packages.
-- `UV_TOOL_DIR`: Used to specify the directory where uv will store managed tools.
-- `UV_TOOL_BIN_DIR`: Used to specify the "bin" directory where uv will install tool executables.
-- `UV_PROJECT_ENVIRONMENT`: Use to specify the path to the directory to use for a project virtual
-  environment. See the
-  [project documentation](../concepts/projects.md#configuring-the-project-environment-path) for more
-  details.
-- `UV_PYTHON_INSTALL_DIR`: Used to specify the directory where uv will store managed Python
-  installations.
-- `UV_PYTHON_INSTALL_MIRROR`: Managed Python installations are downloaded from
-  [`python-build-standalone`](https://github.com/indygreg/python-build-standalone). This variable
-  can be set to a mirror URL to use a different source for Python installations. The provided URL
-  will replace `https://github.com/indygreg/python-build-standalone/releases/download` in, e.g.,
-  `https://github.com/indygreg/python-build-standalone/releases/download/20240713/cpython-3.12.4%2B20240713-aarch64-apple-darwin-install_only.tar.gz`.
-  Distributions can be read from a local directory by using the `file://` URL scheme.
-- `UV_PYPY_INSTALL_MIRROR`: Managed PyPy installations are downloaded from
-  [python.org](https://downloads.python.org/). This variable can be set to a mirror URL to use a
-  different source for PyPy installations. The provided URL will replace
-  `https://downloads.python.org/pypy` in, e.g.,
-  `https://downloads.python.org/pypy/pypy3.8-v7.3.7-osx64.tar.bz2`. Distributions can be read from a
-  local directory by using the `file://` URL scheme.
-- `XDG_CONFIG_HOME`: Used to specify the path to uv user-level configuration directory on Unix
-  systems.
-- `XDG_CACHE_HOME`: Used to specify the directory where uv stores cache files on Unix systems.
-- `XDG_DATA_HOME`: Used to specify the directory where uv stores managed Python installations and
-  managed tools on Unix systems.
-- `XDG_BIN_HOME`: Used to specify the directory where executables are installed into.
-- `SSL_CERT_FILE`: If set, uv will use this file as the certificate bundle instead of the system's
-  trust store.
-- `SSL_CLIENT_CERT`: If set, uv will use this file for mTLS authentication. This should be a single
-  file containing both the certificate and the private key in PEM format.
-- `RUST_LOG`: If set, uv will use this value as the log level for its `--verbose` output. Accepts
-  any filter compatible with the `tracing_subscriber` crate. For example, `RUST_LOG=trace` will
-  enable trace-level logging. See the
-  [tracing documentation](https://docs.rs/tracing-subscriber/latest/tracing_subscriber/filter/struct.EnvFilter.html#example-syntax)
-  for more.
-- `HTTP_PROXY`, `HTTPS_PROXY`, `ALL_PROXY`: The proxy to use for all HTTP/HTTPS requests.
-- `HTTP_TIMEOUT` (or `UV_HTTP_TIMEOUT`): If set, uv will use this value (in seconds) as the timeout
-  for HTTP reads (default: 30 s).
-- `NETRC`: If set, uv will read authentication information from this file instead of `~/.netrc`.
-- `PYC_INVALIDATION_MODE`: The validation modes to use when run with `--compile`. See:
-  [`PycInvalidationMode`](https://docs.python.org/3/library/py_compile.html#py_compile.PycInvalidationMode).
-- `VIRTUAL_ENV`: Used to detect an activated virtual environment.
-- `CONDA_PREFIX`: Used to detect an activated Conda environment.
-- `PROMPT`: Used to detect the use of the Windows Command Prompt (as opposed to PowerShell).
-- `VIRTUAL_ENV_DISABLE_PROMPT`: If set to `1` before a virtual environment is activated, then the
-  virtual environment name will not be prepended to the terminal prompt.
-- `NU_VERSION`: Used to detect the use of NuShell.
-- `FISH_VERSION`: Used to detect the use of the Fish shell.
-- `BASH_VERSION`: Used to detect the use of the Bash shell.
-- `ZSH_VERSION`: Used to detect the use of the Zsh shell.
-- `MACOSX_DEPLOYMENT_TARGET`: Used with `--python-platform macos` and related variants to set the
-  deployment target (i.e., the minimum supported macOS version). Defaults to `12.0`, the
-  least-recent non-EOL macOS version at time of writing.
-- `NO_COLOR`: Disable colors. Takes precedence over `FORCE_COLOR`. See
-  [no-color.org](https://no-color.org).
-- `FORCE_COLOR`: Enforce colors regardless of TTY support. See
-  [force-color.org](https://force-color.org).
+- `UV_CONCURRENT_DOWNLOADS`: uvが任意の時点で実行する最大同時ダウンロード数を設定します。
+- `UV_CONCURRENT_BUILDS`: uvが任意の時点で同時にビルドするソースディストリビューションの最大数を設定します。
+- `UV_CONCURRENT_INSTALLS`: パッケージのインストールおよび解凍時に使用するスレッド数を制御するために使用されます。
+- `UV_TOOL_DIR`: uvが管理ツールを保存するディレクトリを指定するために使用されます。
+- `UV_TOOL_BIN_DIR`: uvがツールの実行可能ファイルをインストールする「bin」ディレクトリを指定するために使用されます。
+- `UV_PROJECT_ENVIRONMENT`: プロジェクト仮想環境に使用するディレクトリのパスを指定するために使用されます。詳細については、[プロジェクトドキュメント](../concepts/projects.md#configuring-the-project-environment-path)を参照してください。
+- `UV_PYTHON_INSTALL_DIR`: uvが管理されたPythonインストールを保存するディレクトリを指定するために使用されます。
+- `UV_PYTHON_INSTALL_MIRROR`: 管理されたPythonインストールは[`python-build-standalone`](https://github.com/indygreg/python-build-standalone)からダウンロードされます。この変数をミラーURLに設定して、Pythonインストールの別のソースを使用できます。提供されたURLは、例えば`https://github.com/indygreg/python-build-standalone/releases/download/20240713/cpython-3.12.4%2B20240713-aarch64-apple-darwin-install_only.tar.gz`のように、`https://github.com/indygreg/python-build-standalone/releases/download`を置き換えます。ローカルディレクトリからのディストリビューションは、`file://` URLスキームを使用して読み取ることができます。
+- `UV_PYPY_INSTALL_MIRROR`: 管理されたPyPyインストールは[python.org](https://downloads.python.org/)からダウンロードされます。この変数をミラーURLに設定して、PyPyインストールの別のソースを使用できます。提供されたURLは、例えば`https://downloads.python.org/pypy/pypy3.8-v7.3.7-osx64.tar.bz2`のように、`https://downloads.python.org/pypy`を置き換えます。ローカルディレクトリからのディストリビューションは、`file://` URLスキームを使用して読み取ることができます。
+- `XDG_CONFIG_HOME`: Unixシステム上のuvユーザーレベル設定ディレクトリのパスを指定するために使用されます。
+- `XDG_CACHE_HOME`: Unixシステム上でuvがキャッシュファイルを保存するディレクトリを指定するために使用されます。
+- `XDG_DATA_HOME`: Unixシステム上でuvが管理されたPythonインストールおよび管理ツールを保存するディレクトリを指定するために使用されます。
+- `XDG_BIN_HOME`: 実行可能ファイルがインストールされるディレクトリを指定するために使用されます。
+- `SSL_CERT_FILE`: 設定されている場合、uvはシステムの信頼ストアの代わりにこのファイルを証明書バンドルとして使用します。
+- `SSL_CLIENT_CERT`: 設定されている場合、uvはこのファイルをmTLS認証に使用します。これは、証明書と秘密鍵の両方をPEM形式で含む単一のファイルである必要があります。
+- `RUST_LOG`: 設定されている場合、uvは`--verbose`出力のログレベルとしてこの値を使用します。`tracing_subscriber`クレートと互換性のあるフィルタを受け入れます。例えば、`RUST_LOG=trace`はトレースレベルのログを有効にします。詳細については、[tracingドキュメント](https://docs.rs/tracing-subscriber/latest/tracing_subscriber/filter/struct.EnvFilter.html#example-syntax)を参照してください。
+- `HTTP_PROXY`, `HTTPS_PROXY`, `ALL_PROXY`: すべてのHTTP/HTTPSリクエストに使用するプロキシ。
+- `HTTP_TIMEOUT`（または`UV_HTTP_TIMEOUT`）: 設定されている場合、uvはHTTP読み取りのタイムアウトとしてこの値（秒単位）を使用します（デフォルト：30秒）。
+- `NETRC`: 設定されている場合、uvは `~/.netrc` の代わりにこのファイルから認証情報を読み取ります。
+- `PYC_INVALIDATION_MODE`: `--compile`で実行する際に使用する検証モード。詳細については、[`PycInvalidationMode`](https://docs.python.org/3/library/py_compile.html#py_compile.PycInvalidationMode)を参照してください。
+- `VIRTUAL_ENV`: アクティブ化された仮想環境を検出するために使用されます。
+- `CONDA_PREFIX`: アクティブ化されたConda環境を検出するために使用されます。
+- `PROMPT`: Windowsコマンドプロンプト（PowerShellではなく）の使用を検出するために使用されます。
+- `VIRTUAL_ENV_DISABLE_PROMPT`: 仮想環境がアクティブ化される前に`1`に設定されている場合、仮想環境名はターミナルプロンプトに追加されません。
+- `NU_VERSION`: NuShellの使用を検出するために使用されます。
+- `FISH_VERSION`: Fishシェルの使用を検出するために使用されます。
+- `BASH_VERSION`: Bashシェルの使用を検出するために使用されます。
+- `ZSH_VERSION`: Zshシェルの使用を検出するために使用されます。
+- `MACOSX_DEPLOYMENT_TARGET`: `--python-platform macos`および関連するバリアントで使用され、デプロイメントターゲット（つまり、サポートされる最小のmacOSバージョン）を設定します。デフォルトは`12.0`で、執筆時点での最も古い非EOLのmacOSバージョンです。
+- `NO_COLOR`: 色を無効にします。`FORCE_COLOR`よりも優先されます。詳細については、[no-color.org](https://no-color.org)を参照してください。
+- `FORCE_COLOR`: TTYサポートに関係なく色を強制します。詳細については、[force-color.org](https://force-color.org)を参照してください。

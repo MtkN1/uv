@@ -27,8 +27,7 @@ default = true
 
 デフォルトのインデックスは常に最も低い優先度として扱われ、その位置に関係なくインデックスのリストの最後に表示されます。
 
-Index names may only contain alphanumeric characters, dashes, underscores, and periods, and must be
-valid ASCII.
+インデックス名には、英数字、ダッシュ、アンダースコア、およびピリオドのみを含めることができ、有効なASCIIである必要があります。
 
 ## パッケージをインデックスに固定する
 

@@ -52,8 +52,7 @@ uvはuvをダウンロードしてインストールするためのスタンド�
 
     また、インストーラーやバイナリは[GitHub](#github-releases)から直接ダウンロードできます。
 
-See the documentation on [installer configuration](../configuration/installer.md) for details on
-customizing your uv installation.
+カスタマイズされた uv インストールの詳細については、[インストーラー設定](../configuration/installer.md)のドキュメントを参照してください。
 
 ### PyPI
 

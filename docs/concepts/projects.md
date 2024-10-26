@@ -394,8 +394,7 @@ environments = [
 
 uv は、プロジェクトによって宣言されたすべてのオプションの依存関係（「エクストラ」）が互換性があることを要求し、ロックファイルを作成する際にすべてのオプションの依存関係を一緒に解決します。
 
-If optional dependencies declared in one extra are not compatible with those in another extra, uv
-will fail to resolve the requirements of the project with an error.
+1つのエクストラで宣言されたオプションの依存関係が別のエクストラの依存関係と互換性がない場合、uv はプロジェクトの要件を解決できず、エラーを発生させます。
 
 !!! note
 
@@ -598,10 +597,7 @@ dependencies = ["cchardet"]
 no-build-isolation-package = ["cchardet"]
 ```
 
-Installing packages without build isolation requires that the package's build dependencies are
-installed in the project environment _prior_ to installing the package itself. This can be achieved
-by separating out the build dependencies and the packages that require them into distinct extras.
-For example:
+ビルドの分離なしでパッケージをインストールするには、パッケージのビルド依存関係をパッケージ自体をインストールする _前に_ プロジェクト環境にインストールする必要があります。これを実現するために、ビルド依存関係とそれを必要とするパッケージを別々のエクストラに分けることができます。例えば：
 
 ```toml title="pyproject.toml"
 [project]
