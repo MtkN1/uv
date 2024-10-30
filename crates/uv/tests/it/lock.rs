@@ -3754,6 +3754,102 @@ fn lock_requires_python_exact() -> Result<()> {
     Ok(())
 }
 
+/// Fork, even with a single dependency, if the minimum Python version is increased.
+#[test]
+fn lock_requires_python_fork() -> Result<()> {
+    let context = TestContext::new("3.11");
+
+    let lockfile = context.temp_dir.join("uv.lock");
+
+    let pyproject_toml = context.temp_dir.child("pyproject.toml");
+    pyproject_toml.write_str(
+        r#"
+        [project]
+        name = "warehouse"
+        version = "1.0.0"
+        requires-python = ">=3.9"
+        dependencies = ["uv ; python_version>='3.8'"]
+
+        [build-system]
+        requires = ["setuptools>=42"]
+        build-backend = "setuptools.build_meta"
+        "#,
+    )?;
+
+    uv_snapshot!(context.filters(), context.lock().env(EnvVars::UV_EXCLUDE_NEWER, "2024-08-29T00:00:00Z"), @r###"
+    success: true
+    exit_code: 0
+    ----- stdout -----
+
+    ----- stderr -----
+    Resolved 2 packages in [TIME]
+    "###);
+
+    let lock = fs_err::read_to_string(&lockfile).unwrap();
+
+    insta::with_settings!({
+        filters => context.filters(),
+    }, {
+        assert_snapshot!(
+            lock, @r###"
+        version = 1
+        requires-python = ">=3.9"
+
+        [options]
+        exclude-newer = "2024-08-29T00:00:00Z"
+
+        [[package]]
+        name = "uv"
+        version = "0.4.0"
+        source = { registry = "https://pypi.org/simple" }
+        sdist = { url = "https://files.pythonhosted.org/packages/0f/dc/94b6609d89693be22119f8ff7f586f6125de6d6ff096daa06b5250760563/uv-0.4.0.tar.gz", hash = "sha256:1658a17b7c4c0ad750fc44a7ef1196e058fb0c18873f54420c17f3ce807bfc24", size = 1807995 }
+        wheels = [
+            { url = "https://files.pythonhosted.org/packages/c6/1f/eeddd9565b2627495ee9588c2852e3c267f893247726aa4ee967df70d388/uv-0.4.0-py3-none-linux_armv6l.whl", hash = "sha256:3870d045d878e3da6505f4ebae7ecf01761ec481ae5de5e30e57e8e58557d755", size = 10760426 },
+            { url = "https://files.pythonhosted.org/packages/76/be/0e5f3d36a5811315c5e97ac860ab80885865c79f64fcf8cf72a8e978f08f/uv-0.4.0-py3-none-macosx_10_12_x86_64.whl", hash = "sha256:de7171d3e3ea994c754e750b79c788735eea0e50a60f878225f23645f047dd5b", size = 11152293 },
+            { url = "https://files.pythonhosted.org/packages/2e/86/9844e8ab08e25cbf2094e2fa1a7ad66563036bfed77b46986b6a2489c10c/uv-0.4.0-py3-none-macosx_11_0_arm64.whl", hash = "sha256:02e0295566454289348de502677e2240ad86f2cb5fa058504e1b2ca2a2ebf7e1", size = 10302231 },
+            { url = "https://files.pythonhosted.org/packages/9d/75/28c3386d0649a5becc95b6fe323d7891548932aa93c8ed29c32b6ad3f52d/uv-0.4.0-py3-none-manylinux_2_17_aarch64.manylinux2014_aarch64.musllinux_1_1_aarch64.whl", hash = "sha256:6e0d1b257d87d46c1047f62fc32cddb46df510e7382dec232b4ebc2475cf0957", size = 10611491 },
+            { url = "https://files.pythonhosted.org/packages/c9/50/8300c36a88cc1a62c261a84ebbdff0c69794825f26930d7a0ecee5d277b7/uv-0.4.0-py3-none-manylinux_2_17_armv7l.manylinux2014_armv7l.whl", hash = "sha256:787764145fb16f73eba04cce0855d18aeb0de3fc86e43aadd2ebe4992aa32c7f", size = 10579879 },
+            { url = "https://files.pythonhosted.org/packages/a3/0f/eeb272ff4e86a39644e152a28fafa43798c1498b0ac39b2e2ae2c410d7be/uv-0.4.0-py3-none-manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:c83f59c3326f7169f927603cc4b766e321fa941f1047f70ce388292e08d0966b", size = 11168249 },
+            { url = "https://files.pythonhosted.org/packages/b9/94/6655626f14585124fda2eb039781ff74a996da69437f197f74b7ac75f7a7/uv-0.4.0-py3-none-manylinux_2_17_ppc64.manylinux2014_ppc64.whl", hash = "sha256:0d6a1420b9ae8f391e733626ef583d1b328070e952ce83b65e4afb514ae03086", size = 11957706 },
+            { url = "https://files.pythonhosted.org/packages/c1/b5/821a343e33233b4efcd3ce725d648f89cce2ffbaaa232cda1ab094ef0d82/uv-0.4.0-py3-none-manylinux_2_17_ppc64le.manylinux2014_ppc64le.whl", hash = "sha256:7ef78d636b45e4b919d0bd3c17c2dc42600cdab2ad6e0dad971fb5a733398987", size = 11767024 },
+            { url = "https://files.pythonhosted.org/packages/ce/4e/286122669389f87fb9fa57c5ccbc977b843ee69f54bdfc781520e6fe8a38/uv-0.4.0-py3-none-manylinux_2_17_s390x.manylinux2014_s390x.whl", hash = "sha256:0671259b9a1ba67535382264ec8c000501d3bd9e3f9d28dbe6a57145a168fa31", size = 14705106 },
+            { url = "https://files.pythonhosted.org/packages/0c/71/f7a8b9a0f49f2fa5c979bf7d10e83791043e3eec3e43d80099acee4368fd/uv-0.4.0-py3-none-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:85a94f21bebe4b3f452afe5fbc36ed326583c8b6cc7fe3091f5f571a727ed799", size = 11512897 },
+            { url = "https://files.pythonhosted.org/packages/bf/91/b0b4cb51b5ec31ec45fa52eae2aaa91ad20196a66e94a3d593379195ca80/uv-0.4.0-py3-none-manylinux_2_28_aarch64.whl", hash = "sha256:d9eb82b0198f10cb5f0354d5c4483f6b304ac6f0b74131b88fbf092a2030268f", size = 10704876 },
+            { url = "https://files.pythonhosted.org/packages/12/18/1055d2b5de7cc12fb83b2f3ba397869b8277d0a3c8524aa34fb96cc8f548/uv-0.4.0-py3-none-musllinux_1_1_armv7l.whl", hash = "sha256:90497e0413d76378000d8d62891d49e786065321ae9f68b933b0914f92cf3ea2", size = 10576751 },
+            { url = "https://files.pythonhosted.org/packages/3d/05/637f37dc173635688e14f4f358d75b58d136a8d78c2fe60365fd56f7d5ae/uv-0.4.0-py3-none-musllinux_1_1_i686.whl", hash = "sha256:1e10d262f55857b4e85dc3b550cd4fa09714fa639d53886065f19aa1f09720f7", size = 11000442 },
+            { url = "https://files.pythonhosted.org/packages/0a/21/bc467390c62493d6778c5c2c805375340b3d220073330011cd5e4562a161/uv-0.4.0-py3-none-musllinux_1_1_ppc64le.whl", hash = "sha256:80329b24feb52cf46187a50d6e163aad3afc52bc601218d876970d855bb71f9b", size = 12714226 },
+            { url = "https://files.pythonhosted.org/packages/eb/12/9801ebf36cdd72baf695adef704999d830e824e78db7bf66491fc7712ca7/uv-0.4.0-py3-none-musllinux_1_1_x86_64.whl", hash = "sha256:e911e8e0c59144c54468fae5e4bcbd76f8bafc5c6ca33d14f88e2ce8a633f7ab", size = 11651071 },
+            { url = "https://files.pythonhosted.org/packages/81/12/bd8bc40b3b88be4c75726b610302628edec6b2cbd4f58717403fb7cfc7c5/uv-0.4.0-py3-none-win32.whl", hash = "sha256:93861f0d0bf5c44ded97ee2b188f0c30e0521e7a51f3f63daf6e64766913f036", size = 10933271 },
+            { url = "https://files.pythonhosted.org/packages/d6/c2/7219ee34993c50b3fedd81a7d77f27232df0bcf5451920dd16717fcc9b1f/uv-0.4.0-py3-none-win_amd64.whl", hash = "sha256:6b9b8db49928b71f926cf48150a34c69458447e554e7b65c1337d3e907bd7fb5", size = 12145169 },
+        ]
+
+        [[package]]
+        name = "warehouse"
+        version = "1.0.0"
+        source = { editable = "." }
+        dependencies = [
+            { name = "uv" },
+        ]
+
+        [package.metadata]
+        requires-dist = [{ name = "uv", marker = "python_full_version >= '3.8'" }]
+        "###
+        );
+    });
+
+    // Re-run with `--locked`.
+    uv_snapshot!(context.filters(), context.lock().arg("--locked").env(EnvVars::UV_EXCLUDE_NEWER, "2024-08-29T00:00:00Z"), @r###"
+    success: true
+    exit_code: 0
+    ----- stdout -----
+
+    ----- stderr -----
+    Resolved 2 packages in [TIME]
+    "###);
+
+    Ok(())
+}
+
 /// Lock a requirement from PyPI, respecting the `Requires-Python` metadata
 #[test]
 fn lock_requires_python_wheels() -> Result<()> {
@@ -4541,7 +4637,7 @@ fn lock_dev() -> Result<()> {
             { name = "iniconfig" },
         ]
 
-        [package.dependency-groups]
+        [package.dev-dependencies]
         dev = [
             { name = "typing-extensions" },
         ]
@@ -4549,7 +4645,7 @@ fn lock_dev() -> Result<()> {
         [package.metadata]
         requires-dist = [{ name = "iniconfig" }]
 
-        [package.metadata.dependency-groups]
+        [package.metadata.requires-dev]
         dev = [{ name = "typing-extensions", url = "https://files.pythonhosted.org/packages/26/9f/ad63fc0248c5379346306f8668cda6e2e2e9c95e01216d2b8ffd9ff037d0/typing_extensions-4.12.2-py3-none-any.whl" }]
 
         [[package]]
@@ -6153,14 +6249,14 @@ fn lock_dev_transitive() -> Result<()> {
         version = "0.1.0"
         source = { editable = "baz" }
 
-        [package.dependency-groups]
+        [package.dev-dependencies]
         dev = [
             { name = "typing-extensions" },
         ]
 
         [package.metadata]
 
-        [package.metadata.dependency-groups]
+        [package.metadata.requires-dev]
         dev = [{ name = "typing-extensions", specifier = ">4" }]
 
         [[package]]
@@ -6170,7 +6266,7 @@ fn lock_dev_transitive() -> Result<()> {
 
         [package.metadata]
 
-        [package.metadata.dependency-groups]
+        [package.metadata.requires-dev]
         dev = [{ name = "anyio" }]
 
         [[package]]
@@ -7080,7 +7176,7 @@ fn lock_no_sources() -> Result<()> {
             { name = "anyio" },
         ]
 
-        [package.dependency-groups]
+        [package.dev-dependencies]
         dev = [
             { name = "typing-extensions" },
         ]
@@ -7088,7 +7184,7 @@ fn lock_no_sources() -> Result<()> {
         [package.metadata]
         requires-dist = [{ name = "anyio", directory = "anyio" }]
 
-        [package.metadata.dependency-groups]
+        [package.metadata.requires-dev]
         dev = [{ name = "typing-extensions", specifier = ">4" }]
 
         [[package]]
@@ -7170,7 +7266,7 @@ fn lock_no_sources() -> Result<()> {
             { name = "anyio" },
         ]
 
-        [package.dependency-groups]
+        [package.dev-dependencies]
         dev = [
             { name = "typing-extensions" },
         ]
@@ -7178,7 +7274,7 @@ fn lock_no_sources() -> Result<()> {
         [package.metadata]
         requires-dist = [{ name = "anyio" }]
 
-        [package.metadata.dependency-groups]
+        [package.metadata.requires-dev]
         dev = [{ name = "typing-extensions", specifier = ">4" }]
 
         [[package]]
@@ -10903,8 +10999,10 @@ fn lock_missing_metadata() -> Result<()> {
     Ok(())
 }
 
-/// Test backwards compatibility for `package.dev-dependencies`, which was renamed to
-/// `package.dependency-groups`.
+/// Test backwards compatibility for `package.dependency-groups`. `package.dev-dependencies` was
+/// accidentally renamed to `package.dependency-groups` in v0.4.27, which is technically out of
+/// compliance with our lockfile versioning policy. In v0.4.28, we renamed it back to
+/// `package.dev-dependencies`, with backwards compatibility for `package.dependency-groups`.
 #[test]
 fn lock_dev_dependencies_alias() -> Result<()> {
     let context = TestContext::new("3.12");
@@ -10938,12 +11036,12 @@ fn lock_dev_dependencies_alias() -> Result<()> {
         version = "0.1.0"
         source = { virtual = "." }
 
-        [package.dev-dependencies]
+        [package.dependency-groups]
         dev = [{ name = "iniconfig" }]
 
         [package.metadata]
 
-        [package.metadata.requires-dev]
+        [package.metadata.dependency-groups]
         dev = [{ name = "iniconfig" }]
 
         [[package]]
@@ -11020,7 +11118,7 @@ fn lock_dev_dependencies_alias() -> Result<()> {
             { name = "typing-extensions" },
         ]
 
-        [package.dependency-groups]
+        [package.dev-dependencies]
         dev = [
             { name = "iniconfig" },
         ]
@@ -11028,7 +11126,7 @@ fn lock_dev_dependencies_alias() -> Result<()> {
         [package.metadata]
         requires-dist = [{ name = "typing-extensions" }]
 
-        [package.metadata.dependency-groups]
+        [package.metadata.requires-dev]
         dev = [{ name = "iniconfig" }]
 
         [[package]]
@@ -12348,6 +12446,145 @@ fn lock_non_project_conditional() -> Result<()> {
     Ok(())
 }
 
+/// Lock a (legacy) non-project workspace root with `dependency-group`.
+#[test]
+fn lock_non_project_group() -> Result<()> {
+    let context = TestContext::new("3.10");
+
+    let pyproject_toml = context.temp_dir.child("pyproject.toml");
+    pyproject_toml.write_str(
+        r#"
+        [tool.uv.workspace]
+        members = []
+
+        [tool.uv]
+        dev-dependencies = ["anyio"]
+
+        [dependency-groups]
+        lint = ["iniconfig"]
+        dev = ["typing-extensions"]
+        "#,
+    )?;
+
+    uv_snapshot!(context.filters(), context.lock(), @r###"
+    success: true
+    exit_code: 0
+    ----- stdout -----
+
+    ----- stderr -----
+    warning: No `requires-python` value found in the workspace. Defaulting to `>=3.10`.
+    Resolved 6 packages in [TIME]
+    "###);
+
+    let lock = context.read("uv.lock");
+
+    insta::with_settings!({
+        filters => context.filters(),
+    }, {
+        assert_snapshot!(
+            lock, @r###"
+        version = 1
+        requires-python = ">=3.10"
+
+        [options]
+        exclude-newer = "2024-03-25T00:00:00Z"
+
+        [manifest]
+        requirements = [
+            { name = "anyio" },
+            { name = "iniconfig" },
+            { name = "typing-extensions" },
+        ]
+
+        [[package]]
+        name = "anyio"
+        version = "4.3.0"
+        source = { registry = "https://pypi.org/simple" }
+        dependencies = [
+            { name = "exceptiongroup", marker = "python_full_version < '3.11'" },
+            { name = "idna" },
+            { name = "sniffio" },
+            { name = "typing-extensions", marker = "python_full_version < '3.11'" },
+        ]
+        sdist = { url = "https://files.pythonhosted.org/packages/db/4d/3970183622f0330d3c23d9b8a5f52e365e50381fd484d08e3285104333d3/anyio-4.3.0.tar.gz", hash = "sha256:f75253795a87df48568485fd18cdd2a3fa5c4f7c5be8e5e36637733fce06fed6", size = 159642 }
+        wheels = [
+            { url = "https://files.pythonhosted.org/packages/14/fd/2f20c40b45e4fb4324834aea24bd4afdf1143390242c0b33774da0e2e34f/anyio-4.3.0-py3-none-any.whl", hash = "sha256:048e05d0f6caeed70d731f3db756d35dcc1f35747c8c403364a8332c630441b8", size = 85584 },
+        ]
+
+        [[package]]
+        name = "exceptiongroup"
+        version = "1.2.0"
+        source = { registry = "https://pypi.org/simple" }
+        sdist = { url = "https://files.pythonhosted.org/packages/8e/1c/beef724eaf5b01bb44b6338c8c3494eff7cab376fab4904cfbbc3585dc79/exceptiongroup-1.2.0.tar.gz", hash = "sha256:91f5c769735f051a4290d52edd0858999b57e5876e9f85937691bd4c9fa3ed68", size = 26264 }
+        wheels = [
+            { url = "https://files.pythonhosted.org/packages/b8/9a/5028fd52db10e600f1c4674441b968cf2ea4959085bfb5b99fb1250e5f68/exceptiongroup-1.2.0-py3-none-any.whl", hash = "sha256:4bfd3996ac73b41e9b9628b04e079f193850720ea5945fc96a08633c66912f14", size = 16210 },
+        ]
+
+        [[package]]
+        name = "idna"
+        version = "3.6"
+        source = { registry = "https://pypi.org/simple" }
+        sdist = { url = "https://files.pythonhosted.org/packages/bf/3f/ea4b9117521a1e9c50344b909be7886dd00a519552724809bb1f486986c2/idna-3.6.tar.gz", hash = "sha256:9ecdbbd083b06798ae1e86adcbfe8ab1479cf864e4ee30fe4e46a003d12491ca", size = 175426 }
+        wheels = [
+            { url = "https://files.pythonhosted.org/packages/c2/e7/a82b05cf63a603df6e68d59ae6a68bf5064484a0718ea5033660af4b54a9/idna-3.6-py3-none-any.whl", hash = "sha256:c05567e9c24a6b9faaa835c4821bad0590fbb9d5779e7caa6e1cc4978e7eb24f", size = 61567 },
+        ]
+
+        [[package]]
+        name = "iniconfig"
+        version = "2.0.0"
+        source = { registry = "https://pypi.org/simple" }
+        sdist = { url = "https://files.pythonhosted.org/packages/d7/4b/cbd8e699e64a6f16ca3a8220661b5f83792b3017d0f79807cb8708d33913/iniconfig-2.0.0.tar.gz", hash = "sha256:2d91e135bf72d31a410b17c16da610a82cb55f6b0477d1a902134b24a455b8b3", size = 4646 }
+        wheels = [
+            { url = "https://files.pythonhosted.org/packages/ef/a6/62565a6e1cf69e10f5727360368e451d4b7f58beeac6173dc9db836a5b46/iniconfig-2.0.0-py3-none-any.whl", hash = "sha256:b6a85871a79d2e3b22d2d1b94ac2824226a63c6b741c88f7ae975f18b6778374", size = 5892 },
+        ]
+
+        [[package]]
+        name = "sniffio"
+        version = "1.3.1"
+        source = { registry = "https://pypi.org/simple" }
+        sdist = { url = "https://files.pythonhosted.org/packages/a2/87/a6771e1546d97e7e041b6ae58d80074f81b7d5121207425c964ddf5cfdbd/sniffio-1.3.1.tar.gz", hash = "sha256:f4324edc670a0f49750a81b895f35c3adb843cca46f0530f79fc1babb23789dc", size = 20372 }
+        wheels = [
+            { url = "https://files.pythonhosted.org/packages/e9/44/75a9c9421471a6c4805dbf2356f7c181a29c1879239abab1ea2cc8f38b40/sniffio-1.3.1-py3-none-any.whl", hash = "sha256:2f6da418d1f1e0fddd844478f41680e794e6051915791a034ff65e5f100525a2", size = 10235 },
+        ]
+
+        [[package]]
+        name = "typing-extensions"
+        version = "4.10.0"
+        source = { registry = "https://pypi.org/simple" }
+        sdist = { url = "https://files.pythonhosted.org/packages/16/3a/0d26ce356c7465a19c9ea8814b960f8a36c3b0d07c323176620b7b483e44/typing_extensions-4.10.0.tar.gz", hash = "sha256:b0abd7c89e8fb96f98db18d86106ff1d90ab692004eb746cf6eda2682f91b3cb", size = 77558 }
+        wheels = [
+            { url = "https://files.pythonhosted.org/packages/f9/de/dc04a3ea60b22624b51c703a84bbe0184abcd1d0b9bc8074b5d6b7ab90bb/typing_extensions-4.10.0-py3-none-any.whl", hash = "sha256:69b1a937c3a517342112fb4c6df7e72fc39a38e7891a5730ed4985b5214b5475", size = 33926 },
+        ]
+        "###
+        );
+    });
+
+    // Re-run with `--locked`.
+    uv_snapshot!(context.filters(), context.lock().arg("--locked"), @r###"
+    success: true
+    exit_code: 0
+    ----- stdout -----
+
+    ----- stderr -----
+    warning: No `requires-python` value found in the workspace. Defaulting to `>=3.10`.
+    Resolved 6 packages in [TIME]
+    "###);
+
+    // Re-run with `--offline`. We shouldn't need a network connection to validate an
+    // already-correct lockfile with immutable metadata.
+    uv_snapshot!(context.filters(), context.lock().arg("--locked").arg("--offline").arg("--no-cache"), @r###"
+    success: true
+    exit_code: 0
+    ----- stdout -----
+
+    ----- stderr -----
+    warning: No `requires-python` value found in the workspace. Defaulting to `>=3.10`.
+    Resolved 6 packages in [TIME]
+    "###);
+
+    Ok(())
+}
+
 /// `coverage` defines a `toml` extra, but it doesn't enable any dependencies after Python 3.11.
 #[test]
 fn lock_dropped_dev_extra() -> Result<()> {
@@ -12415,14 +12652,14 @@ fn lock_dropped_dev_extra() -> Result<()> {
         version = "0.1.0"
         source = { editable = "." }
 
-        [package.dependency-groups]
+        [package.dev-dependencies]
         dev = [
             { name = "coverage" },
         ]
 
         [package.metadata]
 
-        [package.metadata.dependency-groups]
+        [package.metadata.requires-dev]
         dev = [{ name = "coverage", extras = ["toml"] }]
         "###
         );
@@ -12459,6 +12696,222 @@ fn lock_dropped_dev_extra() -> Result<()> {
     Prepared 2 packages in [TIME]
     Installed 2 packages in [TIME]
      + coverage==7.4.4
+     + project==0.1.0 (from file://[TEMP_DIR]/)
+    "###);
+
+    Ok(())
+}
+
+/// Lock with an empty (but existent) `tool.uv.dev-dependencies` group.
+#[test]
+fn lock_empty_dev_dependencies() -> Result<()> {
+    let context = TestContext::new("3.12");
+
+    let pyproject_toml = context.temp_dir.child("pyproject.toml");
+    pyproject_toml.write_str(
+        r#"
+        [project]
+        name = "project"
+        version = "0.1.0"
+        requires-python = ">=3.12"
+        dependencies = ["iniconfig"]
+
+        [build-system]
+        requires = ["setuptools>=42"]
+        build-backend = "setuptools.build_meta"
+
+        [tool.uv]
+        dev-dependencies = []
+        "#,
+    )?;
+
+    uv_snapshot!(context.filters(), context.lock(), @r###"
+    success: true
+    exit_code: 0
+    ----- stdout -----
+
+    ----- stderr -----
+    Resolved 2 packages in [TIME]
+    "###);
+
+    let lock = context.read("uv.lock");
+
+    insta::with_settings!({
+        filters => context.filters(),
+    }, {
+        assert_snapshot!(
+            lock, @r###"
+        version = 1
+        requires-python = ">=3.12"
+
+        [options]
+        exclude-newer = "2024-03-25T00:00:00Z"
+
+        [[package]]
+        name = "iniconfig"
+        version = "2.0.0"
+        source = { registry = "https://pypi.org/simple" }
+        sdist = { url = "https://files.pythonhosted.org/packages/d7/4b/cbd8e699e64a6f16ca3a8220661b5f83792b3017d0f79807cb8708d33913/iniconfig-2.0.0.tar.gz", hash = "sha256:2d91e135bf72d31a410b17c16da610a82cb55f6b0477d1a902134b24a455b8b3", size = 4646 }
+        wheels = [
+            { url = "https://files.pythonhosted.org/packages/ef/a6/62565a6e1cf69e10f5727360368e451d4b7f58beeac6173dc9db836a5b46/iniconfig-2.0.0-py3-none-any.whl", hash = "sha256:b6a85871a79d2e3b22d2d1b94ac2824226a63c6b741c88f7ae975f18b6778374", size = 5892 },
+        ]
+
+        [[package]]
+        name = "project"
+        version = "0.1.0"
+        source = { editable = "." }
+        dependencies = [
+            { name = "iniconfig" },
+        ]
+
+        [package.metadata]
+        requires-dist = [{ name = "iniconfig" }]
+
+        [package.metadata.requires-dev]
+        dev = []
+        "###
+        );
+    });
+
+    // Re-run with `--locked`.
+    uv_snapshot!(context.filters(), context.lock().arg("--locked"), @r###"
+    success: true
+    exit_code: 0
+    ----- stdout -----
+
+    ----- stderr -----
+    Resolved 2 packages in [TIME]
+    "###);
+
+    // Re-run with `--offline`. We shouldn't need a network connection to validate an
+    // already-correct lockfile with immutable metadata.
+    uv_snapshot!(context.filters(), context.lock().arg("--locked").arg("--offline").arg("--no-cache"), @r###"
+    success: true
+    exit_code: 0
+    ----- stdout -----
+
+    ----- stderr -----
+    Resolved 2 packages in [TIME]
+    "###);
+
+    // Install from the lockfile.
+    uv_snapshot!(context.filters(), context.sync().arg("--frozen"), @r###"
+    success: true
+    exit_code: 0
+    ----- stdout -----
+
+    ----- stderr -----
+    Prepared 2 packages in [TIME]
+    Installed 2 packages in [TIME]
+     + iniconfig==2.0.0
+     + project==0.1.0 (from file://[TEMP_DIR]/)
+    "###);
+
+    Ok(())
+}
+
+/// Lock with an empty (but existent) `dependency-groups` group.
+#[test]
+fn lock_empty_dependency_group() -> Result<()> {
+    let context = TestContext::new("3.12");
+
+    let pyproject_toml = context.temp_dir.child("pyproject.toml");
+    pyproject_toml.write_str(
+        r#"
+        [project]
+        name = "project"
+        version = "0.1.0"
+        requires-python = ">=3.12"
+        dependencies = ["iniconfig"]
+
+        [build-system]
+        requires = ["setuptools>=42"]
+        build-backend = "setuptools.build_meta"
+
+        [dependency-groups]
+        empty = []
+        "#,
+    )?;
+
+    uv_snapshot!(context.filters(), context.lock(), @r###"
+    success: true
+    exit_code: 0
+    ----- stdout -----
+
+    ----- stderr -----
+    Resolved 2 packages in [TIME]
+    "###);
+
+    let lock = context.read("uv.lock");
+
+    insta::with_settings!({
+        filters => context.filters(),
+    }, {
+        assert_snapshot!(
+            lock, @r###"
+        version = 1
+        requires-python = ">=3.12"
+
+        [options]
+        exclude-newer = "2024-03-25T00:00:00Z"
+
+        [[package]]
+        name = "iniconfig"
+        version = "2.0.0"
+        source = { registry = "https://pypi.org/simple" }
+        sdist = { url = "https://files.pythonhosted.org/packages/d7/4b/cbd8e699e64a6f16ca3a8220661b5f83792b3017d0f79807cb8708d33913/iniconfig-2.0.0.tar.gz", hash = "sha256:2d91e135bf72d31a410b17c16da610a82cb55f6b0477d1a902134b24a455b8b3", size = 4646 }
+        wheels = [
+            { url = "https://files.pythonhosted.org/packages/ef/a6/62565a6e1cf69e10f5727360368e451d4b7f58beeac6173dc9db836a5b46/iniconfig-2.0.0-py3-none-any.whl", hash = "sha256:b6a85871a79d2e3b22d2d1b94ac2824226a63c6b741c88f7ae975f18b6778374", size = 5892 },
+        ]
+
+        [[package]]
+        name = "project"
+        version = "0.1.0"
+        source = { editable = "." }
+        dependencies = [
+            { name = "iniconfig" },
+        ]
+
+        [package.metadata]
+        requires-dist = [{ name = "iniconfig" }]
+
+        [package.metadata.requires-dev]
+        empty = []
+        "###
+        );
+    });
+
+    // Re-run with `--locked`.
+    uv_snapshot!(context.filters(), context.lock().arg("--locked"), @r###"
+    success: true
+    exit_code: 0
+    ----- stdout -----
+
+    ----- stderr -----
+    Resolved 2 packages in [TIME]
+    "###);
+
+    // Re-run with `--offline`. We shouldn't need a network connection to validate an
+    // already-correct lockfile with immutable metadata.
+    uv_snapshot!(context.filters(), context.lock().arg("--locked").arg("--offline").arg("--no-cache"), @r###"
+    success: true
+    exit_code: 0
+    ----- stdout -----
+
+    ----- stderr -----
+    Resolved 2 packages in [TIME]
+    "###);
+
+    // Install from the lockfile.
+    uv_snapshot!(context.filters(), context.sync().arg("--frozen"), @r###"
+    success: true
+    exit_code: 0
+    ----- stdout -----
+
+    ----- stderr -----
+    Prepared 2 packages in [TIME]
+    Installed 2 packages in [TIME]
+     + iniconfig==2.0.0
      + project==0.1.0 (from file://[TEMP_DIR]/)
     "###);
 
@@ -13385,7 +13838,7 @@ fn lock_explicit_virtual_project() -> Result<()> {
             { name = "black" },
         ]
 
-        [package.dependency-groups]
+        [package.dev-dependencies]
         dev = [
             { name = "anyio" },
         ]
@@ -13393,7 +13846,7 @@ fn lock_explicit_virtual_project() -> Result<()> {
         [package.metadata]
         requires-dist = [{ name = "black" }]
 
-        [package.metadata.dependency-groups]
+        [package.metadata.requires-dev]
         dev = [{ name = "anyio" }]
 
         [[package]]
@@ -13602,7 +14055,7 @@ fn lock_implicit_virtual_project() -> Result<()> {
             { name = "black" },
         ]
 
-        [package.dependency-groups]
+        [package.dev-dependencies]
         dev = [
             { name = "anyio" },
         ]
@@ -13610,7 +14063,7 @@ fn lock_implicit_virtual_project() -> Result<()> {
         [package.metadata]
         requires-dist = [{ name = "black" }]
 
-        [package.metadata.dependency-groups]
+        [package.metadata.requires-dev]
         dev = [{ name = "anyio" }]
 
         [[package]]
@@ -16553,7 +17006,7 @@ fn lock_group_include() -> Result<()> {
             { name = "typing-extensions" },
         ]
 
-        [package.dependency-groups]
+        [package.dev-dependencies]
         bar = [
             { name = "trio" },
         ]
@@ -16565,7 +17018,7 @@ fn lock_group_include() -> Result<()> {
         [package.metadata]
         requires-dist = [{ name = "typing-extensions" }]
 
-        [package.metadata.dependency-groups]
+        [package.metadata.requires-dev]
         bar = [{ name = "trio" }]
         foo = [
             { name = "anyio" },

@@ -89,7 +89,9 @@ uv run [OPTIONS] [COMMAND]
 <p>May also be set with the <code>UV_INSECURE_HOST</code> environment variable.</p>
 </dd><dt><code>--cache-dir</code> <i>cache-dir</i></dt><dd><p>Path to the cache directory.</p>
 
-<p>Defaults to <code>$HOME/Library/Caches/uv</code> on macOS, <code>$XDG_CACHE_HOME/uv</code> or <code>$HOME/.cache/uv</code> on Linux, and <code>%LOCALAPPDATA%\uv\cache</code> on Windows.</p>
+<p>Defaults to <code>$XDG_CACHE_HOME/uv</code> or <code>$HOME/.cache/uv</code> on macOS and Linux, and <code>%LOCALAPPDATA%\uv\cache</code> on Windows.</p>
+
+<p>To view the location of the cache directory, run <code>uv cache dir</code>.</p>
 
 <p>May also be set with the <code>UV_CACHE_DIR</code> environment variable.</p>
 </dd><dt><code>--color</code> <i>color-choice</i></dt><dd><p>Control colors in output</p>
@@ -298,6 +300,7 @@ uv run [OPTIONS] [COMMAND]
 
 <p>For example, spinners or progress bars.</p>
 
+<p>May also be set with the <code>UV_NO_PROGRESS</code> environment variable.</p>
 </dd><dt><code>--no-project</code></dt><dd><p>Avoid discovering the project or workspace.</p>
 
 <p>Instead of searching for projects in the current directory and parent directories, run in an isolated, ephemeral environment populated by the <code>--with</code> requirements.</p>
@@ -489,7 +492,9 @@ uv init [OPTIONS] [PATH]
 
 <li><code>none</code>:  Do not infer the author information</li>
 </ul>
-</dd><dt><code>--build-backend</code> <i>build-backend</i></dt><dd><p>Initialize a build-backend of choice for the project</p>
+</dd><dt><code>--build-backend</code> <i>build-backend</i></dt><dd><p>Initialize a build-backend of choice for the project.</p>
+
+<p>Implicitly sets <code>--package</code>.</p>
 
 <p>Possible values:</p>
 
@@ -508,7 +513,9 @@ uv init [OPTIONS] [PATH]
 </ul>
 </dd><dt><code>--cache-dir</code> <i>cache-dir</i></dt><dd><p>Path to the cache directory.</p>
 
-<p>Defaults to <code>$HOME/Library/Caches/uv</code> on macOS, <code>$XDG_CACHE_HOME/uv</code> or <code>$HOME/.cache/uv</code> on Linux, and <code>%LOCALAPPDATA%\uv\cache</code> on Windows.</p>
+<p>Defaults to <code>$XDG_CACHE_HOME/uv</code> or <code>$HOME/.cache/uv</code> on macOS and Linux, and <code>%LOCALAPPDATA%\uv\cache</code> on Windows.</p>
+
+<p>To view the location of the cache directory, run <code>uv cache dir</code>.</p>
 
 <p>May also be set with the <code>UV_CACHE_DIR</code> environment variable.</p>
 </dd><dt><code>--color</code> <i>color-choice</i></dt><dd><p>Control colors in output</p>
@@ -573,6 +580,7 @@ uv init [OPTIONS] [PATH]
 
 <p>For example, spinners or progress bars.</p>
 
+<p>May also be set with the <code>UV_NO_PROGRESS</code> environment variable.</p>
 </dd><dt><code>--no-python-downloads</code></dt><dd><p>Disable automatic downloads of Python.</p>
 
 </dd><dt><code>--no-readme</code></dt><dd><p>Do not create a <code>README.md</code> file</p>
@@ -589,7 +597,7 @@ uv init [OPTIONS] [PATH]
 
 <p>Defines a <code>[build-system]</code> for the project.</p>
 
-<p>This is the default behavior when using <code>--lib</code>.</p>
+<p>This is the default behavior when using <code>--lib</code> or <code>--build-backend</code>.</p>
 
 <p>When using <code>--app</code>, this will include a <code>[project.scripts]</code> entrypoint and use a <code>src/</code> project structure.</p>
 
@@ -696,7 +704,9 @@ uv add [OPTIONS] <PACKAGES|--requirements <REQUIREMENTS>>
 
 </dd><dt><code>--cache-dir</code> <i>cache-dir</i></dt><dd><p>Path to the cache directory.</p>
 
-<p>Defaults to <code>$HOME/Library/Caches/uv</code> on macOS, <code>$XDG_CACHE_HOME/uv</code> or <code>$HOME/.cache/uv</code> on Linux, and <code>%LOCALAPPDATA%\uv\cache</code> on Windows.</p>
+<p>Defaults to <code>$XDG_CACHE_HOME/uv</code> or <code>$HOME/.cache/uv</code> on macOS and Linux, and <code>%LOCALAPPDATA%\uv\cache</code> on Windows.</p>
+
+<p>To view the location of the cache directory, run <code>uv cache dir</code>.</p>
 
 <p>May also be set with the <code>UV_CACHE_DIR</code> environment variable.</p>
 </dd><dt><code>--color</code> <i>color-choice</i></dt><dd><p>Control colors in output</p>
@@ -885,6 +895,7 @@ uv add [OPTIONS] <PACKAGES|--requirements <REQUIREMENTS>>
 
 <p>For example, spinners or progress bars.</p>
 
+<p>May also be set with the <code>UV_NO_PROGRESS</code> environment variable.</p>
 </dd><dt><code>--no-python-downloads</code></dt><dd><p>Disable automatic downloads of Python.</p>
 
 </dd><dt><code>--no-sources</code></dt><dd><p>Ignore the <code>tool.uv.sources</code> table when resolving dependencies. Used to lock against the standards-compliant, publishable package metadata, as opposed to using any local or Git sources</p>
@@ -1044,7 +1055,9 @@ uv remove [OPTIONS] <PACKAGES>...
 <p>May also be set with the <code>UV_INSECURE_HOST</code> environment variable.</p>
 </dd><dt><code>--cache-dir</code> <i>cache-dir</i></dt><dd><p>Path to the cache directory.</p>
 
-<p>Defaults to <code>$HOME/Library/Caches/uv</code> on macOS, <code>$XDG_CACHE_HOME/uv</code> or <code>$HOME/.cache/uv</code> on Linux, and <code>%LOCALAPPDATA%\uv\cache</code> on Windows.</p>
+<p>Defaults to <code>$XDG_CACHE_HOME/uv</code> or <code>$HOME/.cache/uv</code> on macOS and Linux, and <code>%LOCALAPPDATA%\uv\cache</code> on Windows.</p>
+
+<p>To view the location of the cache directory, run <code>uv cache dir</code>.</p>
 
 <p>May also be set with the <code>UV_CACHE_DIR</code> environment variable.</p>
 </dd><dt><code>--color</code> <i>color-choice</i></dt><dd><p>Control colors in output</p>
@@ -1223,6 +1236,7 @@ uv remove [OPTIONS] <PACKAGES>...
 
 <p>For example, spinners or progress bars.</p>
 
+<p>May also be set with the <code>UV_NO_PROGRESS</code> environment variable.</p>
 </dd><dt><code>--no-python-downloads</code></dt><dd><p>Disable automatic downloads of Python.</p>
 
 </dd><dt><code>--no-sources</code></dt><dd><p>Ignore the <code>tool.uv.sources</code> table when resolving dependencies. Used to lock against the standards-compliant, publishable package metadata, as opposed to using any local or Git sources</p>
@@ -1366,7 +1380,9 @@ uv sync [OPTIONS]
 <p>May also be set with the <code>UV_INSECURE_HOST</code> environment variable.</p>
 </dd><dt><code>--cache-dir</code> <i>cache-dir</i></dt><dd><p>Path to the cache directory.</p>
 
-<p>Defaults to <code>$HOME/Library/Caches/uv</code> on macOS, <code>$XDG_CACHE_HOME/uv</code> or <code>$HOME/.cache/uv</code> on Linux, and <code>%LOCALAPPDATA%\uv\cache</code> on Windows.</p>
+<p>Defaults to <code>$XDG_CACHE_HOME/uv</code> or <code>$HOME/.cache/uv</code> on macOS and Linux, and <code>%LOCALAPPDATA%\uv\cache</code> on Windows.</p>
+
+<p>To view the location of the cache directory, run <code>uv cache dir</code>.</p>
 
 <p>May also be set with the <code>UV_CACHE_DIR</code> environment variable.</p>
 </dd><dt><code>--color</code> <i>color-choice</i></dt><dd><p>Control colors in output</p>
@@ -1575,6 +1591,7 @@ uv sync [OPTIONS]
 
 <p>For example, spinners or progress bars.</p>
 
+<p>May also be set with the <code>UV_NO_PROGRESS</code> environment variable.</p>
 </dd><dt><code>--no-python-downloads</code></dt><dd><p>Disable automatic downloads of Python.</p>
 
 </dd><dt><code>--no-sources</code></dt><dd><p>Ignore the <code>tool.uv.sources</code> table when resolving dependencies. Used to lock against the standards-compliant, publishable package metadata, as opposed to using any local or Git sources</p>
@@ -1717,7 +1734,9 @@ uv lock [OPTIONS]
 <p>May also be set with the <code>UV_INSECURE_HOST</code> environment variable.</p>
 </dd><dt><code>--cache-dir</code> <i>cache-dir</i></dt><dd><p>Path to the cache directory.</p>
 
-<p>Defaults to <code>$HOME/Library/Caches/uv</code> on macOS, <code>$XDG_CACHE_HOME/uv</code> or <code>$HOME/.cache/uv</code> on Linux, and <code>%LOCALAPPDATA%\uv\cache</code> on Windows.</p>
+<p>Defaults to <code>$XDG_CACHE_HOME/uv</code> or <code>$HOME/.cache/uv</code> on macOS and Linux, and <code>%LOCALAPPDATA%\uv\cache</code> on Windows.</p>
+
+<p>To view the location of the cache directory, run <code>uv cache dir</code>.</p>
 
 <p>May also be set with the <code>UV_CACHE_DIR</code> environment variable.</p>
 </dd><dt><code>--color</code> <i>color-choice</i></dt><dd><p>Control colors in output</p>
@@ -1887,6 +1906,7 @@ uv lock [OPTIONS]
 
 <p>For example, spinners or progress bars.</p>
 
+<p>May also be set with the <code>UV_NO_PROGRESS</code> environment variable.</p>
 </dd><dt><code>--no-python-downloads</code></dt><dd><p>Disable automatic downloads of Python.</p>
 
 </dd><dt><code>--no-sources</code></dt><dd><p>Ignore the <code>tool.uv.sources</code> table when resolving dependencies. Used to lock against the standards-compliant, publishable package metadata, as opposed to using any local or Git sources</p>
@@ -2013,7 +2033,9 @@ uv export [OPTIONS]
 <p>May also be set with the <code>UV_INSECURE_HOST</code> environment variable.</p>
 </dd><dt><code>--cache-dir</code> <i>cache-dir</i></dt><dd><p>Path to the cache directory.</p>
 
-<p>Defaults to <code>$HOME/Library/Caches/uv</code> on macOS, <code>$XDG_CACHE_HOME/uv</code> or <code>$HOME/.cache/uv</code> on Linux, and <code>%LOCALAPPDATA%\uv\cache</code> on Windows.</p>
+<p>Defaults to <code>$XDG_CACHE_HOME/uv</code> or <code>$HOME/.cache/uv</code> on macOS and Linux, and <code>%LOCALAPPDATA%\uv\cache</code> on Windows.</p>
+
+<p>To view the location of the cache directory, run <code>uv cache dir</code>.</p>
 
 <p>May also be set with the <code>UV_CACHE_DIR</code> environment variable.</p>
 </dd><dt><code>--color</code> <i>color-choice</i></dt><dd><p>Control colors in output</p>
@@ -2225,6 +2247,7 @@ uv export [OPTIONS]
 
 <p>For example, spinners or progress bars.</p>
 
+<p>May also be set with the <code>UV_NO_PROGRESS</code> environment variable.</p>
 </dd><dt><code>--no-python-downloads</code></dt><dd><p>Disable automatic downloads of Python.</p>
 
 </dd><dt><code>--no-sources</code></dt><dd><p>Ignore the <code>tool.uv.sources</code> table when resolving dependencies. Used to lock against the standards-compliant, publishable package metadata, as opposed to using any local or Git sources</p>
@@ -2359,7 +2382,9 @@ uv tree [OPTIONS]
 <p>May also be set with the <code>UV_INSECURE_HOST</code> environment variable.</p>
 </dd><dt><code>--cache-dir</code> <i>cache-dir</i></dt><dd><p>Path to the cache directory.</p>
 
-<p>Defaults to <code>$HOME/Library/Caches/uv</code> on macOS, <code>$XDG_CACHE_HOME/uv</code> or <code>$HOME/.cache/uv</code> on Linux, and <code>%LOCALAPPDATA%\uv\cache</code> on Windows.</p>
+<p>Defaults to <code>$XDG_CACHE_HOME/uv</code> or <code>$HOME/.cache/uv</code> on macOS and Linux, and <code>%LOCALAPPDATA%\uv\cache</code> on Windows.</p>
+
+<p>To view the location of the cache directory, run <code>uv cache dir</code>.</p>
 
 <p>May also be set with the <code>UV_CACHE_DIR</code> environment variable.</p>
 </dd><dt><code>--color</code> <i>color-choice</i></dt><dd><p>Control colors in output</p>
@@ -2546,6 +2571,7 @@ uv tree [OPTIONS]
 
 <p>For example, spinners or progress bars.</p>
 
+<p>May also be set with the <code>UV_NO_PROGRESS</code> environment variable.</p>
 </dd><dt><code>--no-python-downloads</code></dt><dd><p>Disable automatic downloads of Python.</p>
 
 </dd><dt><code>--no-sources</code></dt><dd><p>Ignore the <code>tool.uv.sources</code> table when resolving dependencies. Used to lock against the standards-compliant, publishable package metadata, as opposed to using any local or Git sources</p>
@@ -2767,7 +2793,9 @@ uv tool run [OPTIONS] [COMMAND]
 <p>May also be set with the <code>UV_INSECURE_HOST</code> environment variable.</p>
 </dd><dt><code>--cache-dir</code> <i>cache-dir</i></dt><dd><p>Path to the cache directory.</p>
 
-<p>Defaults to <code>$HOME/Library/Caches/uv</code> on macOS, <code>$XDG_CACHE_HOME/uv</code> or <code>$HOME/.cache/uv</code> on Linux, and <code>%LOCALAPPDATA%\uv\cache</code> on Windows.</p>
+<p>Defaults to <code>$XDG_CACHE_HOME/uv</code> or <code>$HOME/.cache/uv</code> on macOS and Linux, and <code>%LOCALAPPDATA%\uv\cache</code> on Windows.</p>
+
+<p>To view the location of the cache directory, run <code>uv cache dir</code>.</p>
 
 <p>May also be set with the <code>UV_CACHE_DIR</code> environment variable.</p>
 </dd><dt><code>--color</code> <i>color-choice</i></dt><dd><p>Control colors in output</p>
@@ -2936,6 +2964,7 @@ uv tool run [OPTIONS] [COMMAND]
 
 <p>For example, spinners or progress bars.</p>
 
+<p>May also be set with the <code>UV_NO_PROGRESS</code> environment variable.</p>
 </dd><dt><code>--no-python-downloads</code></dt><dd><p>Disable automatic downloads of Python.</p>
 
 </dd><dt><code>--no-sources</code></dt><dd><p>Ignore the <code>tool.uv.sources</code> table when resolving dependencies. Used to lock against the standards-compliant, publishable package metadata, as opposed to using any local or Git sources</p>
@@ -3070,7 +3099,9 @@ uv tool install [OPTIONS] <PACKAGE>
 <p>May also be set with the <code>UV_INSECURE_HOST</code> environment variable.</p>
 </dd><dt><code>--cache-dir</code> <i>cache-dir</i></dt><dd><p>Path to the cache directory.</p>
 
-<p>Defaults to <code>$HOME/Library/Caches/uv</code> on macOS, <code>$XDG_CACHE_HOME/uv</code> or <code>$HOME/.cache/uv</code> on Linux, and <code>%LOCALAPPDATA%\uv\cache</code> on Windows.</p>
+<p>Defaults to <code>$XDG_CACHE_HOME/uv</code> or <code>$HOME/.cache/uv</code> on macOS and Linux, and <code>%LOCALAPPDATA%\uv\cache</code> on Windows.</p>
+
+<p>To view the location of the cache directory, run <code>uv cache dir</code>.</p>
 
 <p>May also be set with the <code>UV_CACHE_DIR</code> environment variable.</p>
 </dd><dt><code>--color</code> <i>color-choice</i></dt><dd><p>Control colors in output</p>
@@ -3237,6 +3268,7 @@ uv tool install [OPTIONS] <PACKAGE>
 
 <p>For example, spinners or progress bars.</p>
 
+<p>May also be set with the <code>UV_NO_PROGRESS</code> environment variable.</p>
 </dd><dt><code>--no-python-downloads</code></dt><dd><p>Disable automatic downloads of Python.</p>
 
 </dd><dt><code>--no-sources</code></dt><dd><p>Ignore the <code>tool.uv.sources</code> table when resolving dependencies. Used to lock against the standards-compliant, publishable package metadata, as opposed to using any local or Git sources</p>
@@ -3371,7 +3403,9 @@ uv tool upgrade [OPTIONS] <NAME>...
 <p>May also be set with the <code>UV_INSECURE_HOST</code> environment variable.</p>
 </dd><dt><code>--cache-dir</code> <i>cache-dir</i></dt><dd><p>Path to the cache directory.</p>
 
-<p>Defaults to <code>$HOME/Library/Caches/uv</code> on macOS, <code>$XDG_CACHE_HOME/uv</code> or <code>$HOME/.cache/uv</code> on Linux, and <code>%LOCALAPPDATA%\uv\cache</code> on Windows.</p>
+<p>Defaults to <code>$XDG_CACHE_HOME/uv</code> or <code>$HOME/.cache/uv</code> on macOS and Linux, and <code>%LOCALAPPDATA%\uv\cache</code> on Windows.</p>
+
+<p>To view the location of the cache directory, run <code>uv cache dir</code>.</p>
 
 <p>May also be set with the <code>UV_CACHE_DIR</code> environment variable.</p>
 </dd><dt><code>--color</code> <i>color-choice</i></dt><dd><p>Control colors in output</p>
@@ -3534,6 +3568,7 @@ uv tool upgrade [OPTIONS] <NAME>...
 
 <p>For example, spinners or progress bars.</p>
 
+<p>May also be set with the <code>UV_NO_PROGRESS</code> environment variable.</p>
 </dd><dt><code>--no-python-downloads</code></dt><dd><p>Disable automatic downloads of Python.</p>
 
 </dd><dt><code>--no-sources</code></dt><dd><p>Ignore the <code>tool.uv.sources</code> table when resolving dependencies. Used to lock against the standards-compliant, publishable package metadata, as opposed to using any local or Git sources</p>
@@ -3637,7 +3672,9 @@ uv tool list [OPTIONS]
 
 <dl class="cli-reference"><dt><code>--cache-dir</code> <i>cache-dir</i></dt><dd><p>Path to the cache directory.</p>
 
-<p>Defaults to <code>$HOME/Library/Caches/uv</code> on macOS, <code>$XDG_CACHE_HOME/uv</code> or <code>$HOME/.cache/uv</code> on Linux, and <code>%LOCALAPPDATA%\uv\cache</code> on Windows.</p>
+<p>Defaults to <code>$XDG_CACHE_HOME/uv</code> or <code>$HOME/.cache/uv</code> on macOS and Linux, and <code>%LOCALAPPDATA%\uv\cache</code> on Windows.</p>
+
+<p>To view the location of the cache directory, run <code>uv cache dir</code>.</p>
 
 <p>May also be set with the <code>UV_CACHE_DIR</code> environment variable.</p>
 </dd><dt><code>--color</code> <i>color-choice</i></dt><dd><p>Control colors in output</p>
@@ -3684,6 +3721,7 @@ uv tool list [OPTIONS]
 
 <p>For example, spinners or progress bars.</p>
 
+<p>May also be set with the <code>UV_NO_PROGRESS</code> environment variable.</p>
 </dd><dt><code>--offline</code></dt><dd><p>Disable network access.</p>
 
 <p>When disabled, uv will only use locally cached data and locally available files.</p>
@@ -3734,7 +3772,9 @@ uv tool uninstall [OPTIONS] <NAME>...
 
 </dd><dt><code>--cache-dir</code> <i>cache-dir</i></dt><dd><p>Path to the cache directory.</p>
 
-<p>Defaults to <code>$HOME/Library/Caches/uv</code> on macOS, <code>$XDG_CACHE_HOME/uv</code> or <code>$HOME/.cache/uv</code> on Linux, and <code>%LOCALAPPDATA%\uv\cache</code> on Windows.</p>
+<p>Defaults to <code>$XDG_CACHE_HOME/uv</code> or <code>$HOME/.cache/uv</code> on macOS and Linux, and <code>%LOCALAPPDATA%\uv\cache</code> on Windows.</p>
+
+<p>To view the location of the cache directory, run <code>uv cache dir</code>.</p>
 
 <p>May also be set with the <code>UV_CACHE_DIR</code> environment variable.</p>
 </dd><dt><code>--color</code> <i>color-choice</i></dt><dd><p>Control colors in output</p>
@@ -3781,6 +3821,7 @@ uv tool uninstall [OPTIONS] <NAME>...
 
 <p>For example, spinners or progress bars.</p>
 
+<p>May also be set with the <code>UV_NO_PROGRESS</code> environment variable.</p>
 </dd><dt><code>--no-python-downloads</code></dt><dd><p>Disable automatic downloads of Python.</p>
 
 </dd><dt><code>--offline</code></dt><dd><p>Disable network access.</p>
@@ -3843,7 +3884,9 @@ uv tool update-shell [OPTIONS]
 
 <dl class="cli-reference"><dt><code>--cache-dir</code> <i>cache-dir</i></dt><dd><p>Path to the cache directory.</p>
 
-<p>Defaults to <code>$HOME/Library/Caches/uv</code> on macOS, <code>$XDG_CACHE_HOME/uv</code> or <code>$HOME/.cache/uv</code> on Linux, and <code>%LOCALAPPDATA%\uv\cache</code> on Windows.</p>
+<p>Defaults to <code>$XDG_CACHE_HOME/uv</code> or <code>$HOME/.cache/uv</code> on macOS and Linux, and <code>%LOCALAPPDATA%\uv\cache</code> on Windows.</p>
+
+<p>To view the location of the cache directory, run <code>uv cache dir</code>.</p>
 
 <p>May also be set with the <code>UV_CACHE_DIR</code> environment variable.</p>
 </dd><dt><code>--color</code> <i>color-choice</i></dt><dd><p>Control colors in output</p>
@@ -3890,6 +3933,7 @@ uv tool update-shell [OPTIONS]
 
 <p>For example, spinners or progress bars.</p>
 
+<p>May also be set with the <code>UV_NO_PROGRESS</code> environment variable.</p>
 </dd><dt><code>--no-python-downloads</code></dt><dd><p>Disable automatic downloads of Python.</p>
 
 </dd><dt><code>--offline</code></dt><dd><p>Disable network access.</p>
@@ -3970,7 +4014,9 @@ uv tool dir [OPTIONS]
 
 </dd><dt><code>--cache-dir</code> <i>cache-dir</i></dt><dd><p>Path to the cache directory.</p>
 
-<p>Defaults to <code>$HOME/Library/Caches/uv</code> on macOS, <code>$XDG_CACHE_HOME/uv</code> or <code>$HOME/.cache/uv</code> on Linux, and <code>%LOCALAPPDATA%\uv\cache</code> on Windows.</p>
+<p>Defaults to <code>$XDG_CACHE_HOME/uv</code> or <code>$HOME/.cache/uv</code> on macOS and Linux, and <code>%LOCALAPPDATA%\uv\cache</code> on Windows.</p>
+
+<p>To view the location of the cache directory, run <code>uv cache dir</code>.</p>
 
 <p>May also be set with the <code>UV_CACHE_DIR</code> environment variable.</p>
 </dd><dt><code>--color</code> <i>color-choice</i></dt><dd><p>Control colors in output</p>
@@ -4017,6 +4063,7 @@ uv tool dir [OPTIONS]
 
 <p>For example, spinners or progress bars.</p>
 
+<p>May also be set with the <code>UV_NO_PROGRESS</code> environment variable.</p>
 </dd><dt><code>--no-python-downloads</code></dt><dd><p>Disable automatic downloads of Python.</p>
 
 </dd><dt><code>--offline</code></dt><dd><p>Disable network access.</p>
@@ -4153,7 +4200,9 @@ uv python list [OPTIONS]
 
 </dd><dt><code>--cache-dir</code> <i>cache-dir</i></dt><dd><p>Path to the cache directory.</p>
 
-<p>Defaults to <code>$HOME/Library/Caches/uv</code> on macOS, <code>$XDG_CACHE_HOME/uv</code> or <code>$HOME/.cache/uv</code> on Linux, and <code>%LOCALAPPDATA%\uv\cache</code> on Windows.</p>
+<p>Defaults to <code>$XDG_CACHE_HOME/uv</code> or <code>$HOME/.cache/uv</code> on macOS and Linux, and <code>%LOCALAPPDATA%\uv\cache</code> on Windows.</p>
+
+<p>To view the location of the cache directory, run <code>uv cache dir</code>.</p>
 
 <p>May also be set with the <code>UV_CACHE_DIR</code> environment variable.</p>
 </dd><dt><code>--color</code> <i>color-choice</i></dt><dd><p>Control colors in output</p>
@@ -4200,6 +4249,7 @@ uv python list [OPTIONS]
 
 <p>For example, spinners or progress bars.</p>
 
+<p>May also be set with the <code>UV_NO_PROGRESS</code> environment variable.</p>
 </dd><dt><code>--no-python-downloads</code></dt><dd><p>Disable automatic downloads of Python.</p>
 
 </dd><dt><code>--offline</code></dt><dd><p>Disable network access.</p>
@@ -4280,7 +4330,9 @@ uv python install [OPTIONS] [TARGETS]...
 
 <dl class="cli-reference"><dt><code>--cache-dir</code> <i>cache-dir</i></dt><dd><p>Path to the cache directory.</p>
 
-<p>Defaults to <code>$HOME/Library/Caches/uv</code> on macOS, <code>$XDG_CACHE_HOME/uv</code> or <code>$HOME/.cache/uv</code> on Linux, and <code>%LOCALAPPDATA%\uv\cache</code> on Windows.</p>
+<p>Defaults to <code>$XDG_CACHE_HOME/uv</code> or <code>$HOME/.cache/uv</code> on macOS and Linux, and <code>%LOCALAPPDATA%\uv\cache</code> on Windows.</p>
+
+<p>To view the location of the cache directory, run <code>uv cache dir</code>.</p>
 
 <p>May also be set with the <code>UV_CACHE_DIR</code> environment variable.</p>
 </dd><dt><code>--color</code> <i>color-choice</i></dt><dd><p>Control colors in output</p>
@@ -4327,6 +4379,7 @@ uv python install [OPTIONS] [TARGETS]...
 
 <p>For example, spinners or progress bars.</p>
 
+<p>May also be set with the <code>UV_NO_PROGRESS</code> environment variable.</p>
 </dd><dt><code>--no-python-downloads</code></dt><dd><p>Disable automatic downloads of Python.</p>
 
 </dd><dt><code>--offline</code></dt><dd><p>Disable network access.</p>
@@ -4399,7 +4452,9 @@ uv python find [OPTIONS] [REQUEST]
 
 <dl class="cli-reference"><dt><code>--cache-dir</code> <i>cache-dir</i></dt><dd><p>Path to the cache directory.</p>
 
-<p>Defaults to <code>$HOME/Library/Caches/uv</code> on macOS, <code>$XDG_CACHE_HOME/uv</code> or <code>$HOME/.cache/uv</code> on Linux, and <code>%LOCALAPPDATA%\uv\cache</code> on Windows.</p>
+<p>Defaults to <code>$XDG_CACHE_HOME/uv</code> or <code>$HOME/.cache/uv</code> on macOS and Linux, and <code>%LOCALAPPDATA%\uv\cache</code> on Windows.</p>
+
+<p>To view the location of the cache directory, run <code>uv cache dir</code>.</p>
 
 <p>May also be set with the <code>UV_CACHE_DIR</code> environment variable.</p>
 </dd><dt><code>--color</code> <i>color-choice</i></dt><dd><p>Control colors in output</p>
@@ -4446,6 +4501,7 @@ uv python find [OPTIONS] [REQUEST]
 
 <p>For example, spinners or progress bars.</p>
 
+<p>May also be set with the <code>UV_NO_PROGRESS</code> environment variable.</p>
 </dd><dt><code>--no-project</code></dt><dd><p>Avoid discovering a project or workspace.</p>
 
 <p>Otherwise, when no request is provided, the Python requirement of a project in the current directory or parent directories will be used.</p>
@@ -4527,7 +4583,9 @@ uv python pin [OPTIONS] [REQUEST]
 
 <dl class="cli-reference"><dt><code>--cache-dir</code> <i>cache-dir</i></dt><dd><p>Path to the cache directory.</p>
 
-<p>Defaults to <code>$HOME/Library/Caches/uv</code> on macOS, <code>$XDG_CACHE_HOME/uv</code> or <code>$HOME/.cache/uv</code> on Linux, and <code>%LOCALAPPDATA%\uv\cache</code> on Windows.</p>
+<p>Defaults to <code>$XDG_CACHE_HOME/uv</code> or <code>$HOME/.cache/uv</code> on macOS and Linux, and <code>%LOCALAPPDATA%\uv\cache</code> on Windows.</p>
+
+<p>To view the location of the cache directory, run <code>uv cache dir</code>.</p>
 
 <p>May also be set with the <code>UV_CACHE_DIR</code> environment variable.</p>
 </dd><dt><code>--color</code> <i>color-choice</i></dt><dd><p>Control colors in output</p>
@@ -4574,6 +4632,7 @@ uv python pin [OPTIONS] [REQUEST]
 
 <p>For example, spinners or progress bars.</p>
 
+<p>May also be set with the <code>UV_NO_PROGRESS</code> environment variable.</p>
 </dd><dt><code>--no-project</code></dt><dd><p>Avoid validating the Python pin is compatible with the project or workspace.</p>
 
 <p>By default, a project or workspace is discovered in the current directory or any parent directory. If a workspace is found, the Python pin is validated against the workspace&#8217;s <code>requires-python</code> constraint.</p>
@@ -4644,7 +4703,9 @@ uv python dir [OPTIONS]
 
 <dl class="cli-reference"><dt><code>--cache-dir</code> <i>cache-dir</i></dt><dd><p>Path to the cache directory.</p>
 
-<p>Defaults to <code>$HOME/Library/Caches/uv</code> on macOS, <code>$XDG_CACHE_HOME/uv</code> or <code>$HOME/.cache/uv</code> on Linux, and <code>%LOCALAPPDATA%\uv\cache</code> on Windows.</p>
+<p>Defaults to <code>$XDG_CACHE_HOME/uv</code> or <code>$HOME/.cache/uv</code> on macOS and Linux, and <code>%LOCALAPPDATA%\uv\cache</code> on Windows.</p>
+
+<p>To view the location of the cache directory, run <code>uv cache dir</code>.</p>
 
 <p>May also be set with the <code>UV_CACHE_DIR</code> environment variable.</p>
 </dd><dt><code>--color</code> <i>color-choice</i></dt><dd><p>Control colors in output</p>
@@ -4691,6 +4752,7 @@ uv python dir [OPTIONS]
 
 <p>For example, spinners or progress bars.</p>
 
+<p>May also be set with the <code>UV_NO_PROGRESS</code> environment variable.</p>
 </dd><dt><code>--no-python-downloads</code></dt><dd><p>Disable automatic downloads of Python.</p>
 
 </dd><dt><code>--offline</code></dt><dd><p>Disable network access.</p>
@@ -4757,7 +4819,9 @@ uv python uninstall [OPTIONS] <TARGETS>...
 
 </dd><dt><code>--cache-dir</code> <i>cache-dir</i></dt><dd><p>Path to the cache directory.</p>
 
-<p>Defaults to <code>$HOME/Library/Caches/uv</code> on macOS, <code>$XDG_CACHE_HOME/uv</code> or <code>$HOME/.cache/uv</code> on Linux, and <code>%LOCALAPPDATA%\uv\cache</code> on Windows.</p>
+<p>Defaults to <code>$XDG_CACHE_HOME/uv</code> or <code>$HOME/.cache/uv</code> on macOS and Linux, and <code>%LOCALAPPDATA%\uv\cache</code> on Windows.</p>
+
+<p>To view the location of the cache directory, run <code>uv cache dir</code>.</p>
 
 <p>May also be set with the <code>UV_CACHE_DIR</code> environment variable.</p>
 </dd><dt><code>--color</code> <i>color-choice</i></dt><dd><p>Control colors in output</p>
@@ -4804,6 +4868,7 @@ uv python uninstall [OPTIONS] <TARGETS>...
 
 <p>For example, spinners or progress bars.</p>
 
+<p>May also be set with the <code>UV_NO_PROGRESS</code> environment variable.</p>
 </dd><dt><code>--no-python-downloads</code></dt><dd><p>Disable automatic downloads of Python.</p>
 
 </dd><dt><code>--offline</code></dt><dd><p>Disable network access.</p>
@@ -4933,7 +4998,9 @@ uv pip compile [OPTIONS] <SRC_FILE>...
 <p>May also be set with the <code>UV_BUILD_CONSTRAINT</code> environment variable.</p>
 </dd><dt><code>--cache-dir</code> <i>cache-dir</i></dt><dd><p>Path to the cache directory.</p>
 
-<p>Defaults to <code>$HOME/Library/Caches/uv</code> on macOS, <code>$XDG_CACHE_HOME/uv</code> or <code>$HOME/.cache/uv</code> on Linux, and <code>%LOCALAPPDATA%\uv\cache</code> on Windows.</p>
+<p>Defaults to <code>$XDG_CACHE_HOME/uv</code> or <code>$HOME/.cache/uv</code> on macOS and Linux, and <code>%LOCALAPPDATA%\uv\cache</code> on Windows.</p>
+
+<p>To view the location of the cache directory, run <code>uv cache dir</code>.</p>
 
 <p>May also be set with the <code>UV_CACHE_DIR</code> environment variable.</p>
 </dd><dt><code>--color</code> <i>color-choice</i></dt><dd><p>Control colors in output</p>
@@ -5120,6 +5187,7 @@ uv pip compile [OPTIONS] <SRC_FILE>...
 
 <p>For example, spinners or progress bars.</p>
 
+<p>May also be set with the <code>UV_NO_PROGRESS</code> environment variable.</p>
 </dd><dt><code>--no-python-downloads</code></dt><dd><p>Disable automatic downloads of Python.</p>
 
 </dd><dt><code>--no-sources</code></dt><dd><p>Ignore the <code>tool.uv.sources</code> table when resolving dependencies. Used to lock against the standards-compliant, publishable package metadata, as opposed to using any local or Git sources</p>
@@ -5344,7 +5412,9 @@ uv pip sync [OPTIONS] <SRC_FILE>...
 <p>May also be set with the <code>UV_BUILD_CONSTRAINT</code> environment variable.</p>
 </dd><dt><code>--cache-dir</code> <i>cache-dir</i></dt><dd><p>Path to the cache directory.</p>
 
-<p>Defaults to <code>$HOME/Library/Caches/uv</code> on macOS, <code>$XDG_CACHE_HOME/uv</code> or <code>$HOME/.cache/uv</code> on Linux, and <code>%LOCALAPPDATA%\uv\cache</code> on Windows.</p>
+<p>Defaults to <code>$XDG_CACHE_HOME/uv</code> or <code>$HOME/.cache/uv</code> on macOS and Linux, and <code>%LOCALAPPDATA%\uv\cache</code> on Windows.</p>
+
+<p>To view the location of the cache directory, run <code>uv cache dir</code>.</p>
 
 <p>May also be set with the <code>UV_CACHE_DIR</code> environment variable.</p>
 </dd><dt><code>--color</code> <i>color-choice</i></dt><dd><p>Control colors in output</p>
@@ -5507,6 +5577,7 @@ uv pip sync [OPTIONS] <SRC_FILE>...
 
 <p>For example, spinners or progress bars.</p>
 
+<p>May also be set with the <code>UV_NO_PROGRESS</code> environment variable.</p>
 </dd><dt><code>--no-python-downloads</code></dt><dd><p>Disable automatic downloads of Python.</p>
 
 </dd><dt><code>--no-sources</code></dt><dd><p>Ignore the <code>tool.uv.sources</code> table when resolving dependencies. Used to lock against the standards-compliant, publishable package metadata, as opposed to using any local or Git sources</p>
@@ -5695,7 +5766,9 @@ uv pip install [OPTIONS] <PACKAGE|--requirement <REQUIREMENT>|--editable <EDITAB
 <p>May also be set with the <code>UV_BUILD_CONSTRAINT</code> environment variable.</p>
 </dd><dt><code>--cache-dir</code> <i>cache-dir</i></dt><dd><p>Path to the cache directory.</p>
 
-<p>Defaults to <code>$HOME/Library/Caches/uv</code> on macOS, <code>$XDG_CACHE_HOME/uv</code> or <code>$HOME/.cache/uv</code> on Linux, and <code>%LOCALAPPDATA%\uv\cache</code> on Windows.</p>
+<p>Defaults to <code>$XDG_CACHE_HOME/uv</code> or <code>$HOME/.cache/uv</code> on macOS and Linux, and <code>%LOCALAPPDATA%\uv\cache</code> on Windows.</p>
+
+<p>To view the location of the cache directory, run <code>uv cache dir</code>.</p>
 
 <p>May also be set with the <code>UV_CACHE_DIR</code> environment variable.</p>
 </dd><dt><code>--color</code> <i>color-choice</i></dt><dd><p>Control colors in output</p>
@@ -5879,6 +5952,7 @@ uv pip install [OPTIONS] <PACKAGE|--requirement <REQUIREMENT>|--editable <EDITAB
 
 <p>For example, spinners or progress bars.</p>
 
+<p>May also be set with the <code>UV_NO_PROGRESS</code> environment variable.</p>
 </dd><dt><code>--no-python-downloads</code></dt><dd><p>Disable automatic downloads of Python.</p>
 
 </dd><dt><code>--no-sources</code></dt><dd><p>Ignore the <code>tool.uv.sources</code> table when resolving dependencies. Used to lock against the standards-compliant, publishable package metadata, as opposed to using any local or Git sources</p>
@@ -6105,7 +6179,9 @@ uv pip uninstall [OPTIONS] <PACKAGE|--requirement <REQUIREMENT>>
 <p>May also be set with the <code>UV_BREAK_SYSTEM_PACKAGES</code> environment variable.</p>
 </dd><dt><code>--cache-dir</code> <i>cache-dir</i></dt><dd><p>Path to the cache directory.</p>
 
-<p>Defaults to <code>$HOME/Library/Caches/uv</code> on macOS, <code>$XDG_CACHE_HOME/uv</code> or <code>$HOME/.cache/uv</code> on Linux, and <code>%LOCALAPPDATA%\uv\cache</code> on Windows.</p>
+<p>Defaults to <code>$XDG_CACHE_HOME/uv</code> or <code>$HOME/.cache/uv</code> on macOS and Linux, and <code>%LOCALAPPDATA%\uv\cache</code> on Windows.</p>
+
+<p>To view the location of the cache directory, run <code>uv cache dir</code>.</p>
 
 <p>May also be set with the <code>UV_CACHE_DIR</code> environment variable.</p>
 </dd><dt><code>--color</code> <i>color-choice</i></dt><dd><p>Control colors in output</p>
@@ -6166,6 +6242,7 @@ uv pip uninstall [OPTIONS] <PACKAGE|--requirement <REQUIREMENT>>
 
 <p>For example, spinners or progress bars.</p>
 
+<p>May also be set with the <code>UV_NO_PROGRESS</code> environment variable.</p>
 </dd><dt><code>--no-python-downloads</code></dt><dd><p>Disable automatic downloads of Python.</p>
 
 </dd><dt><code>--offline</code></dt><dd><p>Disable network access.</p>
@@ -6242,7 +6319,9 @@ uv pip freeze [OPTIONS]
 
 <dl class="cli-reference"><dt><code>--cache-dir</code> <i>cache-dir</i></dt><dd><p>Path to the cache directory.</p>
 
-<p>Defaults to <code>$HOME/Library/Caches/uv</code> on macOS, <code>$XDG_CACHE_HOME/uv</code> or <code>$HOME/.cache/uv</code> on Linux, and <code>%LOCALAPPDATA%\uv\cache</code> on Windows.</p>
+<p>Defaults to <code>$XDG_CACHE_HOME/uv</code> or <code>$HOME/.cache/uv</code> on macOS and Linux, and <code>%LOCALAPPDATA%\uv\cache</code> on Windows.</p>
+
+<p>To view the location of the cache directory, run <code>uv cache dir</code>.</p>
 
 <p>May also be set with the <code>UV_CACHE_DIR</code> environment variable.</p>
 </dd><dt><code>--color</code> <i>color-choice</i></dt><dd><p>Control colors in output</p>
@@ -6291,6 +6370,7 @@ uv pip freeze [OPTIONS]
 
 <p>For example, spinners or progress bars.</p>
 
+<p>May also be set with the <code>UV_NO_PROGRESS</code> environment variable.</p>
 </dd><dt><code>--no-python-downloads</code></dt><dd><p>Disable automatic downloads of Python.</p>
 
 </dd><dt><code>--offline</code></dt><dd><p>Disable network access.</p>
@@ -6363,7 +6443,9 @@ uv pip list [OPTIONS]
 
 <dl class="cli-reference"><dt><code>--cache-dir</code> <i>cache-dir</i></dt><dd><p>Path to the cache directory.</p>
 
-<p>Defaults to <code>$HOME/Library/Caches/uv</code> on macOS, <code>$XDG_CACHE_HOME/uv</code> or <code>$HOME/.cache/uv</code> on Linux, and <code>%LOCALAPPDATA%\uv\cache</code> on Windows.</p>
+<p>Defaults to <code>$XDG_CACHE_HOME/uv</code> or <code>$HOME/.cache/uv</code> on macOS and Linux, and <code>%LOCALAPPDATA%\uv\cache</code> on Windows.</p>
+
+<p>To view the location of the cache directory, run <code>uv cache dir</code>.</p>
 
 <p>May also be set with the <code>UV_CACHE_DIR</code> environment variable.</p>
 </dd><dt><code>--color</code> <i>color-choice</i></dt><dd><p>Control colors in output</p>
@@ -6428,6 +6510,7 @@ uv pip list [OPTIONS]
 
 <p>For example, spinners or progress bars.</p>
 
+<p>May also be set with the <code>UV_NO_PROGRESS</code> environment variable.</p>
 </dd><dt><code>--no-python-downloads</code></dt><dd><p>Disable automatic downloads of Python.</p>
 
 </dd><dt><code>--offline</code></dt><dd><p>Disable network access.</p>
@@ -6506,7 +6589,9 @@ uv pip show [OPTIONS] [PACKAGE]...
 
 <dl class="cli-reference"><dt><code>--cache-dir</code> <i>cache-dir</i></dt><dd><p>Path to the cache directory.</p>
 
-<p>Defaults to <code>$HOME/Library/Caches/uv</code> on macOS, <code>$XDG_CACHE_HOME/uv</code> or <code>$HOME/.cache/uv</code> on Linux, and <code>%LOCALAPPDATA%\uv\cache</code> on Windows.</p>
+<p>Defaults to <code>$XDG_CACHE_HOME/uv</code> or <code>$HOME/.cache/uv</code> on macOS and Linux, and <code>%LOCALAPPDATA%\uv\cache</code> on Windows.</p>
+
+<p>To view the location of the cache directory, run <code>uv cache dir</code>.</p>
 
 <p>May also be set with the <code>UV_CACHE_DIR</code> environment variable.</p>
 </dd><dt><code>--color</code> <i>color-choice</i></dt><dd><p>Control colors in output</p>
@@ -6555,6 +6640,7 @@ uv pip show [OPTIONS] [PACKAGE]...
 
 <p>For example, spinners or progress bars.</p>
 
+<p>May also be set with the <code>UV_NO_PROGRESS</code> environment variable.</p>
 </dd><dt><code>--no-python-downloads</code></dt><dd><p>Disable automatic downloads of Python.</p>
 
 </dd><dt><code>--offline</code></dt><dd><p>Disable network access.</p>
@@ -6627,7 +6713,9 @@ uv pip tree [OPTIONS]
 
 <dl class="cli-reference"><dt><code>--cache-dir</code> <i>cache-dir</i></dt><dd><p>Path to the cache directory.</p>
 
-<p>Defaults to <code>$HOME/Library/Caches/uv</code> on macOS, <code>$XDG_CACHE_HOME/uv</code> or <code>$HOME/.cache/uv</code> on Linux, and <code>%LOCALAPPDATA%\uv\cache</code> on Windows.</p>
+<p>Defaults to <code>$XDG_CACHE_HOME/uv</code> or <code>$HOME/.cache/uv</code> on macOS and Linux, and <code>%LOCALAPPDATA%\uv\cache</code> on Windows.</p>
+
+<p>To view the location of the cache directory, run <code>uv cache dir</code>.</p>
 
 <p>May also be set with the <code>UV_CACHE_DIR</code> environment variable.</p>
 </dd><dt><code>--color</code> <i>color-choice</i></dt><dd><p>Control colors in output</p>
@@ -6681,6 +6769,7 @@ uv pip tree [OPTIONS]
 
 <p>For example, spinners or progress bars.</p>
 
+<p>May also be set with the <code>UV_NO_PROGRESS</code> environment variable.</p>
 </dd><dt><code>--no-python-downloads</code></dt><dd><p>Disable automatic downloads of Python.</p>
 
 </dd><dt><code>--no-system</code></dt><dt><code>--offline</code></dt><dd><p>Disable network access.</p>
@@ -6759,7 +6848,9 @@ uv pip check [OPTIONS]
 
 <dl class="cli-reference"><dt><code>--cache-dir</code> <i>cache-dir</i></dt><dd><p>Path to the cache directory.</p>
 
-<p>Defaults to <code>$HOME/Library/Caches/uv</code> on macOS, <code>$XDG_CACHE_HOME/uv</code> or <code>$HOME/.cache/uv</code> on Linux, and <code>%LOCALAPPDATA%\uv\cache</code> on Windows.</p>
+<p>Defaults to <code>$XDG_CACHE_HOME/uv</code> or <code>$HOME/.cache/uv</code> on macOS and Linux, and <code>%LOCALAPPDATA%\uv\cache</code> on Windows.</p>
+
+<p>To view the location of the cache directory, run <code>uv cache dir</code>.</p>
 
 <p>May also be set with the <code>UV_CACHE_DIR</code> environment variable.</p>
 </dd><dt><code>--color</code> <i>color-choice</i></dt><dd><p>Control colors in output</p>
@@ -6806,6 +6897,7 @@ uv pip check [OPTIONS]
 
 <p>For example, spinners or progress bars.</p>
 
+<p>May also be set with the <code>UV_NO_PROGRESS</code> environment variable.</p>
 </dd><dt><code>--no-python-downloads</code></dt><dd><p>Disable automatic downloads of Python.</p>
 
 </dd><dt><code>--offline</code></dt><dd><p>Disable network access.</p>
@@ -6909,7 +7001,9 @@ uv venv [OPTIONS] [PATH]
 <p>May also be set with the <code>UV_INSECURE_HOST</code> environment variable.</p>
 </dd><dt><code>--cache-dir</code> <i>cache-dir</i></dt><dd><p>Path to the cache directory.</p>
 
-<p>Defaults to <code>$HOME/Library/Caches/uv</code> on macOS, <code>$XDG_CACHE_HOME/uv</code> or <code>$HOME/.cache/uv</code> on Linux, and <code>%LOCALAPPDATA%\uv\cache</code> on Windows.</p>
+<p>Defaults to <code>$XDG_CACHE_HOME/uv</code> or <code>$HOME/.cache/uv</code> on macOS and Linux, and <code>%LOCALAPPDATA%\uv\cache</code> on Windows.</p>
+
+<p>To view the location of the cache directory, run <code>uv cache dir</code>.</p>
 
 <p>May also be set with the <code>UV_CACHE_DIR</code> environment variable.</p>
 </dd><dt><code>--color</code> <i>color-choice</i></dt><dd><p>Control colors in output</p>
@@ -7044,6 +7138,7 @@ uv venv [OPTIONS] [PATH]
 
 <p>For example, spinners or progress bars.</p>
 
+<p>May also be set with the <code>UV_NO_PROGRESS</code> environment variable.</p>
 </dd><dt><code>--no-project</code></dt><dd><p>Avoid discovering a project or workspace.</p>
 
 <p>By default, uv searches for projects in the current directory or any parent directory to determine the default path of the virtual environment and check for Python version constraints, if any.</p>
@@ -7169,7 +7264,9 @@ uv build [OPTIONS] [SRC]
 <p>May also be set with the <code>UV_BUILD_CONSTRAINT</code> environment variable.</p>
 </dd><dt><code>--cache-dir</code> <i>cache-dir</i></dt><dd><p>Path to the cache directory.</p>
 
-<p>Defaults to <code>$HOME/Library/Caches/uv</code> on macOS, <code>$XDG_CACHE_HOME/uv</code> or <code>$HOME/.cache/uv</code> on Linux, and <code>%LOCALAPPDATA%\uv\cache</code> on Windows.</p>
+<p>Defaults to <code>$XDG_CACHE_HOME/uv</code> or <code>$HOME/.cache/uv</code> on macOS and Linux, and <code>%LOCALAPPDATA%\uv\cache</code> on Windows.</p>
+
+<p>To view the location of the cache directory, run <code>uv cache dir</code>.</p>
 
 <p>May also be set with the <code>UV_CACHE_DIR</code> environment variable.</p>
 </dd><dt><code>--color</code> <i>color-choice</i></dt><dd><p>Control colors in output</p>
@@ -7327,6 +7424,7 @@ uv build [OPTIONS] [SRC]
 
 <p>For example, spinners or progress bars.</p>
 
+<p>May also be set with the <code>UV_NO_PROGRESS</code> environment variable.</p>
 </dd><dt><code>--no-python-downloads</code></dt><dd><p>Disable automatic downloads of Python.</p>
 
 </dd><dt><code>--no-sources</code></dt><dd><p>Ignore the <code>tool.uv.sources</code> table when resolving dependencies. Used to lock against the standards-compliant, publishable package metadata, as opposed to using any local or Git sources</p>
@@ -7479,7 +7577,9 @@ uv publish [OPTIONS] [FILES]...
 <p>May also be set with the <code>UV_INSECURE_HOST</code> environment variable.</p>
 </dd><dt><code>--cache-dir</code> <i>cache-dir</i></dt><dd><p>Path to the cache directory.</p>
 
-<p>Defaults to <code>$HOME/Library/Caches/uv</code> on macOS, <code>$XDG_CACHE_HOME/uv</code> or <code>$HOME/.cache/uv</code> on Linux, and <code>%LOCALAPPDATA%\uv\cache</code> on Windows.</p>
+<p>Defaults to <code>$XDG_CACHE_HOME/uv</code> or <code>$HOME/.cache/uv</code> on macOS and Linux, and <code>%LOCALAPPDATA%\uv\cache</code> on Windows.</p>
+
+<p>To view the location of the cache directory, run <code>uv cache dir</code>.</p>
 
 <p>May also be set with the <code>UV_CACHE_DIR</code> environment variable.</p>
 </dd><dt><code>--color</code> <i>color-choice</i></dt><dd><p>Control colors in output</p>
@@ -7540,6 +7640,7 @@ uv publish [OPTIONS] [FILES]...
 
 <p>For example, spinners or progress bars.</p>
 
+<p>May also be set with the <code>UV_NO_PROGRESS</code> environment variable.</p>
 </dd><dt><code>--no-python-downloads</code></dt><dd><p>Disable automatic downloads of Python.</p>
 
 </dd><dt><code>--offline</code></dt><dd><p>Disable network access.</p>
@@ -7653,7 +7754,9 @@ uv cache clean [OPTIONS] [PACKAGE]...
 
 <dl class="cli-reference"><dt><code>--cache-dir</code> <i>cache-dir</i></dt><dd><p>Path to the cache directory.</p>
 
-<p>Defaults to <code>$HOME/Library/Caches/uv</code> on macOS, <code>$XDG_CACHE_HOME/uv</code> or <code>$HOME/.cache/uv</code> on Linux, and <code>%LOCALAPPDATA%\uv\cache</code> on Windows.</p>
+<p>Defaults to <code>$XDG_CACHE_HOME/uv</code> or <code>$HOME/.cache/uv</code> on macOS and Linux, and <code>%LOCALAPPDATA%\uv\cache</code> on Windows.</p>
+
+<p>To view the location of the cache directory, run <code>uv cache dir</code>.</p>
 
 <p>May also be set with the <code>UV_CACHE_DIR</code> environment variable.</p>
 </dd><dt><code>--color</code> <i>color-choice</i></dt><dd><p>Control colors in output</p>
@@ -7700,6 +7803,7 @@ uv cache clean [OPTIONS] [PACKAGE]...
 
 <p>For example, spinners or progress bars.</p>
 
+<p>May also be set with the <code>UV_NO_PROGRESS</code> environment variable.</p>
 </dd><dt><code>--no-python-downloads</code></dt><dd><p>Disable automatic downloads of Python.</p>
 
 </dd><dt><code>--offline</code></dt><dd><p>Disable network access.</p>
@@ -7756,7 +7860,9 @@ uv cache prune [OPTIONS]
 
 <dl class="cli-reference"><dt><code>--cache-dir</code> <i>cache-dir</i></dt><dd><p>Path to the cache directory.</p>
 
-<p>Defaults to <code>$HOME/Library/Caches/uv</code> on macOS, <code>$XDG_CACHE_HOME/uv</code> or <code>$HOME/.cache/uv</code> on Linux, and <code>%LOCALAPPDATA%\uv\cache</code> on Windows.</p>
+<p>Defaults to <code>$XDG_CACHE_HOME/uv</code> or <code>$HOME/.cache/uv</code> on macOS and Linux, and <code>%LOCALAPPDATA%\uv\cache</code> on Windows.</p>
+
+<p>To view the location of the cache directory, run <code>uv cache dir</code>.</p>
 
 <p>May also be set with the <code>UV_CACHE_DIR</code> environment variable.</p>
 </dd><dt><code>--ci</code></dt><dd><p>Optimize the cache for persistence in a continuous integration environment, like GitHub Actions.</p>
@@ -7809,6 +7915,7 @@ uv cache prune [OPTIONS]
 
 <p>For example, spinners or progress bars.</p>
 
+<p>May also be set with the <code>UV_NO_PROGRESS</code> environment variable.</p>
 </dd><dt><code>--no-python-downloads</code></dt><dd><p>Disable automatic downloads of Python.</p>
 
 </dd><dt><code>--offline</code></dt><dd><p>Disable network access.</p>
@@ -7873,7 +7980,9 @@ uv cache dir [OPTIONS]
 
 <dl class="cli-reference"><dt><code>--cache-dir</code> <i>cache-dir</i></dt><dd><p>Path to the cache directory.</p>
 
-<p>Defaults to <code>$HOME/Library/Caches/uv</code> on macOS, <code>$XDG_CACHE_HOME/uv</code> or <code>$HOME/.cache/uv</code> on Linux, and <code>%LOCALAPPDATA%\uv\cache</code> on Windows.</p>
+<p>Defaults to <code>$XDG_CACHE_HOME/uv</code> or <code>$HOME/.cache/uv</code> on macOS and Linux, and <code>%LOCALAPPDATA%\uv\cache</code> on Windows.</p>
+
+<p>To view the location of the cache directory, run <code>uv cache dir</code>.</p>
 
 <p>May also be set with the <code>UV_CACHE_DIR</code> environment variable.</p>
 </dd><dt><code>--color</code> <i>color-choice</i></dt><dd><p>Control colors in output</p>
@@ -7920,6 +8029,7 @@ uv cache dir [OPTIONS]
 
 <p>For example, spinners or progress bars.</p>
 
+<p>May also be set with the <code>UV_NO_PROGRESS</code> environment variable.</p>
 </dd><dt><code>--no-python-downloads</code></dt><dd><p>Disable automatic downloads of Python.</p>
 
 </dd><dt><code>--offline</code></dt><dd><p>Disable network access.</p>
@@ -7998,7 +8108,9 @@ uv self update [OPTIONS] [TARGET_VERSION]
 
 <dl class="cli-reference"><dt><code>--cache-dir</code> <i>cache-dir</i></dt><dd><p>Path to the cache directory.</p>
 
-<p>Defaults to <code>$HOME/Library/Caches/uv</code> on macOS, <code>$XDG_CACHE_HOME/uv</code> or <code>$HOME/.cache/uv</code> on Linux, and <code>%LOCALAPPDATA%\uv\cache</code> on Windows.</p>
+<p>Defaults to <code>$XDG_CACHE_HOME/uv</code> or <code>$HOME/.cache/uv</code> on macOS and Linux, and <code>%LOCALAPPDATA%\uv\cache</code> on Windows.</p>
+
+<p>To view the location of the cache directory, run <code>uv cache dir</code>.</p>
 
 <p>May also be set with the <code>UV_CACHE_DIR</code> environment variable.</p>
 </dd><dt><code>--color</code> <i>color-choice</i></dt><dd><p>Control colors in output</p>
@@ -8045,6 +8157,7 @@ uv self update [OPTIONS] [TARGET_VERSION]
 
 <p>For example, spinners or progress bars.</p>
 
+<p>May also be set with the <code>UV_NO_PROGRESS</code> environment variable.</p>
 </dd><dt><code>--no-python-downloads</code></dt><dd><p>Disable automatic downloads of Python.</p>
 
 </dd><dt><code>--offline</code></dt><dd><p>Disable network access.</p>
@@ -8104,7 +8217,9 @@ uv version [OPTIONS]
 
 <dl class="cli-reference"><dt><code>--cache-dir</code> <i>cache-dir</i></dt><dd><p>Path to the cache directory.</p>
 
-<p>Defaults to <code>$HOME/Library/Caches/uv</code> on macOS, <code>$XDG_CACHE_HOME/uv</code> or <code>$HOME/.cache/uv</code> on Linux, and <code>%LOCALAPPDATA%\uv\cache</code> on Windows.</p>
+<p>Defaults to <code>$XDG_CACHE_HOME/uv</code> or <code>$HOME/.cache/uv</code> on macOS and Linux, and <code>%LOCALAPPDATA%\uv\cache</code> on Windows.</p>
+
+<p>To view the location of the cache directory, run <code>uv cache dir</code>.</p>
 
 <p>May also be set with the <code>UV_CACHE_DIR</code> environment variable.</p>
 </dd><dt><code>--color</code> <i>color-choice</i></dt><dd><p>Control colors in output</p>
@@ -8151,6 +8266,7 @@ uv version [OPTIONS]
 
 <p>For example, spinners or progress bars.</p>
 
+<p>May also be set with the <code>UV_NO_PROGRESS</code> environment variable.</p>
 </dd><dt><code>--no-python-downloads</code></dt><dd><p>Disable automatic downloads of Python.</p>
 
 </dd><dt><code>--offline</code></dt><dd><p>Disable network access.</p>
@@ -8247,7 +8363,9 @@ uv help [OPTIONS] [COMMAND]...
 
 <dl class="cli-reference"><dt><code>--cache-dir</code> <i>cache-dir</i></dt><dd><p>Path to the cache directory.</p>
 
-<p>Defaults to <code>$HOME/Library/Caches/uv</code> on macOS, <code>$XDG_CACHE_HOME/uv</code> or <code>$HOME/.cache/uv</code> on Linux, and <code>%LOCALAPPDATA%\uv\cache</code> on Windows.</p>
+<p>Defaults to <code>$XDG_CACHE_HOME/uv</code> or <code>$HOME/.cache/uv</code> on macOS and Linux, and <code>%LOCALAPPDATA%\uv\cache</code> on Windows.</p>
+
+<p>To view the location of the cache directory, run <code>uv cache dir</code>.</p>
 
 <p>May also be set with the <code>UV_CACHE_DIR</code> environment variable.</p>
 </dd><dt><code>--color</code> <i>color-choice</i></dt><dd><p>Control colors in output</p>
@@ -8296,6 +8414,7 @@ uv help [OPTIONS] [COMMAND]...
 
 <p>For example, spinners or progress bars.</p>
 
+<p>May also be set with the <code>UV_NO_PROGRESS</code> environment variable.</p>
 </dd><dt><code>--no-python-downloads</code></dt><dd><p>Disable automatic downloads of Python.</p>
 
 </dd><dt><code>--offline</code></dt><dd><p>Disable network access.</p>

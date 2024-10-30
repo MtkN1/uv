@@ -72,4 +72,5 @@ uvは次のコマンドライン引数を環境変数として受け入れます
 - `ZSH_VERSION`: Zshシェルの使用を検出するために使用されます。
 - `MACOSX_DEPLOYMENT_TARGET`: `--python-platform macos`および関連するバリアントで使用され、デプロイメントターゲット（つまり、サポートされる最小のmacOSバージョン）を設定します。デフォルトは`12.0`で、執筆時点での最も古い非EOLのmacOSバージョンです。
 - `NO_COLOR`: 色を無効にします。`FORCE_COLOR`よりも優先されます。詳細については、[no-color.org](https://no-color.org)を参照してください。
+- `UV_NO_PROGRESS`: プログレスインジケーター（スピナーやプログレスバー）の表示を無効にします。
 - `FORCE_COLOR`: TTYサポートに関係なく色を強制します。詳細については、[force-color.org](https://force-color.org)を参照してください。
