@@ -7,7 +7,7 @@ pre-commit を介して requirements をコンパイルするには、次の内�
 ```yaml title=".pre-commit-config.yaml"
 - repo: https://github.com/astral-sh/uv-pre-commit
   # uv version.
-  rev: 0.4.27
+  rev: 0.4.28
   hooks:
     # requirements をコンパイル
     - id: pip-compile
@@ -19,7 +19,7 @@ pre-commit を介して requirements をコンパイルするには、次の内�
 ```yaml title=".pre-commit-config.yaml"
 - repo: https://github.com/astral-sh/uv-pre-commit
   # uv version.
-  rev: 0.4.27
+  rev: 0.4.28
   hooks:
     # requirements をコンパイル
     - id: pip-compile
@@ -32,7 +32,7 @@ pre-commit を介して requirements をコンパイルするには、次の内�
 ```yaml title=".pre-commit-config.yaml"
 - repo: https://github.com/astral-sh/uv-pre-commit
   # uv version.
-  rev: 0.4.27
+  rev: 0.4.28
   hooks:
     # requirements をコンパイル
     - id: pip-compile
