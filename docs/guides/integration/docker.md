@@ -19,7 +19,7 @@ $ docker run ghcr.io/astral-sh/uv --help
 uvは`uv`バイナリを含むdistroless Dockerイメージを提供しています。以下のタグが公開されています：
 
 - `ghcr.io/astral-sh/uv:latest`
-- `ghcr.io/astral-sh/uv:{major}.{minor}.{patch}`, e.g., `ghcr.io/astral-sh/uv:0.4.28`
+- `ghcr.io/astral-sh/uv:{major}.{minor}.{patch}`, e.g., `ghcr.io/astral-sh/uv:0.4.29`
 - `ghcr.io/astral-sh/uv:{major}.{minor}`, e.g., `ghcr.io/astral-sh/uv:0.4` (the latest patch
   version)
 
@@ -60,7 +60,7 @@ uvは`uv`バイナリを含むdistroless Dockerイメージを提供していま
 
 As with the distroless image, each image is published with uv version tags as
 `ghcr.io/astral-sh/uv:{major}.{minor}.{patch}-{base}` and
-`ghcr.io/astral-sh/uv:{major}.{minor}-{base}`, e.g., `ghcr.io/astral-sh/uv:0.4.28-alpine`.
+`ghcr.io/astral-sh/uv:{major}.{minor}-{base}`, e.g., `ghcr.io/astral-sh/uv:0.4.29-alpine`.
 
 詳細については、[GitHub Container](https://github.com/astral-sh/uv/pkgs/container/uv)ページを参照してください。
 
@@ -96,13 +96,13 @@ ENV PATH="/root/.cargo/bin/:$PATH"
 いずれの場合も、特定のuvバージョンに固定することがベストプラクティスです。例：
 
 ```dockerfile
-COPY --from=ghcr.io/astral-sh/uv:0.4.28 /uv /uvx /bin/
+COPY --from=ghcr.io/astral-sh/uv:0.4.29 /uv /uvx /bin/
 ```
 
 または、インストーラーを使用する場合：
 
 ```dockerfile
-ADD https://astral.sh/uv/0.4.28/install.sh /uv-installer.sh
+ADD https://astral.sh/uv/0.4.29/install.sh /uv-installer.sh
 ```
 
 ### プロジェクトのインストール
