@@ -3803,14 +3803,15 @@ pub enum PythonCommand {
     ///
     /// Multiple Python versions may be requested.
     ///
-    /// Supports CPython and PyPy.
+    /// Supports CPython and PyPy. CPython distributions are downloaded from the
+    /// `python-build-standalone` project. PyPy distributions are downloaded from `python.org`.
     ///
-    /// CPython distributions are downloaded from the `python-build-standalone` project.
+    /// Python versions are installed into the uv Python directory, which can be retrieved with `uv
+    /// python dir`.
     ///
-    /// Python versions are installed into the uv Python directory, which can be
-    /// retrieved with `uv python dir`. A `python` executable is not made
-    /// globally available, managed Python versions are only used in uv
-    /// commands or in active virtual environments.
+    /// A `python` executable is not made globally available, managed Python versions are only used
+    /// in uv commands or in active virtual environments. There is experimental support for
+    /// adding Python executables to the `PATH` — use the `--preview` flag to enable this behavior.
     ///
     /// See `uv help python` to view supported request formats.
     Install(PythonInstallArgs),
@@ -3838,7 +3839,10 @@ pub enum PythonCommand {
     /// `%APPDATA%\uv\data\python` on Windows.
     ///
     /// The Python installation directory may be overridden with `$UV_PYTHON_INSTALL_DIR`.
-    Dir,
+    ///
+    /// To view the directory where uv installs Python executables instead, use the `--bin` flag.
+    /// Note that Python executables are only installed when preview mode is enabled.
+    Dir(PythonDirArgs),
 
     /// Uninstall Python versions.
     Uninstall(PythonUninstallArgs),
@@ -3864,6 +3868,24 @@ pub struct PythonListArgs {
     /// By default, available downloads for the current platform are shown.
     #[arg(long)]
     pub only_installed: bool,
+}
+
+#[derive(Args)]
+#[allow(clippy::struct_excessive_bools)]
+pub struct PythonDirArgs {
+    /// Show the directory into which `uv python` will install Python executables.
+    ///
+    /// Note that this directory is only used when installing Python with preview mode enabled.
+    ///
+    /// The Python executable directory is determined according to the XDG standard and is derived
+    /// from the following environment variables, in order of preference:
+    ///
+    /// - `$UV_PYTHON_BIN_DIR`
+    /// - `$XDG_BIN_HOME`
+    /// - `$XDG_DATA_HOME/../bin`
+    /// - `$HOME/.local/bin`
+    #[arg(long, verbatim_doc_comment)]
+    pub bin: bool,
 }
 
 #[derive(Args)]

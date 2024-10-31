@@ -8,7 +8,7 @@ use url::Url;
 use uv_cache::{CacheArgs, Refresh};
 use uv_cli::{
     options::{flag, resolver_installer_options, resolver_options},
-    AuthorFrom, BuildArgs, ExportArgs, PublishArgs, ToolUpgradeArgs,
+    AuthorFrom, BuildArgs, ExportArgs, PublishArgs, PythonDirArgs, ToolUpgradeArgs,
 };
 use uv_cli::{
     AddArgs, ColorChoice, ExternalCommand, GlobalArgs, InitArgs, ListFormat, LockArgs, Maybe,
@@ -202,7 +202,7 @@ impl InitSettings {
             (_, _, _) => unreachable!("`app`, `lib`, and `script` are mutually exclusive"),
         };
 
-        let package = flag(package || build_backend.is_some() || r#virtual, no_package)
+        let package = flag(package || build_backend.is_some(), no_package || r#virtual)
             .unwrap_or(kind.packaged_by_default());
 
         Self {
@@ -594,6 +594,23 @@ impl PythonListSettings {
             all_platforms,
             all_versions,
         }
+    }
+}
+
+/// The resolved settings to use for a `python dir` invocation.
+#[allow(clippy::struct_excessive_bools)]
+#[derive(Debug, Clone)]
+pub(crate) struct PythonDirSettings {
+    pub(crate) bin: bool,
+}
+
+impl PythonDirSettings {
+    /// Resolve the [`PythonDirSettings`] from the CLI and filesystem configuration.
+    #[allow(clippy::needless_pass_by_value)]
+    pub(crate) fn resolve(args: PythonDirArgs, _filesystem: Option<FilesystemOptions>) -> Self {
+        let PythonDirArgs { bin } = args;
+
+        Self { bin }
     }
 }
 
