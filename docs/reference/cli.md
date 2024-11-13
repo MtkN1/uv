@@ -78,6 +78,12 @@ uv run [OPTIONS] [COMMAND]
 
 <p>This option is only available when running in a project.</p>
 
+</dd><dt><code>--all-packages</code></dt><dd><p>Run the command with all workspace members installed.</p>
+
+<p>The workspace&#8217;s environment (<code>.venv</code>) is updated to include all workspace members.</p>
+
+<p>Any extras or groups specified via <code>--extra</code>, <code>--group</code>, or related options will be applied to all workspace members.</p>
+
 </dd><dt><code>--allow-insecure-host</code> <i>allow-insecure-host</i></dt><dd><p>Allow insecure connections to a host.</p>
 
 <p>Can be provided multiple times.</p>
@@ -133,6 +139,11 @@ uv run [OPTIONS] [COMMAND]
 
 <p>See <code>--project</code> to only change the project root directory.</p>
 
+</dd><dt><code>--env-file</code> <i>env-file</i></dt><dd><p>Load environment variables from a <code>.env</code> file.</p>
+
+<p>Can be provided multiple times, with subsequent files overriding values defined in previous files.</p>
+
+<p>May also be set with the <code>UV_ENV_FILE</code> environment variable.</p>
 </dd><dt><code>--exclude-newer</code> <i>exclude-newer</i></dt><dd><p>Limit candidate packages to those that were uploaded prior to the given date.</p>
 
 <p>Accepts both RFC 3339 timestamps (e.g., <code>2006-12-02T02:07:43Z</code>) and local dates in the same format (e.g., <code>2006-12-02</code>) in your system&#8217;s configured time zone.</p>
@@ -290,6 +301,9 @@ uv run [OPTIONS] [COMMAND]
 
 </dd><dt><code>--no-editable</code></dt><dd><p>Install any editable dependencies, including the project and any workspace members, as non-editable</p>
 
+</dd><dt><code>--no-env-file</code></dt><dd><p>Avoid reading environment variables from a <code>.env</code> file</p>
+
+<p>May also be set with the <code>UV_NO_ENV_FILE</code> environment variable.</p>
 </dd><dt><code>--no-group</code> <i>no-group</i></dt><dd><p>Exclude dependencies from the specified dependency group.</p>
 
 <p>May be provided multiple times.</p>
@@ -471,7 +485,16 @@ uv init [OPTIONS] [PATH]
 
 <h3 class="cli-reference">Options</h3>
 
-<dl class="cli-reference"><dt><code>--app</code></dt><dd><p>Create a project for an application.</p>
+<dl class="cli-reference"><dt><code>--allow-insecure-host</code> <i>allow-insecure-host</i></dt><dd><p>Allow insecure connections to a host.</p>
+
+<p>Can be provided multiple times.</p>
+
+<p>Expects to receive either a hostname (e.g., <code>localhost</code>), a host-port pair (e.g., <code>localhost:8080</code>), or a URL (e.g., <code>https://localhost</code>).</p>
+
+<p>WARNING: Hosts included in this list will not be verified against the system&#8217;s certificate store. Only use <code>--allow-insecure-host</code> in a secure network with verified sources, as it bypasses SSL verification and could expose you to MITM attacks.</p>
+
+<p>May also be set with the <code>UV_INSECURE_HOST</code> environment variable.</p>
+</dd><dt><code>--app</code></dt><dd><p>Create a project for an application.</p>
 
 <p>This is the default behavior if <code>--lib</code> is not requested.</p>
 
@@ -1369,6 +1392,12 @@ uv sync [OPTIONS]
 
 <p>Note that all optional dependencies are always included in the resolution; this option only affects the selection of packages to install.</p>
 
+</dd><dt><code>--all-packages</code></dt><dd><p>Sync all packages in the workspace.</p>
+
+<p>The workspace&#8217;s environment (<code>.venv</code>) is updated to include all workspace members.</p>
+
+<p>Any extras or groups specified via <code>--extra</code>, <code>--group</code>, or related options will be applied to all workspace members.</p>
+
 </dd><dt><code>--allow-insecure-host</code> <i>allow-insecure-host</i></dt><dd><p>Allow insecure connections to a host.</p>
 
 <p>Can be provided multiple times.</p>
@@ -2022,6 +2051,12 @@ uv export [OPTIONS]
 
 <dl class="cli-reference"><dt><code>--all-extras</code></dt><dd><p>Include all optional dependencies</p>
 
+</dd><dt><code>--all-packages</code></dt><dd><p>Export the entire workspace.</p>
+
+<p>The dependencies for all workspace members will be included in the exported requirements file.</p>
+
+<p>Any extras or groups specified via <code>--extra</code>, <code>--group</code>, or related options will be applied to all workspace members.</p>
+
 </dd><dt><code>--allow-insecure-host</code> <i>allow-insecure-host</i></dt><dd><p>Allow insecure connections to a host.</p>
 
 <p>Can be provided multiple times.</p>
@@ -2591,6 +2626,8 @@ uv tree [OPTIONS]
 <p>May be provided multiple times.</p>
 
 <p>The project itself will also be omitted.</p>
+
+</dd><dt><code>--outdated</code></dt><dd><p>Show the latest available version of each package in the tree</p>
 
 </dd><dt><code>--package</code> <i>package</i></dt><dd><p>Display only the specified packages</p>
 
@@ -3670,7 +3707,16 @@ uv tool list [OPTIONS]
 
 <h3 class="cli-reference">Options</h3>
 
-<dl class="cli-reference"><dt><code>--cache-dir</code> <i>cache-dir</i></dt><dd><p>Path to the cache directory.</p>
+<dl class="cli-reference"><dt><code>--allow-insecure-host</code> <i>allow-insecure-host</i></dt><dd><p>Allow insecure connections to a host.</p>
+
+<p>Can be provided multiple times.</p>
+
+<p>Expects to receive either a hostname (e.g., <code>localhost</code>), a host-port pair (e.g., <code>localhost:8080</code>), or a URL (e.g., <code>https://localhost</code>).</p>
+
+<p>WARNING: Hosts included in this list will not be verified against the system&#8217;s certificate store. Only use <code>--allow-insecure-host</code> in a secure network with verified sources, as it bypasses SSL verification and could expose you to MITM attacks.</p>
+
+<p>May also be set with the <code>UV_INSECURE_HOST</code> environment variable.</p>
+</dd><dt><code>--cache-dir</code> <i>cache-dir</i></dt><dd><p>Path to the cache directory.</p>
 
 <p>Defaults to <code>$XDG_CACHE_HOME/uv</code> or <code>$HOME/.cache/uv</code> on macOS and Linux, and <code>%LOCALAPPDATA%\uv\cache</code> on Windows.</p>
 
@@ -3770,6 +3816,15 @@ uv tool uninstall [OPTIONS] <NAME>...
 
 <dl class="cli-reference"><dt><code>--all</code></dt><dd><p>Uninstall all tools</p>
 
+</dd><dt><code>--allow-insecure-host</code> <i>allow-insecure-host</i></dt><dd><p>Allow insecure connections to a host.</p>
+
+<p>Can be provided multiple times.</p>
+
+<p>Expects to receive either a hostname (e.g., <code>localhost</code>), a host-port pair (e.g., <code>localhost:8080</code>), or a URL (e.g., <code>https://localhost</code>).</p>
+
+<p>WARNING: Hosts included in this list will not be verified against the system&#8217;s certificate store. Only use <code>--allow-insecure-host</code> in a secure network with verified sources, as it bypasses SSL verification and could expose you to MITM attacks.</p>
+
+<p>May also be set with the <code>UV_INSECURE_HOST</code> environment variable.</p>
 </dd><dt><code>--cache-dir</code> <i>cache-dir</i></dt><dd><p>Path to the cache directory.</p>
 
 <p>Defaults to <code>$XDG_CACHE_HOME/uv</code> or <code>$HOME/.cache/uv</code> on macOS and Linux, and <code>%LOCALAPPDATA%\uv\cache</code> on Windows.</p>
@@ -3882,7 +3937,16 @@ uv tool update-shell [OPTIONS]
 
 <h3 class="cli-reference">Options</h3>
 
-<dl class="cli-reference"><dt><code>--cache-dir</code> <i>cache-dir</i></dt><dd><p>Path to the cache directory.</p>
+<dl class="cli-reference"><dt><code>--allow-insecure-host</code> <i>allow-insecure-host</i></dt><dd><p>Allow insecure connections to a host.</p>
+
+<p>Can be provided multiple times.</p>
+
+<p>Expects to receive either a hostname (e.g., <code>localhost</code>), a host-port pair (e.g., <code>localhost:8080</code>), or a URL (e.g., <code>https://localhost</code>).</p>
+
+<p>WARNING: Hosts included in this list will not be verified against the system&#8217;s certificate store. Only use <code>--allow-insecure-host</code> in a secure network with verified sources, as it bypasses SSL verification and could expose you to MITM attacks.</p>
+
+<p>May also be set with the <code>UV_INSECURE_HOST</code> environment variable.</p>
+</dd><dt><code>--cache-dir</code> <i>cache-dir</i></dt><dd><p>Path to the cache directory.</p>
 
 <p>Defaults to <code>$XDG_CACHE_HOME/uv</code> or <code>$HOME/.cache/uv</code> on macOS and Linux, and <code>%LOCALAPPDATA%\uv\cache</code> on Windows.</p>
 
@@ -3996,7 +4060,16 @@ uv tool dir [OPTIONS]
 
 <h3 class="cli-reference">Options</h3>
 
-<dl class="cli-reference"><dt><code>--bin</code></dt><dd><p>Show the directory into which <code>uv tool</code> will install executables.</p>
+<dl class="cli-reference"><dt><code>--allow-insecure-host</code> <i>allow-insecure-host</i></dt><dd><p>Allow insecure connections to a host.</p>
+
+<p>Can be provided multiple times.</p>
+
+<p>Expects to receive either a hostname (e.g., <code>localhost</code>), a host-port pair (e.g., <code>localhost:8080</code>), or a URL (e.g., <code>https://localhost</code>).</p>
+
+<p>WARNING: Hosts included in this list will not be verified against the system&#8217;s certificate store. Only use <code>--allow-insecure-host</code> in a secure network with verified sources, as it bypasses SSL verification and could expose you to MITM attacks.</p>
+
+<p>May also be set with the <code>UV_INSECURE_HOST</code> environment variable.</p>
+</dd><dt><code>--bin</code></dt><dd><p>Show the directory into which <code>uv tool</code> will install executables.</p>
 
 <p>By default, <code>uv tool dir</code> shows the directory into which the tool Python environments themselves are installed, rather than the directory containing the linked executables.</p>
 
@@ -4116,7 +4189,7 @@ environment is not required, uv will then search for a Python interpreter. Pytho
 interpreters are found by searching for Python executables in the `PATH` environment
 variable.
 
-On Windows, the `py` launcher is also invoked to find Python executables.
+On Windows, the registry is also searched for Python executables.
 
 By default, uv will download Python if a version cannot be found. This behavior can be
 disabled with the `--no-python-downloads` flag or the `python-downloads` setting.
@@ -4198,6 +4271,15 @@ uv python list [OPTIONS]
 
 <p>By default, only the latest patch version is shown for each minor version.</p>
 
+</dd><dt><code>--allow-insecure-host</code> <i>allow-insecure-host</i></dt><dd><p>Allow insecure connections to a host.</p>
+
+<p>Can be provided multiple times.</p>
+
+<p>Expects to receive either a hostname (e.g., <code>localhost</code>), a host-port pair (e.g., <code>localhost:8080</code>), or a URL (e.g., <code>https://localhost</code>).</p>
+
+<p>WARNING: Hosts included in this list will not be verified against the system&#8217;s certificate store. Only use <code>--allow-insecure-host</code> in a secure network with verified sources, as it bypasses SSL verification and could expose you to MITM attacks.</p>
+
+<p>May also be set with the <code>UV_INSECURE_HOST</code> environment variable.</p>
 </dd><dt><code>--cache-dir</code> <i>cache-dir</i></dt><dd><p>Path to the cache directory.</p>
 
 <p>Defaults to <code>$XDG_CACHE_HOME/uv</code> or <code>$HOME/.cache/uv</code> on macOS and Linux, and <code>%LOCALAPPDATA%\uv\cache</code> on Windows.</p>
@@ -4328,7 +4410,16 @@ uv python install [OPTIONS] [TARGETS]...
 
 <h3 class="cli-reference">Options</h3>
 
-<dl class="cli-reference"><dt><code>--cache-dir</code> <i>cache-dir</i></dt><dd><p>Path to the cache directory.</p>
+<dl class="cli-reference"><dt><code>--allow-insecure-host</code> <i>allow-insecure-host</i></dt><dd><p>Allow insecure connections to a host.</p>
+
+<p>Can be provided multiple times.</p>
+
+<p>Expects to receive either a hostname (e.g., <code>localhost</code>), a host-port pair (e.g., <code>localhost:8080</code>), or a URL (e.g., <code>https://localhost</code>).</p>
+
+<p>WARNING: Hosts included in this list will not be verified against the system&#8217;s certificate store. Only use <code>--allow-insecure-host</code> in a secure network with verified sources, as it bypasses SSL verification and could expose you to MITM attacks.</p>
+
+<p>May also be set with the <code>UV_INSECURE_HOST</code> environment variable.</p>
+</dd><dt><code>--cache-dir</code> <i>cache-dir</i></dt><dd><p>Path to the cache directory.</p>
 
 <p>Defaults to <code>$XDG_CACHE_HOME/uv</code> or <code>$HOME/.cache/uv</code> on macOS and Linux, and <code>%LOCALAPPDATA%\uv\cache</code> on Windows.</p>
 
@@ -4357,6 +4448,12 @@ uv python install [OPTIONS] [TARGETS]...
 <p>Relative paths are resolved with the given directory as the base.</p>
 
 <p>See <code>--project</code> to only change the project root directory.</p>
+
+</dd><dt><code>--force</code>, <code>-f</code></dt><dd><p>Replace existing Python executables during installation.</p>
+
+<p>By default, uv will refuse to replace executables that it does not manage.</p>
+
+<p>Implies <code>--reinstall</code>.</p>
 
 </dd><dt><code>--help</code>, <code>-h</code></dt><dd><p>Display the concise help for this command</p>
 
@@ -4450,7 +4547,16 @@ uv python find [OPTIONS] [REQUEST]
 
 <h3 class="cli-reference">Options</h3>
 
-<dl class="cli-reference"><dt><code>--cache-dir</code> <i>cache-dir</i></dt><dd><p>Path to the cache directory.</p>
+<dl class="cli-reference"><dt><code>--allow-insecure-host</code> <i>allow-insecure-host</i></dt><dd><p>Allow insecure connections to a host.</p>
+
+<p>Can be provided multiple times.</p>
+
+<p>Expects to receive either a hostname (e.g., <code>localhost</code>), a host-port pair (e.g., <code>localhost:8080</code>), or a URL (e.g., <code>https://localhost</code>).</p>
+
+<p>WARNING: Hosts included in this list will not be verified against the system&#8217;s certificate store. Only use <code>--allow-insecure-host</code> in a secure network with verified sources, as it bypasses SSL verification and could expose you to MITM attacks.</p>
+
+<p>May also be set with the <code>UV_INSECURE_HOST</code> environment variable.</p>
+</dd><dt><code>--cache-dir</code> <i>cache-dir</i></dt><dd><p>Path to the cache directory.</p>
 
 <p>Defaults to <code>$XDG_CACHE_HOME/uv</code> or <code>$HOME/.cache/uv</code> on macOS and Linux, and <code>%LOCALAPPDATA%\uv\cache</code> on Windows.</p>
 
@@ -4581,7 +4687,16 @@ uv python pin [OPTIONS] [REQUEST]
 
 <h3 class="cli-reference">Options</h3>
 
-<dl class="cli-reference"><dt><code>--cache-dir</code> <i>cache-dir</i></dt><dd><p>Path to the cache directory.</p>
+<dl class="cli-reference"><dt><code>--allow-insecure-host</code> <i>allow-insecure-host</i></dt><dd><p>Allow insecure connections to a host.</p>
+
+<p>Can be provided multiple times.</p>
+
+<p>Expects to receive either a hostname (e.g., <code>localhost</code>), a host-port pair (e.g., <code>localhost:8080</code>), or a URL (e.g., <code>https://localhost</code>).</p>
+
+<p>WARNING: Hosts included in this list will not be verified against the system&#8217;s certificate store. Only use <code>--allow-insecure-host</code> in a secure network with verified sources, as it bypasses SSL verification and could expose you to MITM attacks.</p>
+
+<p>May also be set with the <code>UV_INSECURE_HOST</code> environment variable.</p>
+</dd><dt><code>--cache-dir</code> <i>cache-dir</i></dt><dd><p>Path to the cache directory.</p>
 
 <p>Defaults to <code>$XDG_CACHE_HOME/uv</code> or <code>$HOME/.cache/uv</code> on macOS and Linux, and <code>%LOCALAPPDATA%\uv\cache</code> on Windows.</p>
 
@@ -4703,7 +4818,16 @@ uv python dir [OPTIONS]
 
 <h3 class="cli-reference">Options</h3>
 
-<dl class="cli-reference"><dt><code>--bin</code></dt><dd><p>Show the directory into which <code>uv python</code> will install Python executables.</p>
+<dl class="cli-reference"><dt><code>--allow-insecure-host</code> <i>allow-insecure-host</i></dt><dd><p>Allow insecure connections to a host.</p>
+
+<p>Can be provided multiple times.</p>
+
+<p>Expects to receive either a hostname (e.g., <code>localhost</code>), a host-port pair (e.g., <code>localhost:8080</code>), or a URL (e.g., <code>https://localhost</code>).</p>
+
+<p>WARNING: Hosts included in this list will not be verified against the system&#8217;s certificate store. Only use <code>--allow-insecure-host</code> in a secure network with verified sources, as it bypasses SSL verification and could expose you to MITM attacks.</p>
+
+<p>May also be set with the <code>UV_INSECURE_HOST</code> environment variable.</p>
+</dd><dt><code>--bin</code></dt><dd><p>Show the directory into which <code>uv python</code> will install Python executables.</p>
 
 <p>Note that this directory is only used when installing Python with preview mode enabled.</p>
 
@@ -4835,6 +4959,15 @@ uv python uninstall [OPTIONS] <TARGETS>...
 
 <dl class="cli-reference"><dt><code>--all</code></dt><dd><p>Uninstall all managed Python versions</p>
 
+</dd><dt><code>--allow-insecure-host</code> <i>allow-insecure-host</i></dt><dd><p>Allow insecure connections to a host.</p>
+
+<p>Can be provided multiple times.</p>
+
+<p>Expects to receive either a hostname (e.g., <code>localhost</code>), a host-port pair (e.g., <code>localhost:8080</code>), or a URL (e.g., <code>https://localhost</code>).</p>
+
+<p>WARNING: Hosts included in this list will not be verified against the system&#8217;s certificate store. Only use <code>--allow-insecure-host</code> in a secure network with verified sources, as it bypasses SSL verification and could expose you to MITM attacks.</p>
+
+<p>May also be set with the <code>UV_INSECURE_HOST</code> environment variable.</p>
 </dd><dt><code>--cache-dir</code> <i>cache-dir</i></dt><dd><p>Path to the cache directory.</p>
 
 <p>Defaults to <code>$XDG_CACHE_HOME/uv</code> or <code>$HOME/.cache/uv</code> on macOS and Linux, and <code>%LOCALAPPDATA%\uv\cache</code> on Windows.</p>
@@ -6335,7 +6468,16 @@ uv pip freeze [OPTIONS]
 
 <h3 class="cli-reference">Options</h3>
 
-<dl class="cli-reference"><dt><code>--cache-dir</code> <i>cache-dir</i></dt><dd><p>Path to the cache directory.</p>
+<dl class="cli-reference"><dt><code>--allow-insecure-host</code> <i>allow-insecure-host</i></dt><dd><p>Allow insecure connections to a host.</p>
+
+<p>Can be provided multiple times.</p>
+
+<p>Expects to receive either a hostname (e.g., <code>localhost</code>), a host-port pair (e.g., <code>localhost:8080</code>), or a URL (e.g., <code>https://localhost</code>).</p>
+
+<p>WARNING: Hosts included in this list will not be verified against the system&#8217;s certificate store. Only use <code>--allow-insecure-host</code> in a secure network with verified sources, as it bypasses SSL verification and could expose you to MITM attacks.</p>
+
+<p>May also be set with the <code>UV_INSECURE_HOST</code> environment variable.</p>
+</dd><dt><code>--cache-dir</code> <i>cache-dir</i></dt><dd><p>Path to the cache directory.</p>
 
 <p>Defaults to <code>$XDG_CACHE_HOME/uv</code> or <code>$HOME/.cache/uv</code> on macOS and Linux, and <code>%LOCALAPPDATA%\uv\cache</code> on Windows.</p>
 
@@ -6459,7 +6601,16 @@ uv pip list [OPTIONS]
 
 <h3 class="cli-reference">Options</h3>
 
-<dl class="cli-reference"><dt><code>--cache-dir</code> <i>cache-dir</i></dt><dd><p>Path to the cache directory.</p>
+<dl class="cli-reference"><dt><code>--allow-insecure-host</code> <i>allow-insecure-host</i></dt><dd><p>Allow insecure connections to a host.</p>
+
+<p>Can be provided multiple times.</p>
+
+<p>Expects to receive either a hostname (e.g., <code>localhost</code>), a host-port pair (e.g., <code>localhost:8080</code>), or a URL (e.g., <code>https://localhost</code>).</p>
+
+<p>WARNING: Hosts included in this list will not be verified against the system&#8217;s certificate store. Only use <code>--allow-insecure-host</code> in a secure network with verified sources, as it bypasses SSL verification and could expose you to MITM attacks.</p>
+
+<p>May also be set with the <code>UV_INSECURE_HOST</code> environment variable.</p>
+</dd><dt><code>--cache-dir</code> <i>cache-dir</i></dt><dd><p>Path to the cache directory.</p>
 
 <p>Defaults to <code>$XDG_CACHE_HOME/uv</code> or <code>$HOME/.cache/uv</code> on macOS and Linux, and <code>%LOCALAPPDATA%\uv\cache</code> on Windows.</p>
 
@@ -6483,6 +6634,13 @@ uv pip list [OPTIONS]
 <p>While uv configuration can be included in a <code>pyproject.toml</code> file, it is not allowed in this context.</p>
 
 <p>May also be set with the <code>UV_CONFIG_FILE</code> environment variable.</p>
+</dd><dt><code>--default-index</code> <i>default-index</i></dt><dd><p>The URL of the default package index (by default: &lt;https://pypi.org/simple&gt;).</p>
+
+<p>Accepts either a repository compliant with PEP 503 (the simple repository API), or a local directory laid out in the same format.</p>
+
+<p>The index given by this flag is given lower priority than all other indexes specified via the <code>--index</code> flag.</p>
+
+<p>May also be set with the <code>UV_DEFAULT_INDEX</code> environment variable.</p>
 </dd><dt><code>--directory</code> <i>directory</i></dt><dd><p>Change to the given directory prior to running the command.</p>
 
 <p>Relative paths are resolved with the given directory as the base.</p>
@@ -6495,6 +6653,25 @@ uv pip list [OPTIONS]
 
 </dd><dt><code>--exclude-editable</code></dt><dd><p>Exclude any editable packages from output</p>
 
+</dd><dt><code>--exclude-newer</code> <i>exclude-newer</i></dt><dd><p>Limit candidate packages to those that were uploaded prior to the given date.</p>
+
+<p>Accepts both RFC 3339 timestamps (e.g., <code>2006-12-02T02:07:43Z</code>) and local dates in the same format (e.g., <code>2006-12-02</code>) in your system&#8217;s configured time zone.</p>
+
+<p>May also be set with the <code>UV_EXCLUDE_NEWER</code> environment variable.</p>
+</dd><dt><code>--extra-index-url</code> <i>extra-index-url</i></dt><dd><p>(Deprecated: use <code>--index</code> instead) Extra URLs of package indexes to use, in addition to <code>--index-url</code>.</p>
+
+<p>Accepts either a repository compliant with PEP 503 (the simple repository API), or a local directory laid out in the same format.</p>
+
+<p>All indexes provided via this flag take priority over the index specified by <code>--index-url</code> (which defaults to PyPI). When multiple <code>--extra-index-url</code> flags are provided, earlier values take priority.</p>
+
+<p>May also be set with the <code>UV_EXTRA_INDEX_URL</code> environment variable.</p>
+</dd><dt><code>--find-links</code>, <code>-f</code> <i>find-links</i></dt><dd><p>Locations to search for candidate distributions, in addition to those found in the registry indexes.</p>
+
+<p>If a path, the target must be a directory that contains packages as wheel files (<code>.whl</code>) or source distributions (e.g., <code>.tar.gz</code> or <code>.zip</code>) at the top level.</p>
+
+<p>If a URL, the page must contain a flat list of links to package files adhering to the formats described above.</p>
+
+<p>May also be set with the <code>UV_FIND_LINKS</code> environment variable.</p>
 </dd><dt><code>--format</code> <i>format</i></dt><dd><p>Select the output format between: <code>columns</code> (default), <code>freeze</code>, or <code>json</code></p>
 
 <p>[default: columns]</p>
@@ -6509,6 +6686,48 @@ uv pip list [OPTIONS]
 </ul>
 </dd><dt><code>--help</code>, <code>-h</code></dt><dd><p>Display the concise help for this command</p>
 
+</dd><dt><code>--index</code> <i>index</i></dt><dd><p>The URLs to use when resolving dependencies, in addition to the default index.</p>
+
+<p>Accepts either a repository compliant with PEP 503 (the simple repository API), or a local directory laid out in the same format.</p>
+
+<p>All indexes provided via this flag take priority over the index specified by <code>--default-index</code> (which defaults to PyPI). When multiple <code>--index</code> flags are provided, earlier values take priority.</p>
+
+<p>May also be set with the <code>UV_INDEX</code> environment variable.</p>
+</dd><dt><code>--index-strategy</code> <i>index-strategy</i></dt><dd><p>The strategy to use when resolving against multiple index URLs.</p>
+
+<p>By default, uv will stop at the first index on which a given package is available, and limit resolutions to those present on that first index (<code>first-match</code>). This prevents &quot;dependency confusion&quot; attacks, whereby an attacker can upload a malicious package under the same name to an alternate index.</p>
+
+<p>May also be set with the <code>UV_INDEX_STRATEGY</code> environment variable.</p>
+<p>Possible values:</p>
+
+<ul>
+<li><code>first-index</code>:  Only use results from the first index that returns a match for a given package name</li>
+
+<li><code>unsafe-first-match</code>:  Search for every package name across all indexes, exhausting the versions from the first index before moving on to the next</li>
+
+<li><code>unsafe-best-match</code>:  Search for every package name across all indexes, preferring the &quot;best&quot; version found. If a package version is in multiple indexes, only look at the entry for the first index</li>
+</ul>
+</dd><dt><code>--index-url</code>, <code>-i</code> <i>index-url</i></dt><dd><p>(Deprecated: use <code>--default-index</code> instead) The URL of the Python package index (by default: &lt;https://pypi.org/simple&gt;).</p>
+
+<p>Accepts either a repository compliant with PEP 503 (the simple repository API), or a local directory laid out in the same format.</p>
+
+<p>The index given by this flag is given lower priority than all other indexes specified via the <code>--extra-index-url</code> flag.</p>
+
+<p>May also be set with the <code>UV_INDEX_URL</code> environment variable.</p>
+</dd><dt><code>--keyring-provider</code> <i>keyring-provider</i></dt><dd><p>Attempt to use <code>keyring</code> for authentication for index URLs.</p>
+
+<p>At present, only <code>--keyring-provider subprocess</code> is supported, which configures uv to use the <code>keyring</code> CLI to handle authentication.</p>
+
+<p>Defaults to <code>disabled</code>.</p>
+
+<p>May also be set with the <code>UV_KEYRING_PROVIDER</code> environment variable.</p>
+<p>Possible values:</p>
+
+<ul>
+<li><code>disabled</code>:  Do not use keyring for credential lookup</li>
+
+<li><code>subprocess</code>:  Use the <code>keyring</code> command for credential lookup</li>
+</ul>
 </dd><dt><code>--native-tls</code></dt><dd><p>Whether to load TLS certificates from the platform&#8217;s native certificate store.</p>
 
 <p>By default, uv loads certificates from the bundled <code>webpki-roots</code> crate. The <code>webpki-roots</code> are a reliable set of trust roots from Mozilla, and including them in uv improves portability and performance (especially on macOS).</p>
@@ -6524,6 +6743,8 @@ uv pip list [OPTIONS]
 <p>Normally, configuration files are discovered in the current directory, parent directories, or user configuration directories.</p>
 
 <p>May also be set with the <code>UV_NO_CONFIG</code> environment variable.</p>
+</dd><dt><code>--no-index</code></dt><dd><p>Ignore the registry index (e.g., PyPI), instead relying on direct URL dependencies and those provided via <code>--find-links</code></p>
+
 </dd><dt><code>--no-progress</code></dt><dd><p>Hide all progress outputs.</p>
 
 <p>For example, spinners or progress bars.</p>
@@ -6534,6 +6755,10 @@ uv pip list [OPTIONS]
 </dd><dt><code>--offline</code></dt><dd><p>Disable network access.</p>
 
 <p>When disabled, uv will only use locally cached data and locally available files.</p>
+
+</dd><dt><code>--outdated</code></dt><dd><p>List outdated packages.</p>
+
+<p>The latest version of each package will be shown alongside the installed version. Up-to-date packages will be omitted from the output.</p>
 
 </dd><dt><code>--project</code> <i>project</i></dt><dd><p>Run the command within the given project directory.</p>
 
@@ -6605,7 +6830,16 @@ uv pip show [OPTIONS] [PACKAGE]...
 
 <h3 class="cli-reference">Options</h3>
 
-<dl class="cli-reference"><dt><code>--cache-dir</code> <i>cache-dir</i></dt><dd><p>Path to the cache directory.</p>
+<dl class="cli-reference"><dt><code>--allow-insecure-host</code> <i>allow-insecure-host</i></dt><dd><p>Allow insecure connections to a host.</p>
+
+<p>Can be provided multiple times.</p>
+
+<p>Expects to receive either a hostname (e.g., <code>localhost</code>), a host-port pair (e.g., <code>localhost:8080</code>), or a URL (e.g., <code>https://localhost</code>).</p>
+
+<p>WARNING: Hosts included in this list will not be verified against the system&#8217;s certificate store. Only use <code>--allow-insecure-host</code> in a secure network with verified sources, as it bypasses SSL verification and could expose you to MITM attacks.</p>
+
+<p>May also be set with the <code>UV_INSECURE_HOST</code> environment variable.</p>
+</dd><dt><code>--cache-dir</code> <i>cache-dir</i></dt><dd><p>Path to the cache directory.</p>
 
 <p>Defaults to <code>$XDG_CACHE_HOME/uv</code> or <code>$HOME/.cache/uv</code> on macOS and Linux, and <code>%LOCALAPPDATA%\uv\cache</code> on Windows.</p>
 
@@ -6729,7 +6963,16 @@ uv pip tree [OPTIONS]
 
 <h3 class="cli-reference">Options</h3>
 
-<dl class="cli-reference"><dt><code>--cache-dir</code> <i>cache-dir</i></dt><dd><p>Path to the cache directory.</p>
+<dl class="cli-reference"><dt><code>--allow-insecure-host</code> <i>allow-insecure-host</i></dt><dd><p>Allow insecure connections to a host.</p>
+
+<p>Can be provided multiple times.</p>
+
+<p>Expects to receive either a hostname (e.g., <code>localhost</code>), a host-port pair (e.g., <code>localhost:8080</code>), or a URL (e.g., <code>https://localhost</code>).</p>
+
+<p>WARNING: Hosts included in this list will not be verified against the system&#8217;s certificate store. Only use <code>--allow-insecure-host</code> in a secure network with verified sources, as it bypasses SSL verification and could expose you to MITM attacks.</p>
+
+<p>May also be set with the <code>UV_INSECURE_HOST</code> environment variable.</p>
+</dd><dt><code>--cache-dir</code> <i>cache-dir</i></dt><dd><p>Path to the cache directory.</p>
 
 <p>Defaults to <code>$XDG_CACHE_HOME/uv</code> or <code>$HOME/.cache/uv</code> on macOS and Linux, and <code>%LOCALAPPDATA%\uv\cache</code> on Windows.</p>
 
@@ -6793,6 +7036,8 @@ uv pip tree [OPTIONS]
 </dd><dt><code>--no-system</code></dt><dt><code>--offline</code></dt><dd><p>Disable network access.</p>
 
 <p>When disabled, uv will only use locally cached data and locally available files.</p>
+
+</dd><dt><code>--outdated</code></dt><dd><p>Show the latest available version of each package in the tree</p>
 
 </dd><dt><code>--package</code> <i>package</i></dt><dd><p>Display only the specified packages</p>
 
@@ -6864,7 +7109,16 @@ uv pip check [OPTIONS]
 
 <h3 class="cli-reference">Options</h3>
 
-<dl class="cli-reference"><dt><code>--cache-dir</code> <i>cache-dir</i></dt><dd><p>Path to the cache directory.</p>
+<dl class="cli-reference"><dt><code>--allow-insecure-host</code> <i>allow-insecure-host</i></dt><dd><p>Allow insecure connections to a host.</p>
+
+<p>Can be provided multiple times.</p>
+
+<p>Expects to receive either a hostname (e.g., <code>localhost</code>), a host-port pair (e.g., <code>localhost:8080</code>), or a URL (e.g., <code>https://localhost</code>).</p>
+
+<p>WARNING: Hosts included in this list will not be verified against the system&#8217;s certificate store. Only use <code>--allow-insecure-host</code> in a secure network with verified sources, as it bypasses SSL verification and could expose you to MITM attacks.</p>
+
+<p>May also be set with the <code>UV_INSECURE_HOST</code> environment variable.</p>
+</dd><dt><code>--cache-dir</code> <i>cache-dir</i></dt><dd><p>Path to the cache directory.</p>
 
 <p>Defaults to <code>$XDG_CACHE_HOME/uv</code> or <code>$HOME/.cache/uv</code> on macOS and Linux, and <code>%LOCALAPPDATA%\uv\cache</code> on Windows.</p>
 
@@ -7260,7 +7514,7 @@ uv build [OPTIONS] [SRC]
 
 <h3 class="cli-reference">Options</h3>
 
-<dl class="cli-reference"><dt><code>--all</code></dt><dd><p>Builds all packages in the workspace.</p>
+<dl class="cli-reference"><dt><code>--all-packages</code></dt><dd><p>Builds all packages in the workspace.</p>
 
 <p>The workspace will be discovered from the provided source directory, or the current directory if no source directory is provided.</p>
 
@@ -7600,6 +7854,17 @@ uv publish [OPTIONS] [FILES]...
 <p>To view the location of the cache directory, run <code>uv cache dir</code>.</p>
 
 <p>May also be set with the <code>UV_CACHE_DIR</code> environment variable.</p>
+</dd><dt><code>--check-url</code> <i>check-url</i></dt><dd><p>Check an index URL for existing files to skip duplicate uploads.</p>
+
+<p>This option allows retrying publishing that failed after only some, but not all files have been uploaded, and handles error due to parallel uploads of the same file.</p>
+
+<p>Before uploading, the index is checked. If the exact same file already exists in the index, the file will not be uploaded. If an error occurred during the upload, the index is checked again, to handle cases where the identical file was uploaded twice in parallel.</p>
+
+<p>The exact behavior will vary based on the index. When uploading to PyPI, uploading the same file succeeds even without <code>--check-url</code>, while most other indexes error.</p>
+
+<p>The index must provide one of the supported hashes (SHA-256, SHA-384, or SHA-512).</p>
+
+<p>May also be set with the <code>UV_PUBLISH_CHECK_URL</code> environment variable.</p>
 </dd><dt><code>--color</code> <i>color-choice</i></dt><dd><p>Control colors in output</p>
 
 <p>[default: auto]</p>
@@ -7770,7 +8035,16 @@ uv cache clean [OPTIONS] [PACKAGE]...
 
 <h3 class="cli-reference">Options</h3>
 
-<dl class="cli-reference"><dt><code>--cache-dir</code> <i>cache-dir</i></dt><dd><p>Path to the cache directory.</p>
+<dl class="cli-reference"><dt><code>--allow-insecure-host</code> <i>allow-insecure-host</i></dt><dd><p>Allow insecure connections to a host.</p>
+
+<p>Can be provided multiple times.</p>
+
+<p>Expects to receive either a hostname (e.g., <code>localhost</code>), a host-port pair (e.g., <code>localhost:8080</code>), or a URL (e.g., <code>https://localhost</code>).</p>
+
+<p>WARNING: Hosts included in this list will not be verified against the system&#8217;s certificate store. Only use <code>--allow-insecure-host</code> in a secure network with verified sources, as it bypasses SSL verification and could expose you to MITM attacks.</p>
+
+<p>May also be set with the <code>UV_INSECURE_HOST</code> environment variable.</p>
+</dd><dt><code>--cache-dir</code> <i>cache-dir</i></dt><dd><p>Path to the cache directory.</p>
 
 <p>Defaults to <code>$XDG_CACHE_HOME/uv</code> or <code>$HOME/.cache/uv</code> on macOS and Linux, and <code>%LOCALAPPDATA%\uv\cache</code> on Windows.</p>
 
@@ -7876,7 +8150,16 @@ uv cache prune [OPTIONS]
 
 <h3 class="cli-reference">Options</h3>
 
-<dl class="cli-reference"><dt><code>--cache-dir</code> <i>cache-dir</i></dt><dd><p>Path to the cache directory.</p>
+<dl class="cli-reference"><dt><code>--allow-insecure-host</code> <i>allow-insecure-host</i></dt><dd><p>Allow insecure connections to a host.</p>
+
+<p>Can be provided multiple times.</p>
+
+<p>Expects to receive either a hostname (e.g., <code>localhost</code>), a host-port pair (e.g., <code>localhost:8080</code>), or a URL (e.g., <code>https://localhost</code>).</p>
+
+<p>WARNING: Hosts included in this list will not be verified against the system&#8217;s certificate store. Only use <code>--allow-insecure-host</code> in a secure network with verified sources, as it bypasses SSL verification and could expose you to MITM attacks.</p>
+
+<p>May also be set with the <code>UV_INSECURE_HOST</code> environment variable.</p>
+</dd><dt><code>--cache-dir</code> <i>cache-dir</i></dt><dd><p>Path to the cache directory.</p>
 
 <p>Defaults to <code>$XDG_CACHE_HOME/uv</code> or <code>$HOME/.cache/uv</code> on macOS and Linux, and <code>%LOCALAPPDATA%\uv\cache</code> on Windows.</p>
 
@@ -7996,7 +8279,16 @@ uv cache dir [OPTIONS]
 
 <h3 class="cli-reference">Options</h3>
 
-<dl class="cli-reference"><dt><code>--cache-dir</code> <i>cache-dir</i></dt><dd><p>Path to the cache directory.</p>
+<dl class="cli-reference"><dt><code>--allow-insecure-host</code> <i>allow-insecure-host</i></dt><dd><p>Allow insecure connections to a host.</p>
+
+<p>Can be provided multiple times.</p>
+
+<p>Expects to receive either a hostname (e.g., <code>localhost</code>), a host-port pair (e.g., <code>localhost:8080</code>), or a URL (e.g., <code>https://localhost</code>).</p>
+
+<p>WARNING: Hosts included in this list will not be verified against the system&#8217;s certificate store. Only use <code>--allow-insecure-host</code> in a secure network with verified sources, as it bypasses SSL verification and could expose you to MITM attacks.</p>
+
+<p>May also be set with the <code>UV_INSECURE_HOST</code> environment variable.</p>
+</dd><dt><code>--cache-dir</code> <i>cache-dir</i></dt><dd><p>Path to the cache directory.</p>
 
 <p>Defaults to <code>$XDG_CACHE_HOME/uv</code> or <code>$HOME/.cache/uv</code> on macOS and Linux, and <code>%LOCALAPPDATA%\uv\cache</code> on Windows.</p>
 
@@ -8124,7 +8416,16 @@ uv self update [OPTIONS] [TARGET_VERSION]
 
 <h3 class="cli-reference">Options</h3>
 
-<dl class="cli-reference"><dt><code>--cache-dir</code> <i>cache-dir</i></dt><dd><p>Path to the cache directory.</p>
+<dl class="cli-reference"><dt><code>--allow-insecure-host</code> <i>allow-insecure-host</i></dt><dd><p>Allow insecure connections to a host.</p>
+
+<p>Can be provided multiple times.</p>
+
+<p>Expects to receive either a hostname (e.g., <code>localhost</code>), a host-port pair (e.g., <code>localhost:8080</code>), or a URL (e.g., <code>https://localhost</code>).</p>
+
+<p>WARNING: Hosts included in this list will not be verified against the system&#8217;s certificate store. Only use <code>--allow-insecure-host</code> in a secure network with verified sources, as it bypasses SSL verification and could expose you to MITM attacks.</p>
+
+<p>May also be set with the <code>UV_INSECURE_HOST</code> environment variable.</p>
+</dd><dt><code>--cache-dir</code> <i>cache-dir</i></dt><dd><p>Path to the cache directory.</p>
 
 <p>Defaults to <code>$XDG_CACHE_HOME/uv</code> or <code>$HOME/.cache/uv</code> on macOS and Linux, and <code>%LOCALAPPDATA%\uv\cache</code> on Windows.</p>
 
@@ -8233,7 +8534,16 @@ uv version [OPTIONS]
 
 <h3 class="cli-reference">Options</h3>
 
-<dl class="cli-reference"><dt><code>--cache-dir</code> <i>cache-dir</i></dt><dd><p>Path to the cache directory.</p>
+<dl class="cli-reference"><dt><code>--allow-insecure-host</code> <i>allow-insecure-host</i></dt><dd><p>Allow insecure connections to a host.</p>
+
+<p>Can be provided multiple times.</p>
+
+<p>Expects to receive either a hostname (e.g., <code>localhost</code>), a host-port pair (e.g., <code>localhost:8080</code>), or a URL (e.g., <code>https://localhost</code>).</p>
+
+<p>WARNING: Hosts included in this list will not be verified against the system&#8217;s certificate store. Only use <code>--allow-insecure-host</code> in a secure network with verified sources, as it bypasses SSL verification and could expose you to MITM attacks.</p>
+
+<p>May also be set with the <code>UV_INSECURE_HOST</code> environment variable.</p>
+</dd><dt><code>--cache-dir</code> <i>cache-dir</i></dt><dd><p>Path to the cache directory.</p>
 
 <p>Defaults to <code>$XDG_CACHE_HOME/uv</code> or <code>$HOME/.cache/uv</code> on macOS and Linux, and <code>%LOCALAPPDATA%\uv\cache</code> on Windows.</p>
 
@@ -8345,7 +8655,16 @@ uv generate-shell-completion [OPTIONS] <SHELL>
 
 <h3 class="cli-reference">Options</h3>
 
-<dl class="cli-reference"><dt><code>--directory</code> <i>directory</i></dt><dd><p>Change to the given directory prior to running the command.</p>
+<dl class="cli-reference"><dt><code>--allow-insecure-host</code> <i>allow-insecure-host</i></dt><dd><p>Allow insecure connections to a host.</p>
+
+<p>Can be provided multiple times.</p>
+
+<p>Expects to receive either a hostname (e.g., <code>localhost</code>), a host-port pair (e.g., <code>localhost:8080</code>), or a URL (e.g., <code>https://localhost</code>).</p>
+
+<p>WARNING: Hosts included in this list will not be verified against the system&#8217;s certificate store. Only use <code>--allow-insecure-host</code> in a secure network with verified sources, as it bypasses SSL verification and could expose you to MITM attacks.</p>
+
+<p>May also be set with the <code>UV_INSECURE_HOST</code> environment variable.</p>
+</dd><dt><code>--directory</code> <i>directory</i></dt><dd><p>Change to the given directory prior to running the command.</p>
 
 <p>Relative paths are resolved with the given directory as the base.</p>
 
@@ -8379,7 +8698,16 @@ uv help [OPTIONS] [COMMAND]...
 
 <h3 class="cli-reference">Options</h3>
 
-<dl class="cli-reference"><dt><code>--cache-dir</code> <i>cache-dir</i></dt><dd><p>Path to the cache directory.</p>
+<dl class="cli-reference"><dt><code>--allow-insecure-host</code> <i>allow-insecure-host</i></dt><dd><p>Allow insecure connections to a host.</p>
+
+<p>Can be provided multiple times.</p>
+
+<p>Expects to receive either a hostname (e.g., <code>localhost</code>), a host-port pair (e.g., <code>localhost:8080</code>), or a URL (e.g., <code>https://localhost</code>).</p>
+
+<p>WARNING: Hosts included in this list will not be verified against the system&#8217;s certificate store. Only use <code>--allow-insecure-host</code> in a secure network with verified sources, as it bypasses SSL verification and could expose you to MITM attacks.</p>
+
+<p>May also be set with the <code>UV_INSECURE_HOST</code> environment variable.</p>
+</dd><dt><code>--cache-dir</code> <i>cache-dir</i></dt><dd><p>Path to the cache directory.</p>
 
 <p>Defaults to <code>$XDG_CACHE_HOME/uv</code> or <code>$HOME/.cache/uv</code> on macOS and Linux, and <code>%LOCALAPPDATA%\uv\cache</code> on Windows.</p>
 

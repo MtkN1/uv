@@ -4,8 +4,8 @@ pub use exclude_newer::ExcludeNewer;
 pub use exclusions::Exclusions;
 pub use flat_index::{FlatDistributions, FlatIndex};
 pub use lock::{
-    Lock, LockError, LockVersion, RequirementsTxtExport, ResolverManifest, SatisfiesResult,
-    TreeDisplay, VERSION,
+    InstallTarget, Lock, LockError, LockVersion, PackageMap, RequirementsTxtExport,
+    ResolverManifest, SatisfiesResult, TreeDisplay, VERSION,
 };
 pub use manifest::Manifest;
 pub use options::{Flexibility, Options, OptionsBuilder};
@@ -19,8 +19,8 @@ pub use resolution::{
 pub use resolution_mode::ResolutionMode;
 pub use resolver::{
     BuildId, DefaultResolverProvider, InMemoryIndex, MetadataResponse, PackageVersionsResult,
-    Reporter as ResolverReporter, Resolver, ResolverMarkers, ResolverProvider, VersionsResponse,
-    WheelMetadataResult,
+    Reporter as ResolverReporter, Resolver, ResolverEnvironment, ResolverProvider,
+    VersionsResponse, WheelMetadataResult,
 };
 pub use version_map::VersionMap;
 pub use yanks::AllowedYanks;

@@ -105,11 +105,11 @@ name = "internal-proxy"
 url = "https://example.com/simple"
 ```
 
-そこから、環境変数`UV_INDEX_INTERNAL_PROXY_USERNAME`と`UV_INDEX_INTERNAL_PROXY_PASSWORD`を設定できます。ここで、`INTERNAL`はインデックス名の大文字バージョンであり、非英数字はアンダースコアに置き換えられます：
+そこから、環境変数 `UV_INDEX_INTERNAL_PROXY_USERNAME` と `UV_INDEX_INTERNAL_PROXY_PASSWORD` を設定できます。ここで、`INTERNAL_PROXY` はインデックス名の大文字バージョンであり、非英数字はアンダースコアに置き換えられます：
 
 ```sh
-export UV_INDEX_INTERNAL_USERNAME=public
-export UV_INDEX_INTERNAL_PASSWORD=koala
+export UV_INDEX_INTERNAL_PROXY_USERNAME=public
+export UV_INDEX_INTERNAL_PROXY_PASSWORD=koala
 ```
 
 環境変数を介して資格情報を提供することで、プレーンテキストの`pyproject.toml`ファイルに機密情報を保存するのを避けることができます。

@@ -43,7 +43,7 @@ $ uv python install 3.11 3.12
 代替のPython実装（例：PyPy）をインストールするには：
 
 ```console
-$ uv python install pypy@3.12
+$ uv python install pypy@3.10
 ```
 
 詳細については、[`python install`](../concepts/python-versions.md#installing-a-python-version)のドキュメントを参照してください。

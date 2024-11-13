@@ -32,7 +32,7 @@ use uv_static::EnvVars;
 // Exclude any packages uploaded after this date.
 static EXCLUDE_NEWER: &str = "2024-03-25T00:00:00Z";
 
-pub const PACKSE_VERSION: &str = "0.3.37";
+pub const PACKSE_VERSION: &str = "0.3.39";
 
 /// Using a find links url allows using `--index-url` instead of `--extra-index-url` in tests
 /// to prevent dependency confusion attacks against our test suite.
@@ -147,11 +147,11 @@ impl TestContext {
     #[must_use]
     pub fn with_filtered_python_sources(mut self) -> Self {
         self.filters.push((
-            "managed installations or system path".to_string(),
+            "managed installations or search path".to_string(),
             "[PYTHON SOURCES]".to_string(),
         ));
         self.filters.push((
-            "managed installations, system path, or `py` launcher".to_string(),
+            "managed installations, search path, or registry".to_string(),
             "[PYTHON SOURCES]".to_string(),
         ));
         self
@@ -215,8 +215,9 @@ impl TestContext {
 
     /// Adds a filter that ignores platform information in a Python installation key.
     pub fn with_filtered_python_keys(mut self) -> Self {
+        // Filter platform keys
         self.filters.push((
-            r"((?:cpython|pypy)-\d+\.\d+(:?\.\d+)?[a-z]?(:?\+[a-z]+)?)-.*".to_string(),
+            r"((?:cpython|pypy)-\d+\.\d+(?:\.(?:\[X\]|\d+))?[a-z]?(?:\+[a-z]+)?)-.*".to_string(),
             "$1-[PLATFORM]".to_string(),
         ));
         self
@@ -477,7 +478,7 @@ impl TestContext {
 
         if cfg!(unix) {
             // Avoid locale issues in tests
-            command.env("LC_ALL", "C");
+            command.env(EnvVars::LC_ALL, "C");
         }
 
         if cfg!(all(windows, debug_assertions)) {
@@ -659,7 +660,14 @@ impl TestContext {
             .arg("python")
             .arg("install")
             .env(EnvVars::UV_PYTHON_INSTALL_DIR, managed)
-            .env(EnvVars::UV_PYTHON_BIN_DIR, bin)
+            .env(EnvVars::UV_PYTHON_BIN_DIR, bin.as_os_str())
+            .env(
+                EnvVars::PATH,
+                std::env::join_paths(std::iter::once(bin).chain(std::env::split_paths(
+                    &env::var(EnvVars::PATH).unwrap_or_default(),
+                )))
+                .unwrap(),
+            )
             .current_dir(&self.temp_dir);
         command
     }
