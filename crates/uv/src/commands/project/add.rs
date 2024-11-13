@@ -15,6 +15,7 @@ use uv_client::{BaseClientBuilder, Connectivity, FlatIndexClient, RegistryClient
 use uv_configuration::{
     Concurrency, Constraints, DevGroupsManifest, DevGroupsSpecification, DevMode, EditableMode,
     ExtrasSpecification, GroupsSpecification, InstallOptions, LowerBound, SourceStrategy,
+    TrustedHost,
 };
 use uv_dispatch::BuildDispatch;
 use uv_distribution::DistributionDatabase;
@@ -26,16 +27,16 @@ use uv_pep508::{ExtraName, Requirement, UnnamedRequirement, VersionOrUrl};
 use uv_pypi_types::{redact_credentials, ParsedUrl, RequirementSource, VerbatimParsedUrl};
 use uv_python::{
     EnvironmentPreference, Interpreter, PythonDownloads, PythonEnvironment, PythonInstallation,
-    PythonPreference, PythonRequest, PythonVariant, PythonVersionFile, VersionRequest,
+    PythonPreference, PythonRequest,
 };
 use uv_requirements::{NamedRequirementsResolver, RequirementsSource, RequirementsSpecification};
-use uv_resolver::FlatIndex;
-use uv_scripts::Pep723Script;
+use uv_resolver::{FlatIndex, InstallTarget};
+use uv_scripts::{Pep723Item, Pep723Script};
 use uv_types::{BuildIsolation, HashStrategy};
 use uv_warnings::warn_user_once;
 use uv_workspace::pyproject::{DependencyType, Source, SourceError};
 use uv_workspace::pyproject_mut::{ArrayEdit, DependencyTarget, PyProjectTomlMut};
-use uv_workspace::{DiscoveryOptions, InstallTarget, VirtualProject, Workspace};
+use uv_workspace::{DiscoveryOptions, VirtualProject, Workspace};
 
 use crate::commands::pip::loggers::{
     DefaultInstallLogger, DefaultResolveLogger, SummaryResolveLogger,
@@ -43,7 +44,9 @@ use crate::commands::pip::loggers::{
 use crate::commands::pip::operations::Modifications;
 use crate::commands::pip::resolution_environment;
 use crate::commands::project::lock::LockMode;
-use crate::commands::project::{script_python_requirement, ProjectError};
+use crate::commands::project::{
+    init_script_python_requirement, validate_script_requires_python, ProjectError, ScriptPython,
+};
 use crate::commands::reporters::{PythonDownloadReporter, ResolverReporter};
 use crate::commands::{diagnostics, pip, project, ExitStatus, SharedState};
 use crate::printer::Printer;
@@ -74,6 +77,8 @@ pub(crate) async fn add(
     connectivity: Connectivity,
     concurrency: Concurrency,
     native_tls: bool,
+    allow_insecure_host: &[TrustedHost],
+    no_config: bool,
     cache: &Cache,
     printer: Printer,
 ) -> Result<ExitStatus> {
@@ -124,19 +129,21 @@ pub(crate) async fn add(
 
         let client_builder = BaseClientBuilder::new()
             .connectivity(connectivity)
-            .native_tls(native_tls);
+            .native_tls(native_tls)
+            .allow_insecure_host(allow_insecure_host.to_vec());
 
         // If we found a script, add to the existing metadata. Otherwise, create a new inline
         // metadata tag.
         let script = if let Some(script) = Pep723Script::read(&script).await? {
             script
         } else {
-            let requires_python = script_python_requirement(
+            let requires_python = init_script_python_requirement(
                 python.as_deref(),
                 project_dir,
                 false,
                 python_preference,
                 python_downloads,
+                no_config,
                 &client_builder,
                 cache,
                 &reporter,
@@ -145,28 +152,17 @@ pub(crate) async fn add(
             Pep723Script::init(&script, requires_python.specifiers()).await?
         };
 
-        let python_request = if let Some(request) = python.as_deref() {
-            // (1) Explicit request from user
-            Some(PythonRequest::parse(request))
-        } else if let Some(request) = PythonVersionFile::discover(project_dir, false, false)
-            .await?
-            .and_then(PythonVersionFile::into_version)
-        {
-            // (2) Request from `.python-version`
-            Some(request)
-        } else {
-            // (3) `Requires-Python` in `pyproject.toml`
-            script
-                .metadata
-                .requires_python
-                .clone()
-                .map(|requires_python| {
-                    PythonRequest::Version(VersionRequest::Range(
-                        requires_python,
-                        PythonVariant::Default,
-                    ))
-                })
-        };
+        let ScriptPython {
+            source,
+            python_request,
+            requires_python,
+        } = ScriptPython::from_request(
+            python.as_deref().map(PythonRequest::parse),
+            None,
+            &Pep723Item::Script(script.clone()),
+            no_config,
+        )
+        .await?;
 
         let interpreter = PythonInstallation::find_or_download(
             python_request.as_ref(),
@@ -179,6 +175,16 @@ pub(crate) async fn add(
         )
         .await?
         .into_interpreter();
+
+        if let Some((requires_python, requires_python_source)) = requires_python {
+            validate_script_requires_python(
+                &interpreter,
+                None,
+                &requires_python,
+                &requires_python_source,
+                &source,
+            )?;
+        }
 
         Target::Script(script, Box::new(interpreter))
     } else {
@@ -217,6 +223,8 @@ pub(crate) async fn add(
             python_downloads,
             connectivity,
             native_tls,
+            allow_insecure_host,
+            no_config,
             cache,
             printer,
         )
@@ -228,7 +236,8 @@ pub(crate) async fn add(
     let client_builder = BaseClientBuilder::new()
         .connectivity(connectivity)
         .native_tls(native_tls)
-        .keyring(settings.keyring_provider);
+        .keyring(settings.keyring_provider)
+        .allow_insecure_host(allow_insecure_host.to_vec());
 
     // Read the requirements.
     let RequirementsSpecification { requirements, .. } =
@@ -636,6 +645,7 @@ pub(crate) async fn add(
         connectivity,
         concurrency,
         native_tls,
+        allow_insecure_host,
         cache,
         printer,
     )
@@ -696,6 +706,7 @@ async fn lock_and_sync(
     connectivity: Connectivity,
     concurrency: Concurrency,
     native_tls: bool,
+    allow_insecure_host: &[TrustedHost],
     cache: &Cache,
     printer: Printer,
 ) -> Result<(), ProjectError> {
@@ -715,6 +726,7 @@ async fn lock_and_sync(
         connectivity,
         concurrency,
         native_tls,
+        allow_insecure_host,
         cache,
         printer,
     )
@@ -832,6 +844,7 @@ async fn lock_and_sync(
                 connectivity,
                 concurrency,
                 native_tls,
+                allow_insecure_host,
                 cache,
                 printer,
             )
@@ -869,10 +882,22 @@ async fn lock_and_sync(
         }
     };
 
+    // Identify the installation target.
+    let target = match &project {
+        VirtualProject::Project(project) => InstallTarget::Project {
+            workspace: project.workspace(),
+            name: project.project_name(),
+            lock: &lock,
+        },
+        VirtualProject::NonProject(workspace) => InstallTarget::NonProjectWorkspace {
+            workspace,
+            lock: &lock,
+        },
+    };
+
     project::sync::do_sync(
-        InstallTarget::from(&project),
+        target,
         venv,
-        &lock,
         &extras,
         &DevGroupsManifest::from_spec(dev),
         EditableMode::Editable,
@@ -883,6 +908,7 @@ async fn lock_and_sync(
         connectivity,
         concurrency,
         native_tls,
+        allow_insecure_host,
         cache,
         printer,
     )

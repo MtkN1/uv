@@ -8,18 +8,22 @@ use futures::StreamExt;
 use itertools::{Either, Itertools};
 use owo_colors::OwoColorize;
 use rustc_hash::{FxHashMap, FxHashSet};
-use same_file::is_same_file;
 use tracing::{debug, trace};
 
 use uv_client::Connectivity;
 use uv_configuration::PreviewMode;
+use uv_configuration::TrustedHost;
 use uv_fs::Simplified;
 use uv_python::downloads::{DownloadResult, ManagedPythonDownload, PythonDownloadRequest};
 use uv_python::managed::{
     python_executable_dir, ManagedPythonInstallation, ManagedPythonInstallations,
 };
-use uv_python::{PythonDownloads, PythonInstallationKey, PythonRequest, PythonVersionFile};
+use uv_python::{
+    PythonDownloads, PythonInstallationKey, PythonRequest, PythonVersionFile,
+    VersionFileDiscoveryOptions, VersionFilePreference,
+};
 use uv_shell::Shell;
+use uv_trampoline_builder::{Launcher, LauncherKind};
 use uv_warnings::warn_user;
 
 use crate::commands::python::{ChangeEvent, ChangeEventKind};
@@ -73,7 +77,6 @@ struct Changelog {
     installed: FxHashSet<PythonInstallationKey>,
     uninstalled: FxHashSet<PythonInstallationKey>,
     installed_executables: FxHashMap<PythonInstallationKey, Vec<PathBuf>>,
-    uninstalled_executables: FxHashSet<PathBuf>,
 }
 
 impl Changelog {
@@ -104,13 +107,16 @@ impl Changelog {
 }
 
 /// Download and install Python versions.
+#[allow(clippy::fn_params_excessive_bools)]
 pub(crate) async fn install(
     project_dir: &Path,
     targets: Vec<String>,
     reinstall: bool,
+    force: bool,
     python_downloads: PythonDownloads,
     native_tls: bool,
     connectivity: Connectivity,
+    allow_insecure_host: &[TrustedHost],
     no_config: bool,
     preview: PreviewMode,
     printer: Printer,
@@ -120,17 +126,22 @@ pub(crate) async fn install(
     // Resolve the requests
     let mut is_default_install = false;
     let requests: Vec<_> = if targets.is_empty() {
-        PythonVersionFile::discover(project_dir, no_config, true)
-            .await?
-            .map(PythonVersionFile::into_versions)
-            .unwrap_or_else(|| {
-                // If no version file is found and no requests were made
-                is_default_install = true;
-                vec![PythonRequest::Default]
-            })
-            .into_iter()
-            .map(InstallRequest::new)
-            .collect::<Result<Vec<_>>>()?
+        PythonVersionFile::discover(
+            project_dir,
+            &VersionFileDiscoveryOptions::default()
+                .with_no_config(no_config)
+                .with_preference(VersionFilePreference::Versions),
+        )
+        .await?
+        .map(PythonVersionFile::into_versions)
+        .unwrap_or_else(|| {
+            // If no version file is found and no requests were made
+            is_default_install = true;
+            vec![PythonRequest::Default]
+        })
+        .into_iter()
+        .map(InstallRequest::new)
+        .collect::<Result<Vec<_>>>()?
     } else {
         targets
             .iter()
@@ -209,6 +220,7 @@ pub(crate) async fn install(
     let client = uv_client::BaseClientBuilder::new()
         .connectivity(connectivity)
         .native_tls(native_tls)
+        .allow_insecure_host(allow_insecure_host.to_vec())
         .build();
     let reporter = PythonDownloadReporter::new(printer, downloads.len() as u64);
     let mut tasks = FuturesUnordered::new();
@@ -265,7 +277,8 @@ pub(crate) async fn install(
         installation.ensure_externally_managed()?;
         installation.ensure_canonical_executables()?;
 
-        if preview.is_disabled() || !cfg!(unix) {
+        if preview.is_disabled() {
+            debug!("Skipping installation of Python executables, use `--preview` to enable.");
             continue;
         }
 
@@ -274,11 +287,13 @@ pub(crate) async fn install(
             .expect("We should have a bin directory with preview enabled")
             .as_path();
 
-        match installation.create_bin_link(bin) {
-            Ok(target) => {
+        let target = bin.join(installation.key().versioned_executable_name());
+
+        match installation.create_bin_link(&target) {
+            Ok(()) => {
                 debug!(
                     "Installed executable at {} for {}",
-                    target.user_display(),
+                    target.simplified_display(),
                     installation.key(),
                 );
                 changelog.installed.insert(installation.key().clone());
@@ -288,42 +303,102 @@ pub(crate) async fn install(
                     .or_default()
                     .push(target.clone());
             }
-            Err(uv_python::managed::Error::LinkExecutable { from, to, err })
+            Err(uv_python::managed::Error::LinkExecutable { from: _, to, err })
                 if err.kind() == ErrorKind::AlreadyExists =>
             {
-                // TODO(zanieb): Add `--force`
-                if reinstall {
-                    fs_err::remove_file(&to)?;
-                    let target = installation.create_bin_link(bin)?;
-                    debug!(
-                        "Updated executable at {} to {}",
-                        target.user_display(),
-                        installation.key(),
-                    );
-                    changelog.installed.insert(installation.key().clone());
-                    changelog
-                        .installed_executables
-                        .entry(installation.key().clone())
-                        .or_default()
-                        .push(target.clone());
-                    changelog.uninstalled_executables.insert(target);
-                } else {
-                    if !is_same_file(&to, &from).unwrap_or_default() {
-                        errors.push((
+                debug!(
+                    "Inspecting existing executable at {}",
+                    target.simplified_display()
+                );
+
+                // Figure out what installation it references, if any
+                let existing = find_matching_bin_link(&existing_installations, &target);
+
+                match existing {
+                    None => {
+                        // There's an existing executable we don't manage, require `--force`
+                        if !force {
+                            errors.push((
+                                installation.key(),
+                                anyhow::anyhow!(
+                                    "Executable already exists at `{}` but is not managed by uv; use `--force` to replace it",
+                                    to.simplified_display()
+                                ),
+                            ));
+                            continue;
+                        }
+                        debug!(
+                            "Replacing existing executable at `{}` due to `--force`",
+                            target.simplified_display()
+                        );
+                    }
+                    Some(existing) if existing == installation => {
+                        // The existing link points to the same installation, so we're done unless
+                        // they requested we reinstall
+                        if !(reinstall || force) {
+                            debug!(
+                                "Executable at `{}` is already for `{}`",
+                                target.simplified_display(),
+                                installation.key(),
+                            );
+                            continue;
+                        }
+                        debug!(
+                            "Replacing existing executable for `{}` at `{}`",
                             installation.key(),
-                            anyhow::anyhow!(
-                                "Executable already exists at `{}`. Use `--reinstall` to force replacement.",
-                                to.user_display()
-                            ),
-                        ));
+                            target.simplified_display(),
+                        );
+                    }
+                    Some(existing) => {
+                        // The existing link points to a different installation, check if it
+                        // is reasonable to replace
+                        if force {
+                            debug!(
+                                "Replacing existing executable for `{}` at `{}` with executable for `{}` due to `--force` flag",
+                                existing.key(),
+                                target.simplified_display(),
+                                installation.key(),
+                            );
+                        } else {
+                            if installation.is_upgrade_of(existing) {
+                                debug!(
+                                    "Replacing existing executable for `{}` at `{}` with executable for `{}` since it is an upgrade",
+                                    existing.key(),
+                                    target.simplified_display(),
+                                    installation.key(),
+                                );
+                            } else {
+                                debug!(
+                                    "Executable already exists at `{}` for `{}`. Use `--force` to replace it.",
+                                    existing.key(),
+                                    to.simplified_display()
+                                );
+                                continue;
+                            }
+                        }
                     }
                 }
+
+                // Replace the existing link
+                fs_err::remove_file(&to)?;
+                installation.create_bin_link(&target)?;
+                debug!(
+                    "Updated executable at `{}` to `{}`",
+                    target.simplified_display(),
+                    installation.key(),
+                );
+                changelog.installed.insert(installation.key().clone());
+                changelog
+                    .installed_executables
+                    .entry(installation.key().clone())
+                    .or_default()
+                    .push(target.clone());
             }
             Err(err) => return Err(err.into()),
         }
     }
 
-    if changelog.installed.is_empty() {
+    if changelog.installed.is_empty() && errors.is_empty() {
         if is_default_install {
             writeln!(
                 printer.stderr(),
@@ -395,7 +470,7 @@ pub(crate) async fn install(
             }
         }
 
-        if preview.is_enabled() && cfg!(unix) {
+        if preview.is_enabled() {
             let bin = bin
                 .as_ref()
                 .expect("We should have a bin directory with preview enabled")
@@ -479,4 +554,33 @@ fn warn_if_not_on_path(bin: &Path) {
             );
         }
     }
+}
+
+/// Find the [`ManagedPythonInstallation`] corresponding to an executable link installed at the
+/// given path, if any.
+///
+/// Like [`ManagedPythonInstallation::is_bin_link`], but this method will only resolve the
+/// given path one time.
+fn find_matching_bin_link<'a>(
+    installations: &'a [ManagedPythonInstallation],
+    path: &Path,
+) -> Option<&'a ManagedPythonInstallation> {
+    let target = if cfg!(unix) {
+        if !path.is_symlink() {
+            return None;
+        }
+        path.read_link().ok()?
+    } else if cfg!(windows) {
+        let launcher = Launcher::try_from_path(path).ok()??;
+        if !matches!(launcher.kind, LauncherKind::Python) {
+            return None;
+        }
+        launcher.python_path
+    } else {
+        unreachable!("Only Windows and Unix are supported")
+    };
+
+    installations
+        .iter()
+        .find(|installation| installation.executable() == target)
 }

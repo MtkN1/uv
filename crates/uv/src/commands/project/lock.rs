@@ -11,7 +11,8 @@ use tracing::debug;
 use uv_cache::Cache;
 use uv_client::{Connectivity, FlatIndexClient, RegistryClientBuilder};
 use uv_configuration::{
-    BuildOptions, Concurrency, Constraints, ExtrasSpecification, LowerBound, Reinstall, Upgrade,
+    BuildOptions, Concurrency, Constraints, ExtrasSpecification, LowerBound, Reinstall,
+    TrustedHost, Upgrade,
 };
 use uv_dispatch::BuildDispatch;
 use uv_distribution::DistributionDatabase;
@@ -20,7 +21,7 @@ use uv_distribution_types::{
     UnresolvedRequirementSpecification,
 };
 use uv_git::ResolvedRepositoryReference;
-use uv_normalize::{PackageName, DEV_DEPENDENCIES};
+use uv_normalize::PackageName;
 use uv_pep440::Version;
 use uv_pypi_types::{Requirement, SupportedEnvironments};
 use uv_python::{Interpreter, PythonDownloads, PythonEnvironment, PythonPreference, PythonRequest};
@@ -28,7 +29,7 @@ use uv_requirements::upgrade::{read_lock_requirements, LockedRequirements};
 use uv_requirements::ExtrasResolver;
 use uv_resolver::{
     FlatIndex, InMemoryIndex, Lock, LockVersion, Options, OptionsBuilder, PythonRequirement,
-    RequiresPython, ResolverManifest, ResolverMarkers, SatisfiesResult, VERSION,
+    RequiresPython, ResolverEnvironment, ResolverManifest, SatisfiesResult, VERSION,
 };
 use uv_types::{BuildContext, BuildIsolation, EmptyInstalledPackages, HashStrategy};
 use uv_warnings::{warn_user, warn_user_once};
@@ -82,6 +83,8 @@ pub(crate) async fn lock(
     connectivity: Connectivity,
     concurrency: Concurrency,
     native_tls: bool,
+    allow_insecure_host: &[TrustedHost],
+    no_config: bool,
     cache: &Cache,
     printer: Printer,
 ) -> anyhow::Result<ExitStatus> {
@@ -96,11 +99,14 @@ pub(crate) async fn lock(
         // Find an interpreter for the project
         interpreter = ProjectInterpreter::discover(
             &workspace,
+            project_dir,
             python.as_deref().map(PythonRequest::parse),
             python_preference,
             python_downloads,
             connectivity,
             native_tls,
+            allow_insecure_host,
+            no_config,
             cache,
             printer,
         )
@@ -130,6 +136,7 @@ pub(crate) async fn lock(
         connectivity,
         concurrency,
         native_tls,
+        allow_insecure_host,
         cache,
         printer,
     )
@@ -204,6 +211,7 @@ pub(super) async fn do_safe_lock(
     connectivity: Connectivity,
     concurrency: Concurrency,
     native_tls: bool,
+    allow_insecure_host: &[TrustedHost],
     cache: &Cache,
     printer: Printer,
 ) -> Result<LockResult, ProjectError> {
@@ -233,6 +241,7 @@ pub(super) async fn do_safe_lock(
                 connectivity,
                 concurrency,
                 native_tls,
+                allow_insecure_host,
                 cache,
                 printer,
             )
@@ -271,6 +280,7 @@ pub(super) async fn do_safe_lock(
                 connectivity,
                 concurrency,
                 native_tls,
+                allow_insecure_host,
                 cache,
                 printer,
             )
@@ -300,6 +310,7 @@ async fn do_lock(
     connectivity: Connectivity,
     concurrency: Concurrency,
     native_tls: bool,
+    allow_insecure_host: &[TrustedHost],
     cache: &Cache,
     printer: Printer,
 ) -> Result<LockResult, ProjectError> {
@@ -310,7 +321,6 @@ async fn do_lock(
         index_locations,
         index_strategy,
         keyring_provider,
-        allow_insecure_host,
         resolution,
         prerelease,
         dependency_metadata,
@@ -328,13 +338,7 @@ async fn do_lock(
     let requirements = workspace.non_project_requirements()?;
     let overrides = workspace.overrides().into_iter().collect::<Vec<_>>();
     let constraints = workspace.constraints();
-    let dev: Vec<_> = workspace
-        .pyproject_toml()
-        .dependency_groups
-        .iter()
-        .flat_map(|groups| groups.keys().cloned())
-        .chain(std::iter::once(DEV_DEPENDENCIES.clone()))
-        .collect();
+    let dev = workspace.groups().into_iter().cloned().collect::<Vec<_>>();
     let source_trees = vec![];
 
     // Collect the list of members.
@@ -596,7 +600,7 @@ async fn do_lock(
             // `preferences-dependent-forking` packse scenario). To avoid this, we store the forks in the
             // lockfile. We read those after all the lockfile filters, to allow the forks to change when
             // the environment changed, e.g. the python bound check above can lead to different forking.
-            let resolver_markers = ResolverMarkers::universal(
+            let resolver_env = ResolverEnvironment::universal(
                 forks_lock
                     .map(|lock| lock.fork_markers().to_vec())
                     .unwrap_or_else(|| {
@@ -639,7 +643,7 @@ async fn do_lock(
                 &Reinstall::default(),
                 upgrade,
                 None,
-                resolver_markers,
+                resolver_env,
                 python_requirement,
                 &client,
                 &flat_index,

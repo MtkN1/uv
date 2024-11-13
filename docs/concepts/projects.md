@@ -204,7 +204,7 @@ Hello from example-lib!
 
 !!! tip
 
-バイナリビルドバックエンド（`maturin` や `scikit-build-core` など）を使用する場合、`lib.rs` や `main.cpp` の変更には `--reinstall` を実行する必要があります。
+    バイナリビルドバックエンド（`maturin` や `scikit-build-core` など）を使用する場合、`lib.rs` や `main.cpp` の変更には `--reinstall` を実行する必要があります。
 
 ### パッケージ化されたアプリケーション
 

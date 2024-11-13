@@ -14,7 +14,9 @@ use std::sync::{Arc, LazyLock};
 use toml_edit::{value, Array, ArrayOfTables, InlineTable, Item, Table, Value};
 use url::Url;
 
+pub use crate::lock::map::PackageMap;
 pub use crate::lock::requirements_txt::RequirementsTxtExport;
+pub use crate::lock::target::InstallTarget;
 pub use crate::lock::tree::TreeDisplay;
 use crate::requires_python::SimplifiedMarkerTree;
 use crate::resolution::{AnnotatedDist, ResolutionGraphNode};
@@ -44,9 +46,11 @@ use uv_pypi_types::{
 };
 use uv_types::{BuildContext, HashStrategy};
 use uv_workspace::dependency_groups::DependencyGroupError;
-use uv_workspace::{InstallTarget, Workspace};
+use uv_workspace::Workspace;
 
+mod map;
 mod requirements_txt;
+mod target;
 mod tree;
 
 /// The current version of the lockfile format.
@@ -544,6 +548,16 @@ impl Lock {
         &self.manifest.members
     }
 
+    /// Return the workspace root used to generate this lock.
+    pub fn root(&self) -> Option<&Package> {
+        self.packages.iter().find(|package| {
+            let (Source::Editable(path) | Source::Virtual(path)) = &package.id.source else {
+                return false;
+            };
+            path == Path::new("")
+        })
+    }
+
     /// Returns the supported environments that were used to generate this
     /// lock.
     ///
@@ -576,7 +590,7 @@ impl Lock {
     /// Convert the [`Lock`] to a [`Resolution`] using the given marker environment, tags, and root.
     pub fn to_resolution(
         &self,
-        project: InstallTarget<'_>,
+        target: InstallTarget<'_>,
         marker_env: &ResolverMarkerEnvironment,
         tags: &Tags,
         extras: &ExtrasSpecification,
@@ -588,7 +602,7 @@ impl Lock {
         let mut seen = FxHashSet::default();
 
         // Add the workspace packages to the queue.
-        for root_name in project.packages() {
+        for root_name in target.packages() {
             let root = self
                 .find_by_name(root_name)
                 .map_err(|_| LockErrorKind::MultipleRootPackages {
@@ -638,7 +652,7 @@ impl Lock {
 
         // Add any dependency groups that are exclusive to the workspace root (e.g., dev
         // dependencies in (legacy) non-project workspace roots).
-        let groups = project
+        let groups = target
             .groups()
             .map_err(|err| LockErrorKind::DependencyGroup { err })?;
         for group in dev.iter() {
@@ -688,13 +702,13 @@ impl Lock {
             }
             if install_options.include_package(
                 &dist.id.name,
-                project.project_name(),
+                target.project_name(),
                 &self.manifest.members,
             ) {
                 map.insert(
                     dist.id.name.clone(),
                     ResolvedDist::Installable(dist.to_dist(
-                        project.workspace().install_path(),
+                        target.workspace().install_path(),
                         TagPolicy::Required(tags),
                         build_options,
                     )?),
@@ -1211,6 +1225,15 @@ impl Lock {
                     metadata
                 }
             };
+
+            // Validate the `version` metadata.
+            if metadata.version != package.id.version {
+                return Ok(SatisfiesResult::MismatchedVersion(
+                    package.id.name.clone(),
+                    package.id.version.clone(),
+                    Some(metadata.version.clone()),
+                ));
+            }
 
             // Validate the `requires-dist` metadata.
             {
@@ -2183,6 +2206,24 @@ impl Package {
     /// Return the fork markers for this package, if any.
     pub fn fork_markers(&self) -> &[MarkerTree] {
         self.fork_markers.as_slice()
+    }
+
+    /// Returns the [`IndexUrl`] for the package, if it is a registry source.
+    pub fn index(&self, root: &Path) -> Result<Option<IndexUrl>, LockError> {
+        match &self.id.source {
+            Source::Registry(RegistrySource::Url(url)) => {
+                let index = IndexUrl::from(VerbatimUrl::from_url(url.to_url()));
+                Ok(Some(index))
+            }
+            Source::Registry(RegistrySource::Path(path)) => {
+                let index = IndexUrl::from(
+                    VerbatimUrl::from_absolute_path(root.join(path))
+                        .map_err(LockErrorKind::RegistryVerbatimUrl)?,
+                );
+                Ok(Some(index))
+            }
+            _ => Ok(None),
+        }
     }
 
     /// Returns all the hashes associated with this [`Package`].

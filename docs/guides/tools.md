@@ -94,6 +94,24 @@ $ uvx --from 'ruff>0.2.0,<0.3.0' ruff check
 $ uvx --from git+https://github.com/httpie/cli httpie
 ```
 
+特定の名前付きブランチから最新のコミットを取得することもできます：
+
+```console
+$ uvx --from git+https://github.com/httpie/cli@master httpie
+```
+
+または特定のタグを取得することもできます：
+
+```console
+$ uvx --from git+https://github.com/httpie/cli@3.2.4 httpie
+```
+
+さらには特定のコミットを取得することもできます：
+
+```console
+$ uvx --from git+https://github.com/httpie/cli@2843b87 httpie
+```
+
 ## プラグインを持つコマンド
 
 追加の依存関係を含めることができます。例：`mkdocs`を実行する際に`mkdocs-material`を含めるには：

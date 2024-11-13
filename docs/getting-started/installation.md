@@ -25,13 +25,13 @@ uvはuvをダウンロードしてインストールするためのスタンド�
 === "macOSとLinux"
 
     ```console
-    $ curl -LsSf https://astral.sh/uv/0.4.6/install.sh | sh
+    $ curl -LsSf https://astral.sh/uv/0.5.1/install.sh | sh
     ```
 
 === "Windows"
 
     ```console
-    $ powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/0.4.6/install.ps1 | iex"
+    $ powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/0.5.1/install.ps1 | iex"
     ```
 
 !!! tip
@@ -176,14 +176,14 @@ uvxのシェル自動補完を有効にするには、次のいずれかを実�
 === "macOSとLinux"
 
     ```console
-    $ rm ~/.cargo/bin/uv ~/.cargo/bin/uvx
+    $ rm ~/.local/bin/uv ~/.local/bin/uvx
     ```
 
 === "Windows"
 
     ```powershell
-    $ rm $HOME\.cargo\bin\uv.exe
-    $ rm $HOME\.cargo\bin\uvx.exe
+    $ rm $HOME\.local\bin\uv.exe
+    $ rm $HOME\.local\bin\uvx.exe
     ```
 
 !!! tip
@@ -195,6 +195,11 @@ uvxのシェル自動補完を有効にするには、次のいずれかを実�
     $ rm -r "$(uv python dir)"
     $ rm -r "$(uv tool dir)"
     ```
+
+!!! note
+    0.5.1 以前、uvは `~/.cargo/bin` にインストールされていました。バイナリはそこから削除して  
+    アンインストールできます。古いバージョンからのアップグレードでは、`~/.cargo/bin` から  
+    バイナリを自動的に削除しません。
 
 ## 次のステップ
 

@@ -7,7 +7,7 @@ Astralは、uvがプリインストールされた[Dockerイメージ](docker.md
 
 ```yaml title="gitlab-ci.yml"
 variables:
-  UV_VERSION: 0.4
+  UV_VERSION: 0.5
   PYTHON_VERSION: 3.12
   BASE_LAYER: bookworm-slim
 

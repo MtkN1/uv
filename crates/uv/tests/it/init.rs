@@ -2005,6 +2005,43 @@ fn init_requires_python_specifiers() -> Result<()> {
     Ok(())
 }
 
+/// Run `uv init`, inferring the `requires-python` from the `.python-version` file.
+#[test]
+fn init_requires_python_version_file() -> Result<()> {
+    let context = TestContext::new_with_versions(&["3.8", "3.12"]);
+
+    context.temp_dir.child(".python-version").write_str("3.8")?;
+
+    let child = context.temp_dir.join("foo");
+    uv_snapshot!(context.filters(), context.init().current_dir(&context.temp_dir).arg(&child), @r###"
+    success: true
+    exit_code: 0
+    ----- stdout -----
+
+    ----- stderr -----
+    Initialized project `foo` at `[TEMP_DIR]/foo`
+    "###);
+
+    let pyproject_toml = fs_err::read_to_string(child.join("pyproject.toml"))?;
+    insta::with_settings!({
+        filters => context.filters(),
+    }, {
+        assert_snapshot!(
+            pyproject_toml, @r###"
+        [project]
+        name = "foo"
+        version = "0.1.0"
+        description = "Add your description here"
+        readme = "README.md"
+        requires-python = ">=3.8"
+        dependencies = []
+        "###
+        );
+    });
+
+    Ok(())
+}
+
 /// Run `uv init` from within an unmanaged project.
 #[test]
 fn init_unmanaged() -> Result<()> {
@@ -2416,7 +2453,7 @@ fn init_application_package_flit() -> Result<()> {
         );
     });
 
-    uv_snapshot!(context.filters(), context.run().current_dir(&child).env_remove("VIRTUAL_ENV").arg("foo"), @r###"
+    uv_snapshot!(context.filters(), context.run().current_dir(&child).env_remove(EnvVars::VIRTUAL_ENV).arg("foo"), @r###"
     success: true
     exit_code: 0
     ----- stdout -----
@@ -2497,7 +2534,7 @@ fn init_library_flit() -> Result<()> {
         );
     });
 
-    uv_snapshot!(context.filters(), context.run().current_dir(&child).env_remove("VIRTUAL_ENV").arg("python").arg("-c").arg("import foo; print(foo.hello())"), @r###"
+    uv_snapshot!(context.filters(), context.run().current_dir(&child).env_remove(EnvVars::VIRTUAL_ENV).arg("python").arg("-c").arg("import foo; print(foo.hello())"), @r###"
     success: true
     exit_code: 0
     ----- stdout -----
